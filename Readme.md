@@ -18,7 +18,7 @@ OpenNote aims to provide much of the functionality of Microsoft's OneNote softwa
 
 ## Development Instructions
 - Assign yourself a ticket on Trello and move it to in progress
-- Check out a branch off of main and name it [type]/[ticket-summary] (feature/create-notebook) (bugfix/remove-text)
+- Check out a branch off of main and name it a short summary of the ticket in kebab-case (create-notebooks) (remove-bad-code)
 - Develop
 - Submit a PR against main branch (name it the same as the branch)
 - Move the ticket into code review  
