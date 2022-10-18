@@ -52,7 +52,7 @@ OpenNote aims to provide much of the functionality of Microsoft's OneNote softwa
 > **images/**: Images and icons here, convert to Python (resources_re.py) ```pyside6-rcc resources.qrc -o resources_rc.py```.
   
   
-This project's UI is styled with help from [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6) 
+This project's UI is based on [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6) 
 
 
 
