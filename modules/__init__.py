@@ -20,6 +20,9 @@ from PySide6.QtWidgets import *
 # GUI FILE
 from . ui_main import Ui_MainWindow
 
+# GUI RESOURCES
+from . resources_rc import *
+
 # APP SETTINGS
 from . app_settings import Settings
 
@@ -28,3 +31,4 @@ from . ui_functions import *
 
 # APP FUNCTIONS
 from . app_functions import *
+
