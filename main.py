@@ -12,8 +12,9 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 widgets = None
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self):
+        #super().__init__(parent)
+        QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         global widgets
@@ -21,7 +22,7 @@ class MainWindow(QMainWindow):
 
         # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
         # ///////////////////////////////////////////////////////////////
-        Settings.ENABLE_CUSTOM_TITLE_BAR = True
+        Settings.ENABLE_CUSTOM_TITLE_BAR = False
 
         # APP NAME
         # ///////////////////////////////////////////////////////////////
@@ -29,7 +30,23 @@ class MainWindow(QMainWindow):
         description = "OpenNote - Open-source notetaking in Python."
         # APPLY TEXTS
         self.setWindowTitle(title)
-        self.setWindowFlag(Qt.FramelessWindowHint)
+        #self.setWindowFlag(Qt.FramelessWindowHint)
+
+        # BUTTONS CLICK
+        # ///////////////////////////////////////////////////////////////
+        widgets.minimizeAppBtn.clicked.connect(self.buttonClick)
+        widgets.maximizeRestoreAppBtn.clicked.connect(self.buttonClick)
+        widgets.closeAppBtn.clicked.connect(self.buttonClick)
+        widgets.fileBtn.clicked.connect(self.buttonClick)
+        widgets.homeBtn.clicked.connect(self.buttonClick)
+        widgets.viewBtn.clicked.connect(self.buttonClick)
+        widgets.helpBtn.clicked.connect(self.buttonClick)
+        widgets.undoBtn.clicked.connect(self.buttonClick)
+        widgets.boldBtn.clicked.connect(self.buttonClick)
+        widgets.italicBtn.clicked.connect(self.buttonClick)
+        widgets.underlineBtn.clicked.connect(self.buttonClick)
+        widgets.highlightBtn.clicked.connect(self.buttonClick)
+        widgets.addPageBtn.clicked.connect(self.buttonClick)
 
         # SET CUSTOM THEME
         # ///////////////////////////////////////////////////////////////
@@ -52,29 +69,24 @@ class MainWindow(QMainWindow):
         btn = self.sender()
         btnName = btn.objectName()
 
-        # SHOW HOME PAGE
-        if btnName == "btn_home":
-            widgets.stackedWidget.setCurrentWidget(widgets.home)
-            UIFunctions.resetStyle(self, btnName)
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
-
-        # SHOW WIDGETS PAGE
-        if btnName == "btn_widgets":
-            widgets.stackedWidget.setCurrentWidget(widgets.widgets)
-            UIFunctions.resetStyle(self, btnName)
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
-
-        # SHOW NEW PAGE
-        if btnName == "btn_new":
-            widgets.stackedWidget.setCurrentWidget(widgets.new_page) # SET PAGE
-            UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
-
-        if btnName == "btn_save":
-            print("Save BTN clicked!")
-
         # PRINT BTN NAME
         print(f'Button "{btnName}" pressed!')
+
+    # RESIZE EVENTS - needs fix
+    # ///////////////////////////////////////////////////////////////
+    def resizeEvent(self, event):
+        # Update Size Grips
+        UIFunctions.resize_grips(self)
+
+    def mousePressEvent(self, event):
+        # SET DRAG POS WINDOW
+        self.dragPos = event.globalPos()
+
+        # PRINT MOUSE EVENTS
+        if event.buttons() == Qt.LeftButton:
+            print('Mouse click: LEFT CLICK')
+        if event.buttons() == Qt.RightButton:
+            print('Mouse click: RIGHT CLICK')
 
         
 
