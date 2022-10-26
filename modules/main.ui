@@ -1,0 +1,861 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1250</width>
+    <height>732</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="styleSheet">
+   <property name="styleSheet">
+    <string notr="true">QPushButton::hover{
+background-color: #cecece;
+}</string>
+   </property>
+   <widget class="QFrame" name="bgApp">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1621</width>
+      <height>941</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: #c2c2c2;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QFrame" name="toolbar">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>50</y>
+       <width>1621</width>
+       <height>100</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #f1f0ef;</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QPushButton" name="undoBtn">
+      <property name="geometry">
+       <rect>
+        <x>15</x>
+        <y>52</y>
+        <width>40</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+background-color: #d9d9d9; border: none;
+} 
+QPushButton::hover{
+background-color: #cecece;
+}</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normalon>:/svg/images/svg/undo-svgrepo-com.svg</normalon>
+       </iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QFontComboBox" name="fontCB">
+      <property name="geometry">
+       <rect>
+        <x>65</x>
+        <y>52</y>
+        <width>164</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QComboBox {
+	background-color: #d9d9d9;
+    border: none;
+	font-size: 20px;
+	padding: 0px 3px;
+}
+
+QComboBox::drop-down {
+	border: none;
+color: black;
+}
+
+QComboBox::down-arrow {
+	padding-right: 5px;
+    image: url(:/svg/images/svg/arrow-down-icon.svg);
+	width: 12px;
+}
+
+</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="fontSizeCB">
+      <property name="geometry">
+       <rect>
+        <x>235</x>
+        <y>52</y>
+        <width>78</width>
+        <height>42</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QComboBox {
+	background-color: #d9d9d9;
+    border: none;
+	font-size: 20px;
+	padding: 0px 3px;
+}
+
+QComboBox::drop-down {
+	border: none;
+color: black;
+}
+
+QComboBox::down-arrow {
+	padding-right: 5px;
+    image: url(:/svg/images/svg/arrow-down-icon.svg);
+	width: 12px;
+}
+
+</string>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>12</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="boldBtn">
+      <property name="geometry">
+       <rect>
+        <x>320</x>
+        <y>52</y>
+        <width>40</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+QPushButton{
+background-color: #d9d9d9; border: none; font-size: 20px;
+} 
+QPushButton::hover{
+background-color: #cecece;
+}</string>
+      </property>
+      <property name="text">
+       <string>B</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>40</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="italicBtn">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>52</y>
+        <width>40</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+background-color: #d9d9d9; border: none; font-size: 20px; 
+}
+QPushButton::hover{
+background-color: #cecece;
+}</string>
+      </property>
+      <property name="text">
+       <string>I</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>40</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="underlineBtn">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>52</y>
+        <width>40</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+        <underline>true</underline>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+background-color: #d9d9d9; border: none; font-size: 20px;
+}
+QPushButton::hover{
+background-color: #cecece;
+}</string>
+      </property>
+      <property name="text">
+       <string>U</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>40</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="highlightBtn">
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>52</y>
+        <width>40</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+        <underline>false</underline>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+background-color: #d9d9d9; border: none; font-size: 20px; color: rgb(255, 255, 0);
+}
+QPushButton::hover{
+background-color: #cecece;
+}</string>
+      </property>
+      <property name="text">
+       <string>HI</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>40</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="fontColorCB">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>52</y>
+        <width>78</width>
+        <height>42</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QComboBox {
+	background-color: #d9d9d9;
+    border: none;
+	font-size: 20px;
+	padding: 0px 3px;
+}
+
+QComboBox::drop-down {
+	border: none;
+color: black;
+}
+
+QComboBox::down-arrow {
+	padding-right: 5px;
+    image: url(:/svg/images/svg/arrow-down-icon.svg);
+	width: 12px;
+}
+
+</string>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>Red</string>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="fileBtn">
+      <property name="geometry">
+       <rect>
+        <x>16</x>
+        <y>10</y>
+        <width>40</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QToolButton{
+background-color: #f1f0ef; border: none; font-size: 22px;
+}
+
+QToolButton::hover{
+background-color: #d9d9d9;
+}</string>
+      </property>
+      <property name="text">
+       <string>File</string>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="homeBtn">
+      <property name="geometry">
+       <rect>
+        <x>65</x>
+        <y>10</y>
+        <width>60</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QToolButton{
+background-color: #f1f0ef; border: none; font-size: 22px;
+}
+
+QToolButton::hover{
+background-color: #d9d9d9;
+}</string>
+      </property>
+      <property name="text">
+       <string>Home</string>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="viewBtn">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>10</y>
+        <width>60</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QToolButton{
+background-color: #f1f0ef; border: none; font-size: 22px;
+}
+
+QToolButton::hover{
+background-color: #d9d9d9;
+}</string>
+      </property>
+      <property name="text">
+       <string>View</string>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="helpBtn">
+      <property name="geometry">
+       <rect>
+        <x>195</x>
+        <y>10</y>
+        <width>50</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QToolButton{
+background-color: #f1f0ef; border: none; font-size: 22px;
+}
+
+QToolButton::hover{
+background-color: #d9d9d9;
+}</string>
+      </property>
+      <property name="text">
+       <string>Help</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QFrame" name="titlebar">
+     <property name="geometry">
+      <rect>
+       <x>-10</x>
+       <y>0</y>
+       <width>1931</width>
+       <height>50</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #7c66ff;</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QLabel" name="appTItle">
+      <property name="geometry">
+       <rect>
+        <x>16</x>
+        <y>8</y>
+        <width>106</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: #ffffff; font-size: 22px;</string>
+      </property>
+      <property name="text">
+       <string>OpenNote</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="notebookTitle">
+      <property name="geometry">
+       <rect>
+        <x>610</x>
+        <y>8</y>
+        <width>135</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: #ffffff; font-size: 22px;</string>
+      </property>
+      <property name="text">
+       <string>My Notebook</string>
+      </property>
+     </widget>
+     <widget class="QFrame" name="rightButtons">
+      <property name="geometry">
+       <rect>
+        <x>1130</x>
+        <y>0</y>
+        <width>127</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QPushButton" name="minimizeAppBtn">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>11</y>
+         <width>28</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+	border: none;
+}
+
+QPushButton::hover{
+	background-color: rgb(106, 88, 221);
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/images/icons/icon_minimize.png</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="maximizeRestoreAppBtn">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>11</y>
+         <width>28</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+	border: none;
+}
+
+QPushButton::hover{
+	background-color: rgb(106, 88, 221);
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/images/icons/icon_maximize.png</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="closeAppBtn">
+       <property name="geometry">
+        <rect>
+         <x>99</x>
+         <y>11</y>
+         <width>28</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+	border: none;
+}
+
+QPushButton::hover{
+	background-color: rgb(106, 88, 221);
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/images/icons/icon_close.png</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QFrame" name="sections">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>150</y>
+       <width>1621</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #afafaf;</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+    </widget>
+    <widget class="QFrame" name="pages">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>150</y>
+       <width>240</width>
+       <height>791</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #ffffff;</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QFrame" name="notebooks">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>245</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #d9d9d9;</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QComboBox" name="notebookCB">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>240</width>
+         <height>40</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QComboBox {
+	background-color: #d9d9d9;
+    border: none;
+	font-size: 20px;
+	padding: 0px 3px;
+}
+
+QComboBox::drop-down {
+	border: none;
+color: black;
+}
+
+QComboBox::down-arrow {
+	padding-right: 5px;
+    image: url(:/svg/images/svg/arrow-down-icon.svg);
+	width: 12px;
+}
+
+</string>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="currentText">
+        <string>My Notebook</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="addPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>550</y>
+        <width>240</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #d9d9d9;</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QPushButton" name="addPageBtn">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>240</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+background-color: #d9d9d9;
+border: none;
+font-size: 20px;
+padding-bottom: 5px;
+}
+
+QPushButton::hover{
+background-color: #cecece;
+}</string>
+       </property>
+       <property name="text">
+        <string>+ Create New Page</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="pagesTitle">
+      <property name="geometry">
+       <rect>
+        <x>8</x>
+        <y>49</y>
+        <width>62</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: #000000; font-size: 24px;</string>
+      </property>
+      <property name="text">
+       <string>Pages</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QFrame" name="workspace">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>190</y>
+       <width>1261</width>
+       <height>631</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>closeAppBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1232</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>624</x>
+     <y>365</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>maximizeRestoreAppBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showMaximized()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1203</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>624</x>
+     <y>365</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>maximizeRestoreAppBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showNormal()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1203</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>624</x>
+     <y>365</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

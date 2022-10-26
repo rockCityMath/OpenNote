@@ -3,6 +3,15 @@
     <file>images/images/PyDracula.png</file>
     <file>images/images/PyDracula_vertical.png</file>
   </qresource>
+  <qresource prefix="svg">
+    <file>images/svg/highlighter-svgrepo-com.svg</file>
+    <file>images/svg/italic-svgrepo-com.svg</file>
+    <file>images/svg/underline-svgrepo-com.svg</file>
+    <file>images/svg/undo-svgrepo-com.svg</file>
+    <file>images/svg/bold-svgrepo-com.svg</file>
+    <file>images/svg/circle-svgrepo-com.svg</file>
+    <file>images/svg/arrow-down-icon.svg</file>
+  </qresource>
   <qresource prefix="icons">
     <file>images/icons/cil-3d.png</file>
     <file>images/icons/cil-4k.png</file>
