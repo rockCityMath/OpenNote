@@ -1,6 +1,6 @@
+import collections
 
-
-class UniqueList(collections.MutableSequence):
+class UniqueList(collections.UserList):
 	def __init__(self,itr=()):
 		self._list = list()
 		self._map = set()
@@ -11,6 +11,9 @@ class UniqueList(collections.MutableSequence):
 			else:
 				self._list.append(item)
 				self._map.add(item)
+	
+	def __iter__(self):
+		return self._list.__iter__()
 	
 	def __len__(self):
 		return len(self._list)

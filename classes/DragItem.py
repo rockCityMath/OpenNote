@@ -4,4 +4,7 @@ class DragItem:
 	
 	def draw(self,page):
 		pass
+	
+	def dictify(self):
+		return {"pos":self.pos}
 		

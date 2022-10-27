@@ -2,10 +2,11 @@ from datetime import datetime
 from Page import Page
 from DragItem import DragItem
 from util import UniqueList
+import json
 
 class Notebook:
-	def __init__(self, name="Untitled"):
-		self.name=name
+	def __init__(self, title="Untitled"):
+		self.title=title
 		self.pages=UniqueList()#no dups
 		self.location=None
 		self.dateCreated=datetime.now()
@@ -13,8 +14,20 @@ class Notebook:
    
 	#not sure how it should work
 	#leaving undefined for now
-	def save():
-		pass
+	def save(self):
+		megadict = {}
+		megadict['title']=self.title
+		megadict['pages']=[]
+		megadict['dateCreated']=self.dateCreated.isoformat()
 
-	def load():
+		for page in self.pages:
+			if page.parent!=None: continue
+			megadict['pages'].append(page.dictify())
+		
+
+		megadict['dateEdited']=datetime.now().isoformat()
+		file = open(self.location,"w+")
+		json.dump(megadict,file, sort_keys=True,	indent=2)
+
+	def load(self):
 		pass
