@@ -8,6 +8,8 @@ from widgets import *
 
 from classes.Notebook import Notebook
 from classes.Page import Page
+from classes.util import UniqueList
+
 os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 
 # SET AS GLOBAL WIDGETS
@@ -75,8 +77,9 @@ class MainWindow(QMainWindow):
         btn = self.sender()
         btnName = btn.objectName()
         if btnName=='addPageBtn':
-            self.notebook.addPage(Page(btnName))
-        print(self.notebook.listPages())
+            name=input('Name: ')
+            self.notebook.pages.append(Page(name))
+        print(self.notebook.pages)
 
     # RESIZE EVENTS - needs fix
     # ///////////////////////////////////////////////////////////////
