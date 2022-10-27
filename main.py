@@ -5,6 +5,9 @@ import platform
 
 from modules import *
 from widgets import *
+
+from classes.Notebook import Notebook
+from classes.Page import Page
 os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 
 # SET AS GLOBAL WIDGETS
@@ -60,6 +63,9 @@ class MainWindow(QMainWindow):
 
             # SET HACKS
             AppFunctions.setThemeHack(self)
+            
+        #Testing
+        self.notebook=Notebook('Test')
 
     # BUTTONS CLICK
     # Post here your functions for clicked buttons
@@ -68,9 +74,9 @@ class MainWindow(QMainWindow):
         # GET BUTTON CLICKED
         btn = self.sender()
         btnName = btn.objectName()
-
-        # PRINT BTN NAME
-        print(f'Button "{btnName}" pressed!')
+        if btnName=='addPageBtn':
+            self.notebook.addPage(Page(btnName))
+        print(self.notebook.listPages())
 
     # RESIZE EVENTS - needs fix
     # ///////////////////////////////////////////////////////////////

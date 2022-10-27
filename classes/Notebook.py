@@ -1,6 +1,6 @@
 from datetime import datetime 
-from Page import Page
-from DragItem import DragItem
+# from DragItem import DragItem
+# from Page import Page
 class Notebook:
     def __init__(self, name):
         self._name=name
@@ -9,7 +9,7 @@ class Notebook:
         self._dateEdited=''
    
     #adds page to a dict
-    def addPage(self, page:Page): ##adds page object
+    def addPage(self, page): ##adds page object
         self._pages[page.getName()]=page
         self._dateEdited=datetime.now()
     
@@ -41,28 +41,28 @@ class Notebook:
     def load():
         pass
     
-#tests
-notebook = Notebook('page 1')
+# #tests
+# notebook = Notebook('page 1')
 
-#adding pages and testing them
-print('adding pages and testing them----------')
-notebook.addPage(Page('page_1'))
-notebook.addPage(Page('page_2'))
-print(notebook.listPages())
-print()
+# #adding pages and testing them
+# print('adding pages and testing them----------')
+# notebook.addPage(Page('page_1'))
+# notebook.addPage(Page('page_2'))
+# print(notebook.listPages())
+# print()
 
-#adding adding draggable items
-print('adding adding draggable items to page-----------')
-pages = notebook.listPages()
-pages['page_1'].addItem(DragItem(1))
-pages['page_1'].addItem(DragItem(2))
-pages['page_1'].addItem(DragItem(3))
-print(pages['page_1'].listItems())
-print()
+# #adding adding draggable items
+# print('adding adding draggable items to page-----------')
+# pages = notebook.listPages()
+# pages['page_1'].addItem(DragItem(1))
+# pages['page_1'].addItem(DragItem(2))
+# pages['page_1'].addItem(DragItem(3))
+# print(pages['page_1'].listItems())
+# print()
 
 
-#deleting page and testing it
-print('deleting page and testing it-------------')
-notebook.delPage('page_1')
-print(notebook.listPages())
-print()
+# #deleting page and testing it
+# print('deleting page and testing it-------------')
+# notebook.delPage('page_1')
+# print(notebook.listPages())
+# print()

@@ -1,5 +1,5 @@
 from datetime import datetime 
-from DragItem import DragItem
+# from DragItem import DragItem
 class Page:
     def __init__(self,title):
         self._title=title
@@ -14,7 +14,7 @@ class Page:
     def listItems(self):
         return self._items
     
-    def addItem(self, item:DragItem):
+    def addItem(self, item):
         self._items[item.getUid()]=item
         self._dateEdited=datetime.now()
         return 0
