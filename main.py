@@ -69,6 +69,7 @@ class MainWindow(QMainWindow):
         #Testing
         self.notebook=Notebook('Test')
 
+
     # BUTTONS CLICK
     # Post here your functions for clicked buttons
     # ///////////////////////////////////////////////////////////////
@@ -77,9 +78,11 @@ class MainWindow(QMainWindow):
         btn = self.sender()
         btnName = btn.objectName()
         if btnName=='addPageBtn':
+            print(self.notebook)
             name=input('Name: ')
             self.notebook.pages.append(Page(name))
-        print(self.notebook.pages)
+        
+        print(self.notebook.pages.__len__())
 
     # RESIZE EVENTS - needs fix
     # ///////////////////////////////////////////////////////////////

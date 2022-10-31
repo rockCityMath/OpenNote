@@ -1,10 +1,10 @@
 from datetime import datetime 
 import json
-
+from classes.util import UniqueList
 class Notebook:
 	def __init__(self, title="Untitled"):
 		self.title=title
-		self.pages=[]
+		self.pages=UniqueList()#no dups
 		self.location=None
 		self.dateCreated=datetime.now()
 		self.dateEdited=datetime.now()
@@ -25,6 +25,5 @@ class Notebook:
 		megadict['dateEdited']=datetime.now().isoformat()
 		file = open(self.location,"w+")
 		json.dump(megadict,file, sort_keys=True,indent=2)
+     
 
-	def load(self):
-    		pass

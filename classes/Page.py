@@ -1,5 +1,5 @@
 from datetime import datetime 
-
+from classes.util import UniqueList
 class Page:
 	def __init__(self,title="Untitled"):
 		self.title=title
@@ -7,7 +7,7 @@ class Page:
 		
 		self.items = set()
 		self.parent = None
-		self.children=[]
+		self.children=UniqueList()
 
 	def setChild(self,page):
 		#IMO we should just model this stuff at the UI level. add an indent field that just indents the page name

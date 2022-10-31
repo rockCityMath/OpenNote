@@ -1,7 +1,7 @@
 
-from Page import Page
-from Notebook import Notebook
-from DragItem import DragItem
+from classes.Notebook import Notebook
+from classes.Page import Page
+from classes.DragItem import DragItem
 
 def main():
 	nb = Notebook()
@@ -18,6 +18,7 @@ def main():
 
 	nb.location="/Users/suleiman/Desktop/lefile.on"
 	nb.save()
+	print(nb.pages)
 
 if __name__=="__main__":
 	main()
