@@ -31,3 +31,11 @@ class Page:
 			megadict['children'].append(child.dictify())
 		
 		return megadict
+
+	def dedictify(self,dict):
+		self.title = dict['title']
+		self.dateCreated = dict['dateCreated']
+		self.items = dict['items']
+		self.children = dict['children']
+		
+  

@@ -7,4 +7,7 @@ class DragItem:
 	
 	def dictify(self):
 		return {"pos":self.pos}
+
+	def dedictify(self,dict):
+		self.pos=dict['pos']
 		

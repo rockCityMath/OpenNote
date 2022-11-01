@@ -12,14 +12,55 @@ from classes.util import UniqueList
 
 os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 
-# SET AS GLOBAL WIDGETS
-# ///////////////////////////////////////////////////////////////
 widgets = None
+class Dashboard(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Dashboard")
+        
+        self.button = QPushButton("Create Page!")
+        self.button.setCheckable(True)
+        self.button.setObjectName('addNotebook')
+        self.button.clicked.connect(self.buttonClick)
+        
+        self.input = QLineEdit()
+        self.input.setPlaceholderText('page name')
+        
+        self.location = QLineEdit()
+        self.location.setPlaceholderText('location: ( . or ./Desktop etc)')
 
+        layout = QVBoxLayout()
+        layout.addWidget(self.input)
+        layout.addWidget(self.location)
+        layout.addWidget(self.button)
+
+        container = QWidget()
+        container.setLayout(layout)
+
+        # Set the central widget of the Window.
+        self.setCentralWidget(container)
+        
+    def buttonClick(self):
+        btn = self.sender()
+        btnName = btn.objectName()
+        if btnName=='addNotebook':
+            notebook = Notebook(self.input.text())
+            notebook.location = self.location.text()+'/'+self.input.text()+'.on'
+            notebook.pages.append(Page('test page'))
+            notebook.pages.append(Page('test page 2'))
+            notebook.save()
+            
+            
+            print(notebook.title+' created and saved at:'+notebook.location)
+            self.w = MainWindow()
+            self.w.show()     
+
+        
+        
 class MainWindow(QMainWindow):
     def __init__(self):
         #super().__init__(parent)
-        QMainWindow.__init__(self)
+        super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         global widgets
@@ -82,7 +123,7 @@ class MainWindow(QMainWindow):
             name=input('Name: ')
             self.notebook.pages.append(Page(name))
         
-        print(self.notebook.pages.__len__())
+        print('number of pages is: '+self.notebook.pages.__len__())
 
     # RESIZE EVENTS - needs fix
     # ///////////////////////////////////////////////////////////////
@@ -104,6 +145,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    widget = MainWindow()
+    widget = Dashboard()
     widget.show()
     sys.exit(app.exec_())
