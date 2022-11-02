@@ -1,9 +1,13 @@
 class DragItem:
-    def __init__(self, uid:int):
-        self._uid=uid
-        self.pos=[2]
-    
-    def getUid(self):
-        return self._uid
-    
-test = DragItem(1)
+	def __init__(self,pos):
+		self.pos=pos
+	
+	def draw(self,page):
+		pass
+	
+	def dictify(self):
+		return {"pos":self.pos}
+
+	def dedictify(self,dict):
+		self.pos=dict['pos']
+		
