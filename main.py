@@ -13,58 +13,93 @@ from classes.util import UniqueList
 os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 
 widgets = None
+
+# Open a notebook from a .ON file
+def openNotebook(self):
+    fileInfoTuple = QFileDialog.getOpenFileName(self, 'Open Notebook')
+    print(fileInfoTuple[0]) # 0 index is file path
+
+    notebook = Notebook()
+    notebook.load(fileInfoTuple[0])
+
+    # for page in notebook.pages:
+    #         print("Page: " + page.title)
+
+    print("Title: " + notebook.title)
+
+    self.w = MainWindow(notebook)
+    self.w.show()  
+        
+				
+
 class Dashboard(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Dashboard")
         
-        self.button = QPushButton("Create Page!")
-        self.button.setCheckable(True)
-        self.button.setObjectName('addNotebook')
-        self.button.clicked.connect(self.buttonClick)
-        
+        # Define add notebook button and input fields
+        self.addNotebookButton = QPushButton("Add Notebook")
+        self.addNotebookButton.setCheckable(True)
+        self.addNotebookButton.setObjectName('addNotebook')
+        self.addNotebookButton.clicked.connect(self.buttonClick)
+
         self.input = QLineEdit()
         self.input.setPlaceholderText('page name')
         
         self.location = QLineEdit()
         self.location.setPlaceholderText('location: ( . or ./Desktop etc)')
 
+        # Define open notebook button
+        self.openNotebookButton = QPushButton("Open Notebook")
+        self.openNotebookButton.setCheckable(True)
+        self.openNotebookButton.setObjectName('openNotebook')
+        self.openNotebookButton.clicked.connect(self.buttonClick)
+
+        # Place buttons and fields on layout
         layout = QVBoxLayout()
         layout.addWidget(self.input)
         layout.addWidget(self.location)
-        layout.addWidget(self.button)
+        layout.addWidget(self.addNotebookButton)
+        layout.addWidget(self.openNotebookButton)
 
         container = QWidget()
         container.setLayout(layout)
-
-        # Set the central widget of the Window.
         self.setCentralWidget(container)
         
+    # Handle dashboard button clicks
     def buttonClick(self):
         btn = self.sender()
         btnName = btn.objectName()
+
+        # Create a new .ON file to hold the notebook
         if btnName=='addNotebook':
             notebook = Notebook(self.input.text())
-            notebook.location = self.location.text()+'/'+self.input.text()+'.on'
+            notebook.location = self.location.text() + '/' + self.input.text() + '.on'
             notebook.pages.append(Page('test page'))
             notebook.pages.append(Page('test page 2'))
             notebook.save()
             
-            
-            print(notebook.title+' created and saved at:'+notebook.location)
-            self.w = MainWindow()
+            print(notebook.title+' created and saved at:' + notebook.location)
+            self.close()
+            self.w = MainWindow(notebook)
             self.w.show()     
+        
+        # Open an existing notebook from a .ON file
+        if btnName == "openNotebook":
+            openNotebook(self)
+            self.close()
 
         
         
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, notebook):
         #super().__init__(parent)
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         global widgets
         widgets = self.ui
+        self.notebook = notebook
 
         # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
         # ///////////////////////////////////////////////////////////////
@@ -106,9 +141,6 @@ class MainWindow(QMainWindow):
 
             # SET HACKS
             AppFunctions.setThemeHack(self)
-            
-        #Testing
-        self.notebook=Notebook('Test')
 
 
     # BUTTONS CLICK
@@ -123,7 +155,9 @@ class MainWindow(QMainWindow):
             name=input('Name: ')
             self.notebook.pages.append(Page(name))
         
-        print('number of pages is: '+self.notebook.pages.__len__())
+        print('number of pages is: '+ str(self.notebook.pages.__len__()))
+        for page in self.notebook.pages:
+            print("Page: " + page.title)
 
     # RESIZE EVENTS - needs fix
     # ///////////////////////////////////////////////////////////////

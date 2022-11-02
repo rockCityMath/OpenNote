@@ -1,11 +1,11 @@
 from datetime import datetime
 import json
-from classes.util import UniqueList
 from classes.Page import Page
+from classes.util import UniqueList
 class Notebook:
     def __init__(self, title="Untitled"):
         self.title = title
-        self.pages = UniqueList()  # no dups
+        self.pages = UniqueList()
         self.location = '.'
         self.dateCreated = datetime.now()
         self.dateEdited = datetime.now()
@@ -27,9 +27,11 @@ class Notebook:
         s = file.read()
         data = json.loads(s)
         self.title = data['title']
-        arr=[]
         for page in data['pages']:
-            arr.append(Page().dedictify(page))    
-        self.pages = arr
+            print("Adding page: " + page["title"])
+            newPage = Page()
+            newPage.dedictify(page)
+            self.pages.append(newPage)    
+
         self.dateCreated = data['dateCreated']
         self.dateEdited = data ['dateEdited']
