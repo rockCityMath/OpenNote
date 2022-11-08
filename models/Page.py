@@ -16,26 +16,4 @@ class Page:
 			page.parent.children.remove(page)
 		page.parent=self
 		self.children.append(page)
-			
-	
-	def dictify(self):
-		megadict = {}
-		megadict['title']=self.title
-		megadict['dateCreated']= "NA"
-		megadict['items']=[]
-		for item in self.items:
-			megadict['items'].append(item.dictify())
-
-		megadict['children']=[]
-		for child in self.children:
-			megadict['children'].append(child.dictify())
-		
-		return megadict
-
-	def dedictify(self,dict):
-		self.title = dict['title']
-		self.dateCreated = "NA"
-		self.items = dict['items']
-		self.children = dict['children']
-		
   
