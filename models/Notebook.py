@@ -1,38 +1,44 @@
 from datetime import datetime
-import json
 from models.Page import Page
+from models.DragItem import DragItem
 from models.util import UniqueList
+import pickle
+
 class Notebook:
     def __init__(self, title="Untitled"):
         self.title = title
-        self.pages = UniqueList()
-        self.location = '.'
-        self.dateCreated = datetime.now()
-        self.dateEdited = datetime.now()
+        self.pages = UniqueList()  # no dups
+        self.location = None
+        self.dateCreated = str(datetime.now())
+        self.dateEdited = str(datetime.now())
 
     def save(self):
         megadict = {}
-        megadict['title']=self.title
-        megadict['pages']=[]
-        megadict['dateCreated'] = "NA"
+        megadict['title'] = self.title
+        megadict['pages'] = []
+        megadict['dateCreated'] = self.dateCreated
         for page in self.pages:
-            if page.parent!=None: continue
-            megadict['pages'].append(page.dictify())
-        megadict['dateEdited']=datetime.now().isoformat()
-        file = open(self.location,"w+")
-        json.dump(megadict,file, sort_keys=True,indent=2)
-  
-    def load(self,loc):
-        self.location=loc
-        file = open(loc,'r')
-        s = file.read()
-        data = json.loads(s)
-        self.title = data['title']
-        for page in data['pages']:
-            print("Adding page: " + page["title"])
-            newPage = Page()
-            newPage.dedictify(page)
-            self.pages.append(newPage)    
+            # if page.parent != None:
+            #     continue
+            megadict['pages'].append(pickle.dumps(page.dictify()))
 
-        self.dateCreated = "NA"
-        self.dateEdited ="NA"
+        megadict['dateEdited'] = str(datetime.now())
+        
+
+        file = open(self.location, "wb")
+        pickle.dump(megadict,file)
+        # json.dump(megadict, file, sort_keys=True,	indent=2)
+
+    def load(self, loc):
+        file = open(loc,'rb')
+        object = pickle.load(file)
+  
+        self.title = object['title']
+        self.dateCreated=object['dateCreated']
+        self.dateEdited=object['dateEdited']
+        for page in object['pages']:
+            pageObj = pickle.loads(page)
+            page = Page()
+            page.dedictify(pageObj)
+       
+            self.pages.append(page)
