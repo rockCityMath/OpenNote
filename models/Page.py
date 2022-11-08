@@ -1,5 +1,5 @@
 from datetime import datetime 
-from classes.util import UniqueList
+from models.util import UniqueList
 class Page:
 	def __init__(self,title="Untitled"):
 		self.title=title
@@ -21,7 +21,7 @@ class Page:
 	def dictify(self):
 		megadict = {}
 		megadict['title']=self.title
-		megadict['dateCreated']=self.dateCreated.isoformat()
+		megadict['dateCreated']= "NA"
 		megadict['items']=[]
 		for item in self.items:
 			megadict['items'].append(item.dictify())
@@ -34,7 +34,7 @@ class Page:
 
 	def dedictify(self,dict):
 		self.title = dict['title']
-		self.dateCreated = dict['dateCreated']
+		self.dateCreated = "NA"
 		self.items = dict['items']
 		self.children = dict['children']
 		

@@ -1,41 +1,22 @@
 # This Python file uses the following encoding: utf-8
 import sys
 import os
-import platform
 
 from modules import *
 from widgets import *
 
-from classes.Notebook import Notebook
-from classes.Page import Page
-from classes.util import UniqueList
+from models.Notebook import Notebook
+from models.Page import Page
 
 os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 
 widgets = None
-
-# Open a notebook from a .ON file
-def openNotebook(self):
-    fileInfoTuple = QFileDialog.getOpenFileName(self, 'Open Notebook')
-    print(fileInfoTuple[0]) # 0 index is file path
-
-    notebook = Notebook()
-    notebook.load(fileInfoTuple[0])
-
-    # for page in notebook.pages:
-    #         print("Page: " + page.title)
-
-    print("Title: " + notebook.title)
-
-    self.w = MainWindow(notebook)
-    self.w.show()  
-        
 				
-
-class Dashboard(QMainWindow):
+# Initial window that allows user to open or create notebook
+class NotebookSelection(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Dashboard")
+        self.setWindowTitle("Notebook Selection")
         
         # Define add notebook button and input fields
         self.addNotebookButton = QPushButton("Add Notebook")
@@ -75,46 +56,64 @@ class Dashboard(QMainWindow):
         if btnName=='addNotebook':
             notebook = Notebook(self.input.text())
             notebook.location = self.location.text() + '/' + self.input.text() + '.on'
-            notebook.pages.append(Page('test page'))
-            notebook.pages.append(Page('test page 2'))
             notebook.save()
             
-            print(notebook.title+' created and saved at:' + notebook.location)
             self.close()
             self.w = MainWindow(notebook)
             self.w.show()     
         
         # Open an existing notebook from a .ON file
         if btnName == "openNotebook":
-            openNotebook(self)
-            self.close()
+            fileInfoTuple = QFileDialog.getOpenFileName(self, 'Open Notebook')
+            print(fileInfoTuple[0])
 
+            notebook = Notebook()
+            notebook.load(fileInfoTuple[0])
+
+            self.w = MainWindow(notebook)
+            self.w.show()  
+            self.close()    
         
-        
+# Editor Window
 class MainWindow(QMainWindow):
     def __init__(self, notebook):
-        #super().__init__(parent)
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         global widgets
         widgets = self.ui
-        self.notebook = notebook
 
+        # Editor Context
+        self.notebook = notebook
+        self.pagesList = self.findChild(QListView, "pagesList")
+        self.model = QStandardItemModel()
+        self.pagesList.setModel(self.model)
+
+        # Editor Initialization
+        self.selectedPageIndex = 0
+        self.selectedPageLabel = self.findChild(QLabel, "activePage")
+
+        if self.notebook.pages:
+            self.selectedPageLabel.setText(self.notebook.pages[0].title)
+        else:
+            self.selectedPageLabel.setText("No pages!")
+
+        self.notebookTitle = self.findChild(QLabel, "notebookTitle")
+        self.notebookTitle.setText(self.notebook.title)
+
+        self.updateNotebookPages()
+        
+        
         # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
-        # ///////////////////////////////////////////////////////////////
         Settings.ENABLE_CUSTOM_TITLE_BAR = False
 
         # APP NAME
-        # ///////////////////////////////////////////////////////////////
         title = "OpenNote"
         description = "OpenNote - Open-source notetaking in Python."
-        # APPLY TEXTS
         self.setWindowTitle(title)
         #self.setWindowFlag(Qt.FramelessWindowHint)
 
-        # BUTTONS CLICK
-        # ///////////////////////////////////////////////////////////////
+        # BUTTON SIGNALS
         widgets.minimizeAppBtn.clicked.connect(self.buttonClick)
         widgets.maximizeRestoreAppBtn.clicked.connect(self.buttonClick)
         widgets.closeAppBtn.clicked.connect(self.buttonClick)
@@ -128,45 +127,61 @@ class MainWindow(QMainWindow):
         widgets.underlineBtn.clicked.connect(self.buttonClick)
         widgets.highlightBtn.clicked.connect(self.buttonClick)
         widgets.addPageBtn.clicked.connect(self.buttonClick)
+        widgets.saveBtn.clicked.connect(self.buttonClick)
+
+        # OTHER SIGNALS
+        self.model.dataChanged.connect(self.renamePage)
+        self.pagesList.selectionModel().selectionChanged.connect(self.selectPage)
 
         # SET CUSTOM THEME
-        # ///////////////////////////////////////////////////////////////
         useCustomTheme = False
         themeFile = "themes\py_dracula_light.qss"
 
         # SET THEME AND HACKS
         if useCustomTheme:
-            # LOAD AND APPLY STYLE
-            UIFunctions.theme(self, themeFile, True)
-
-            # SET HACKS
-            AppFunctions.setThemeHack(self)
+            UIFunctions.theme(self, themeFile, True) # LOAD AND APPLY STYLE
+            AppFunctions.setThemeHack(self) # SET HACKS
 
 
-    # BUTTONS CLICK
-    # Post here your functions for clicked buttons
-    # ///////////////////////////////////////////////////////////////
+    # BUTTON HANDLER
     def buttonClick(self):
-        # GET BUTTON CLICKED
         btn = self.sender()
         btnName = btn.objectName()
-        if btnName=='addPageBtn':
-            print(self.notebook)
-            name=input('Name: ')
-            self.notebook.pages.append(Page(name))
-        
-        print('number of pages is: '+ str(self.notebook.pages.__len__()))
+
+        if btnName == 'addPageBtn':
+            title, ok = QInputDialog.getText(self, 'Page Title', 'Enter title of new page: ')
+            if ok:
+                self.notebook.pages.append(Page(title)) # set the added page as active?
+                self.updateNotebookPages()
+            
+        elif btnName == 'saveBtn':
+            self.notebook.save()
+
+        else:
+            print(btnName + " pressed")
+
+
+    # Editor Functions
+    def renamePage(self):
+        updatedName = self.pagesList.currentIndex().data()
+        renamedPageIndex = self.pagesList.currentIndex().row()
+        self.notebook.pages[renamedPageIndex].title = updatedName
+
+    def selectPage(self):
+        self.selectedPageIndex = self.pagesList.currentIndex().row()
+        self.selectedPageLabel.setText(self.notebook.pages[self.selectedPageIndex].title)
+
+    def updateNotebookPages(self):
+        self.model.removeRows(0, self.model.rowCount())
         for page in self.notebook.pages:
-            print("Page: " + page.title)
+            item = QStandardItem(page.title)
+            self.model.appendRow(item)
 
     # RESIZE EVENTS - needs fix
-    # ///////////////////////////////////////////////////////////////
     def resizeEvent(self, event):
-        # Update Size Grips
         UIFunctions.resize_grips(self)
 
     def mousePressEvent(self, event):
-        # SET DRAG POS WINDOW
         self.dragPos = event.globalPos()
 
         # PRINT MOUSE EVENTS
@@ -175,10 +190,8 @@ class MainWindow(QMainWindow):
         if event.buttons() == Qt.RightButton:
             print('Mouse click: RIGHT CLICK')
 
-        
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    widget = Dashboard()
-    widget.show()
+    selectionUI = NotebookSelection()
+    selectionUI.show()
     sys.exit(app.exec_())

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.3.2
+## Created by: Qt User Interface Compiler version 6.4.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QFontComboBox, QFrame,
-    QLabel, QMainWindow, QPushButton, QSizePolicy,
-    QToolButton, QWidget)
+    QLabel, QListView, QMainWindow, QPushButton,
+    QSizePolicy, QToolButton, QWidget)
 import resources_rc
 
 class Ui_MainWindow(object):
@@ -106,7 +106,6 @@ class Ui_MainWindow(object):
         self.boldBtn.setObjectName(u"boldBtn")
         self.boldBtn.setGeometry(QRect(320, 52, 40, 40))
         font = QFont()
-        font.setBold(True)
         self.boldBtn.setFont(font)
         self.boldBtn.setAutoFillBackground(False)
         self.boldBtn.setStyleSheet(u"\n"
@@ -121,9 +120,7 @@ class Ui_MainWindow(object):
         self.italicBtn = QPushButton(self.toolbar)
         self.italicBtn.setObjectName(u"italicBtn")
         self.italicBtn.setGeometry(QRect(370, 52, 40, 40))
-        font1 = QFont()
-        font1.setItalic(True)
-        self.italicBtn.setFont(font1)
+        self.italicBtn.setFont(font)
         self.italicBtn.setAutoFillBackground(False)
         self.italicBtn.setStyleSheet(u"QPushButton{\n"
 "background-color: #d9d9d9; border: none; font-size: 20px; \n"
@@ -136,9 +133,7 @@ class Ui_MainWindow(object):
         self.underlineBtn = QPushButton(self.toolbar)
         self.underlineBtn.setObjectName(u"underlineBtn")
         self.underlineBtn.setGeometry(QRect(420, 52, 40, 40))
-        font2 = QFont()
-        font2.setUnderline(True)
-        self.underlineBtn.setFont(font2)
+        self.underlineBtn.setFont(font)
         self.underlineBtn.setAutoFillBackground(False)
         self.underlineBtn.setStyleSheet(u"QPushButton{\n"
 "background-color: #d9d9d9; border: none; font-size: 20px;\n"
@@ -151,9 +146,7 @@ class Ui_MainWindow(object):
         self.highlightBtn = QPushButton(self.toolbar)
         self.highlightBtn.setObjectName(u"highlightBtn")
         self.highlightBtn.setGeometry(QRect(470, 52, 40, 40))
-        font3 = QFont()
-        font3.setUnderline(False)
-        self.highlightBtn.setFont(font3)
+        self.highlightBtn.setFont(font)
         self.highlightBtn.setAutoFillBackground(False)
         self.highlightBtn.setStyleSheet(u"QPushButton{\n"
 "background-color: #d9d9d9; border: none; font-size: 20px; color: rgb(255, 255, 0);\n"
@@ -218,8 +211,18 @@ class Ui_MainWindow(object):
 "}")
         self.helpBtn = QToolButton(self.toolbar)
         self.helpBtn.setObjectName(u"helpBtn")
-        self.helpBtn.setGeometry(QRect(195, 10, 50, 30))
+        self.helpBtn.setGeometry(QRect(195, 10, 61, 30))
         self.helpBtn.setStyleSheet(u"QToolButton{\n"
+"background-color: #f1f0ef; border: none; font-size: 22px;\n"
+"}\n"
+"\n"
+"QToolButton::hover{\n"
+"background-color: #d9d9d9;\n"
+"}")
+        self.saveBtn = QToolButton(self.toolbar)
+        self.saveBtn.setObjectName(u"saveBtn")
+        self.saveBtn.setGeometry(QRect(260, 10, 61, 30))
+        self.saveBtn.setStyleSheet(u"QToolButton{\n"
 "background-color: #f1f0ef; border: none; font-size: 22px;\n"
 "}\n"
 "\n"
@@ -240,8 +243,7 @@ class Ui_MainWindow(object):
         self.notebookTitle = QLabel(self.titlebar)
         self.notebookTitle.setObjectName(u"notebookTitle")
         self.notebookTitle.setGeometry(QRect(610, 8, 135, 30))
-        font4 = QFont()
-        self.notebookTitle.setFont(font4)
+        self.notebookTitle.setFont(font)
         self.notebookTitle.setStyleSheet(u"color: #ffffff; font-size: 22px;")
         self.rightButtons = QFrame(self.titlebar)
         self.rightButtons.setObjectName(u"rightButtons")
@@ -354,14 +356,29 @@ class Ui_MainWindow(object):
 "}")
         self.pagesTitle = QLabel(self.pages)
         self.pagesTitle.setObjectName(u"pagesTitle")
-        self.pagesTitle.setGeometry(QRect(8, 49, 62, 32))
-        self.pagesTitle.setFont(font4)
+        self.pagesTitle.setGeometry(QRect(8, 49, 111, 32))
+        self.pagesTitle.setFont(font)
         self.pagesTitle.setStyleSheet(u"color: #000000; font-size: 24px;")
+        self.pagesList = QListView(self.pages)
+        self.pagesList.setObjectName(u"pagesList")
+        self.pagesList.setGeometry(QRect(10, 100, 211, 192))
+        font1 = QFont()
+        font1.setFamilies([u"MS Shell Dlg 2"])
+        font1.setBold(False)
+        self.pagesList.setFont(font1)
+        self.pagesList.setFrameShape(QFrame.NoFrame)
+        self.pagesList.setLineWidth(0)
         self.workspace = QFrame(self.bgApp)
         self.workspace.setObjectName(u"workspace")
         self.workspace.setGeometry(QRect(240, 190, 1261, 631))
-        self.workspace.setFrameShape(QFrame.StyledPanel)
+        self.workspace.setFrameShape(QFrame.NoFrame)
         self.workspace.setFrameShadow(QFrame.Raised)
+        self.activePage = QLabel(self.workspace)
+        self.activePage.setObjectName(u"activePage")
+        self.activePage.setGeometry(QRect(70, 70, 311, 71))
+        font2 = QFont()
+        font2.setPointSize(28)
+        self.activePage.setFont(font2)
         MainWindow.setCentralWidget(self.styleSheet)
 
         self.retranslateUi(MainWindow)
@@ -385,6 +402,7 @@ class Ui_MainWindow(object):
         self.homeBtn.setText(QCoreApplication.translate("MainWindow", u"Home", None))
         self.viewBtn.setText(QCoreApplication.translate("MainWindow", u"View", None))
         self.helpBtn.setText(QCoreApplication.translate("MainWindow", u"Help", None))
+        self.saveBtn.setText(QCoreApplication.translate("MainWindow", u"Save", None))
         self.appTItle.setText(QCoreApplication.translate("MainWindow", u"OpenNote", None))
         self.notebookTitle.setText(QCoreApplication.translate("MainWindow", u"My Notebook", None))
         self.minimizeAppBtn.setText("")
@@ -393,5 +411,6 @@ class Ui_MainWindow(object):
         self.notebookCB.setCurrentText(QCoreApplication.translate("MainWindow", u"My Notebook", None))
         self.addPageBtn.setText(QCoreApplication.translate("MainWindow", u"+ Create New Page", None))
         self.pagesTitle.setText(QCoreApplication.translate("MainWindow", u"Pages", None))
+        self.activePage.setText(QCoreApplication.translate("MainWindow", u"ActivePage", None))
     # retranslateUi
 
