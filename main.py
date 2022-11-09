@@ -16,36 +16,34 @@ widgets = None
 class NotebookSelection(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Notebook Selection")
+        self.ui = Ui_Dashboard()
+        self.ui.setupUi(self)
+        global widgets
+        widgets = self.ui
         
-        # Define add notebook button and input fields
-        self.addNotebookButton = QPushButton("Add Notebook")
-        self.addNotebookButton.setCheckable(True)
-        self.addNotebookButton.setObjectName('addNotebook')
-        self.addNotebookButton.clicked.connect(self.buttonClick)
-
-        self.input = QLineEdit()
-        self.input.setPlaceholderText('page name')
+        widgets.addNotebookButton.setCheckable(True)
+        widgets.addNotebookButton.setObjectName('createNotebook')
+        widgets.addNotebookButton.clicked.connect(self.buttonClick)
         
-        self.location = QLineEdit()
-        self.location.setPlaceholderText('location: ( . or ./Desktop etc)')
+        
+        widgets.openNotebookButton.setCheckable(True)
+        widgets.openNotebookButton.setObjectName('openNotebook')
+        widgets.openNotebookButton.clicked.connect(self.buttonClick)
+       
+        # self.input = QLineEdit()
+        # self.input.setPlaceholderText('page name')
+        # self.location = QLineEdit()
+        # self.location.setPlaceholderText('location: ( . or ./Desktop etc)')
+        # # Define open notebook button
 
-        # Define open notebook button
-        self.openNotebookButton = QPushButton("Open Notebook")
-        self.openNotebookButton.setCheckable(True)
-        self.openNotebookButton.setObjectName('openNotebook')
-        self.openNotebookButton.clicked.connect(self.buttonClick)
+        # # Place buttons and fields on layout
+        # layout = QVBoxLayout()
+        # layout.addWidget(self.input)
+        # layout.addWidget(self.location)
+        # layout.addWidget(self.addNotebookButton)
+        # layout.addWidget(self.openNotebookButton)
 
-        # Place buttons and fields on layout
-        layout = QVBoxLayout()
-        layout.addWidget(self.input)
-        layout.addWidget(self.location)
-        layout.addWidget(self.addNotebookButton)
-        layout.addWidget(self.openNotebookButton)
 
-        container = QWidget()
-        container.setLayout(layout)
-        self.setCentralWidget(container)
         
     # Handle dashboard button clicks
     def buttonClick(self):
@@ -53,22 +51,22 @@ class NotebookSelection(QMainWindow):
         btnName = btn.objectName()
 
         # Create a new .ON file to hold the notebook
-        if btnName=='addNotebook':
-            notebook = Notebook(self.input.text())
-            notebook.location = self.location.text() + '/' + self.input.text() + '.on'
+        if btnName=='createNotebook':
+            notebook = Notebook(widgets.name.text())
+            notebook.location = widgets.location.text() + '/' + widgets.name.text() + '.on'
             notebook.save()
             
             self.close()
             self.w = MainWindow(notebook)
             self.w.show()     
+
+            
         
         # Open an existing notebook from a .ON file
         if btnName == "openNotebook":
             fileInfoTuple = QFileDialog.getOpenFileName(self, 'Open Notebook')
             print(fileInfoTuple[0])
-
             notebook = Notebook.load(fileInfoTuple[0])
-
             self.w = MainWindow(notebook)
             self.w.show()  
             self.close()    
