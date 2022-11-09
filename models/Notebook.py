@@ -9,36 +9,14 @@ class Notebook:
         self.title = title
         self.pages = UniqueList()  # no dups
         self.location = None
-        self.dateCreated = str(datetime.now())
-        self.dateEdited = str(datetime.now())
+        self.dateCreated = datetime.now()
+        self.dateEdited = datetime.now()
 
     def save(self):
-        megadict = {}
-        megadict['title'] = self.title
-        megadict['pages'] = []
-        megadict['dateCreated'] = self.dateCreated
-        for page in self.pages:
-            # if page.parent != None:
-            #     continue
-            megadict['pages'].append(pickle.dumps(page.dictify()))
-
-        megadict['dateEdited'] = str(datetime.now())
-        
-
         file = open(self.location, "wb")
-        pickle.dump(megadict,file)
-        # json.dump(megadict, file, sort_keys=True,	indent=2)
+        pickle.dump(self, file)
 
-    def load(self, loc):
+    @staticmethod
+    def load(loc):
         file = open(loc,'rb')
-        object = pickle.load(file)
-  
-        self.title = object['title']
-        self.dateCreated=object['dateCreated']
-        self.dateEdited=object['dateEdited']
-        for page in object['pages']:
-            pageObj = pickle.loads(page)
-            page = Page()
-            page.dedictify(pageObj)
-       
-            self.pages.append(page)
+        return pickle.load(file)       

@@ -67,8 +67,7 @@ class NotebookSelection(QMainWindow):
             fileInfoTuple = QFileDialog.getOpenFileName(self, 'Open Notebook')
             print(fileInfoTuple[0])
 
-            notebook = Notebook()
-            notebook.load(fileInfoTuple[0])
+            notebook = Notebook.load(fileInfoTuple[0])
 
             self.w = MainWindow(notebook)
             self.w.show()  
