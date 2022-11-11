@@ -54,12 +54,14 @@ class CreatePageDialogue(QDialog):
 
         # Create a new .ON file to hold the notebook
         if btnName=='createNotebook':
-            notebook = Notebook(widgets.name.text())
+            notebook = Notebook(self.input.text())
             notebook.location = self.location.text() + '/' + self.input.text() + '.on'
             notebook.save()
             
-
-            #self.parent.close()
+            f = open("recent.txt", "a")
+            f.write(self.location.text() + '/ -' + self.input.text()+'\n')
+            f.close()
+            
             self.close()
             self.w = MainWindow(notebook)
             self.w.show()     
@@ -94,13 +96,14 @@ class NotebookSelection(QMainWindow):
             dlg = CreatePageDialogue(self)
             if dlg.exec():
                 print("Success!")
-            else:
-                print("Cancel!")
+            # else:
+            #     self.close()
+                
             # notebook = Notebook(widgets.name.text())
             # notebook.location = widgets.location.text() + '/' + widgets.name.text() + '.on'
             # notebook.save()
             
-            # self.close()
+
             # self.w = MainWindow(notebook)
             # self.w.show()     
 
@@ -235,4 +238,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     selectionUI = NotebookSelection()
     selectionUI.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
