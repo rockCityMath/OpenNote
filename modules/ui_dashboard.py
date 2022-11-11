@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
-    QLineEdit, QMainWindow, QPushButton, QScrollArea,
-    QSizePolicy, QWidget)
+    QMainWindow, QPushButton, QScrollArea, QSizePolicy,
+    QWidget)
 
 class Ui_Dashboard(object):
     def setupUi(self, Dashboard):
@@ -68,14 +68,6 @@ class Ui_Dashboard(object):
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(10, 60, 71, 31))
         self.label.setStyleSheet(u"font: 18pt \"Arial\";")
-        self.name = QLineEdit(self.centralwidget)
-        self.name.setObjectName(u"name")
-        self.name.setGeometry(QRect(240, 70, 241, 21))
-        self.name.setStyleSheet(u"border-color: rgb(52, 52, 52);")
-        self.location = QLineEdit(self.centralwidget)
-        self.location.setObjectName(u"location")
-        self.location.setGeometry(QRect(520, 70, 291, 21))
-        self.location.setStyleSheet(u"border-color: rgb(76, 76, 76);")
         Dashboard.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(Dashboard)
@@ -89,7 +81,5 @@ class Ui_Dashboard(object):
         self.addNotebookButton.setText(QCoreApplication.translate("Dashboard", u"Create", None))
         self.openNotebookButton.setText(QCoreApplication.translate("Dashboard", u"Load", None))
         self.label.setText(QCoreApplication.translate("Dashboard", u"Recent", None))
-        self.name.setPlaceholderText(QCoreApplication.translate("Dashboard", u"name", None))
-        self.location.setPlaceholderText(QCoreApplication.translate("Dashboard", u"location", None))
     # retranslateUi
 
