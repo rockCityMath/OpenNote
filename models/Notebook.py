@@ -5,12 +5,13 @@ from models.util import UniqueList
 import pickle
 
 class Notebook:
-    def __init__(self, title="Untitled"):
+    def __init__(self, text, title):
         self.title = title
         self.pages = UniqueList()  # no dups
         self.location = None
         self.dateCreated = datetime.now()
         self.dateEdited = datetime.now()
+        self.text = text
 
     def save(self):
         file = open(self.location, "wb")

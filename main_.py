@@ -51,15 +51,15 @@ class NotebookSelection(QMainWindow):
 ###MAIN WINDOW###
 
 class MainWindow(QMainWindow):
-    def __init__(self, notebook):
+    def __init__(self):
         super().__init__()
 
     ###INITIALIZE APP###
 
     # initialize notebook object
-        self.notebook = notebook
+        self.notebook = Notebook("", "Unititled")
     # window title and resizing
-        self.setWindowTitle("OpenNote")
+        self.setWindowTitle(self.notebook.title + " - OpenNote")
         self.screen_width, self.screen_height = self.geometry().width(), self.geometry().height()
         self.resize(self.screen_width * 2, self.screen_height * 2)
 
@@ -103,12 +103,12 @@ class MainWindow(QMainWindow):
         grid.setColumnStretch(1, 4)
 
     # sidebar widgets
-        notebook_title = QLabel()
-        pages_title = QLabel()
+        self.notebook_title = QLabel()
+        self.pages_title = QLabel()
         self.pages = QTreeView()
         addPage = QPushButton("Create New Page")
-        sidebar.addWidget(notebook_title)
-        sidebar.addWidget(pages_title)
+        sidebar.addWidget(self.notebook_title)
+        sidebar.addWidget(self.pages_title)
         sidebar.addWidget(self.pages)
         sidebar.addWidget(addPage)
 
@@ -120,18 +120,18 @@ class MainWindow(QMainWindow):
 
     # stylesheet reference for widgets
         container.setObjectName("container")
-        notebook_title.setObjectName("notebook_title")
-        pages_title.setObjectName("pages_title")
+        self.notebook_title.setObjectName("notebook_title")
+        self.pages_title.setObjectName("pages_title")
         self.pages.setObjectName("pages")
         addPage.setObjectName("addPage")
 
     ###SIDEBAR WIDGETS###
 
     # notebook
-        notebook_title.setText(self.notebook_title())
+        self.notebook_title.setText(self.notebook.title)
 
     # pages
-        pages_title.setText("Pages")
+        self.pages_title.setText("Pages")
 
         self.model = QStandardItemModel()               # model should be saved - stores page titles
         parentItem = self.model.invisibleRootItem()
@@ -180,7 +180,7 @@ class MainWindow(QMainWindow):
 
         save_file_action = self.create_action(self, './OpenNote/images/svg/arrow-down.svg', 'Save Notebook', 'Save Notebook', False)
         save_file_action.setShortcut(QKeySequence.StandardKey.Save)
-        save_file_action.triggered.connect(self.file_save)
+        save_file_action.triggered.connect(self.file_saveAs)
 
         save_fileAs_action = self.create_action(self, './OpenNote/images/svg/arrow-down.svg', 'Save Notebook As...', 'Save Notebook As', False)
         save_fileAs_action.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
@@ -227,33 +227,40 @@ class MainWindow(QMainWindow):
             caption = 'Open Notebook',
             filter = self.filterTypes
         )
+        self.notebook = Notebook.load(path)
+        self.editor.setText(self.notebook.text)
+        self.update_title()
+        self.update_notebook_title()
 
-        if path:
-            try:
-                with open(path, 'r') as f:
-                    text = f.read()
-                    self.editor.setText(text)
-                    #notebook = Notebook.load(path)
-            except Exception as e:
-                self.dialog_message(str(e))
-            else:
-                self.path = path
-                self.editor.setHtml(text)
-                self.update_title()
+        #self.editor.setText(notebook.text)
+        #self.editor.setText(self.notebook.text)
+        #"""if path:
+        #    try:
+        #        with open(path, 'r') as f:
+        #            text = f.read()
+        #            self.editor.setText(text)
+        #            #notebook = Notebook.load(path)
+        #    except Exception as e:
+        #        self.dialog_message(str(e))
+        #    else:
+        #        self.path = path
+        #        self.editor.setHtml(text)
+        #        self.update_title()"""
 
     # save currently open file
     def file_save(self):
-        if self.path is None:
-            self.file_saveAs()
-        else:
-            try:
-                text = self.editor.toHtml()
-                with open(self.path, 'w') as f:
-                    f.write(text)
-                    #self.notebook.save()
-                    f.close
-            except Exception as e:
-                self.dialog_message(str(e))
+        lambda: self.notebook.save()
+        #"""if self.path is None:
+        #    self.file_saveAs()
+        #else:
+        #    try:
+        #        text = self.editor.toHtml()
+        #        with open(self.path, 'w') as f:
+        #            f.write(text)
+        #            #self.notebook.save()
+        #            f.close
+        #    except Exception as e:
+        #        self.dialog_message(str(e))"""
 
     # save currently open file as...
     def file_saveAs(self):
@@ -263,22 +270,28 @@ class MainWindow(QMainWindow):
             '',
             self.filterTypes
         )
+        self.notebook.text = self.editor.toHtml()
+        self.notebook.location = path
+        self.notebook.title = os.path.basename(path)
+        self.notebook.text = self.editor.toHtml()
+        self.notebook.save()
+        self.update_title()
+        self.update_notebook_title()
+        #"""text = self.editor.toHtml()
 
-        text = self.editor.toHtml()
-
-        if not path:
-            return
-        else:
-            try:
-                with open(path, 'w') as f:
-                    f.write(text)
-                    #self.notebook.save()
-                    f.close()
-            except Exception as e:
-                self.dialog_message(str(e))
-            else:
-                self.path = path
-                self.update_title()
+        #if not path:
+        #    return
+        #else:
+        #    try:
+        #        with open(path, 'w') as f:
+        #            f.write(text)
+        #            #self.notebook.save()
+        #            f.close()
+        #    except Exception as e:
+        #        self.dialog_message(str(e))
+        #    else:
+        #        self.path = path
+        #        self.update_title()"""
 
     # create a new page
     def add_page_action(self, parentItem):
@@ -297,11 +310,11 @@ class MainWindow(QMainWindow):
 
     # helper function to update window title based on open notebook
     def update_title(self):
-        self.setWindowTitle('{0} - OpenNote'.format(os.path.basename(self.path) if self.path else 'Untitled Notebook'))
+        self.setWindowTitle(self.notebook.title + " - OpenNote")
 
     # helper function to update notebook_title label based on open notebook
-    def notebook_title(self):
-        self.setWindowTitle('{0}'.format(os.path.basename(self.path) if self.path else 'Untitled Notebook'))
+    def update_notebook_title(self):
+        self.notebook_title.setText(self.notebook.title)
 
     # helper function to update toolbar options when text editor selection is changed
     def update_format(self):
@@ -323,7 +336,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    OpenNote = MainWindow(Notebook)
+    OpenNote = MainWindow()
     #OpenNote = NotebookSelection()
     OpenNote.show()
     sys.exit(app.exec())
