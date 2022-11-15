@@ -41,7 +41,7 @@ background-color: #cecece;
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>50</y>
+       <y>0</y>
        <width>1621</width>
        <height>100</height>
       </rect>
@@ -462,193 +462,11 @@ background-color: #d9d9d9;
       </property>
      </widget>
     </widget>
-    <widget class="QFrame" name="titlebar">
-     <property name="geometry">
-      <rect>
-       <x>-10</x>
-       <y>0</y>
-       <width>1931</width>
-       <height>50</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: #7c66ff;</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <widget class="QLabel" name="appTItle">
-      <property name="geometry">
-       <rect>
-        <x>16</x>
-        <y>8</y>
-        <width>106</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>-1</pointsize>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: #ffffff; font-size: 22px;</string>
-      </property>
-      <property name="text">
-       <string>OpenNote</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="notebookTitle">
-      <property name="geometry">
-       <rect>
-        <x>610</x>
-        <y>8</y>
-        <width>135</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>-1</pointsize>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: #ffffff; font-size: 22px;</string>
-      </property>
-      <property name="text">
-       <string>My Notebook</string>
-      </property>
-     </widget>
-     <widget class="QFrame" name="rightButtons">
-      <property name="geometry">
-       <rect>
-        <x>1130</x>
-        <y>0</y>
-        <width>127</width>
-        <height>50</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <widget class="QPushButton" name="minimizeAppBtn">
-       <property name="geometry">
-        <rect>
-         <x>40</x>
-         <y>11</y>
-         <width>28</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton{
-	border: none;
-}
-
-QPushButton::hover{
-	background-color: rgb(106, 88, 221);
-}</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/images/icons/icon_minimize.png</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="maximizeRestoreAppBtn">
-       <property name="geometry">
-        <rect>
-         <x>70</x>
-         <y>11</y>
-         <width>28</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton{
-	border: none;
-}
-
-QPushButton::hover{
-	background-color: rgb(106, 88, 221);
-}</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/images/icons/icon_maximize.png</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="closeAppBtn">
-       <property name="geometry">
-        <rect>
-         <x>99</x>
-         <y>11</y>
-         <width>28</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton{
-	border: none;
-}
-
-QPushButton::hover{
-	background-color: rgb(106, 88, 221);
-}</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/images/icons/icon_close.png</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </widget>
-     </widget>
-    </widget>
     <widget class="QFrame" name="sections">
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>150</y>
+       <y>100</y>
        <width>1621</width>
        <height>40</height>
       </rect>
@@ -667,7 +485,7 @@ QPushButton::hover{
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>150</y>
+       <y>100</y>
        <width>240</width>
        <height>791</height>
       </rect>
@@ -741,7 +559,7 @@ QComboBox::down-arrow {
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>550</y>
+        <y>600</y>
         <width>240</width>
         <height>35</height>
        </rect>
@@ -806,15 +624,15 @@ background-color: #cecece;
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>100</y>
+        <y>90</y>
         <width>211</width>
-        <height>192</height>
+        <height>501</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <family>MS Shell Dlg 2</family>
-        <weight>50</weight>
+        <family>Segoe UI</family>
+        <pointsize>12</pointsize>
         <bold>false</bold>
        </font>
       </property>
@@ -826,26 +644,20 @@ background-color: #cecece;
       </property>
      </widget>
     </widget>
-    <widget class="QFrame" name="workspace">
+    <widget class="QWidget" name="workspace" native="true">
      <property name="geometry">
       <rect>
        <x>240</x>
-       <y>190</y>
+       <y>140</y>
        <width>1261</width>
        <height>631</height>
       </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
      </property>
      <widget class="QLabel" name="activePage">
       <property name="geometry">
        <rect>
         <x>70</x>
-        <y>70</y>
+        <y>20</y>
         <width>311</width>
         <height>71</height>
        </rect>
@@ -866,54 +678,5 @@ background-color: #cecece;
  <resources>
   <include location="../resources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>closeAppBtn</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1232</x>
-     <y>24</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>624</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>maximizeRestoreAppBtn</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>showMaximized()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1203</x>
-     <y>24</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>624</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>maximizeRestoreAppBtn</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>showNormal()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1203</x>
-     <y>24</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>624</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

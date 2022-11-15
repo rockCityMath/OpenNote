@@ -78,6 +78,9 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         global widgets
+        self.setWindowTitle("OpenNote")
+        self.screen_width, self.screen_height = self.geometry().width(), self.geometry().height()
+        self.resize(self.screen_width, self.screen_height)
         widgets = self.ui
 
         # Editor Context
@@ -95,25 +98,25 @@ class MainWindow(QMainWindow):
         else:
             self.selectedPageLabel.setText("No pages!")
 
-        self.notebookTitle = self.findChild(QLabel, "notebookTitle")
-        self.notebookTitle.setText(self.notebook.title)
+        #self.notebookTitle = self.findChild(QLabel, "notebookTitle")
+        #self.notebookTitle.setText(self.notebook.title)
 
         self.updateNotebookPages()
-        
+        self.textedit = self.findChild(QTextEdit, "textedit")
         
         # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
         Settings.ENABLE_CUSTOM_TITLE_BAR = False
 
         # APP NAME
-        title = "OpenNote"
-        description = "OpenNote - Open-source notetaking in Python."
-        self.setWindowTitle(title)
+        #title = "OpenNote"
+        #description = "OpenNote - Open-source notetaking in Python."
+        #self.setWindowTitle(title)
         #self.setWindowFlag(Qt.FramelessWindowHint)
 
         # BUTTON SIGNALS
-        widgets.minimizeAppBtn.clicked.connect(self.buttonClick)
-        widgets.maximizeRestoreAppBtn.clicked.connect(self.buttonClick)
-        widgets.closeAppBtn.clicked.connect(self.buttonClick)
+        #widgets.minimizeAppBtn.clicked.connect(self.buttonClick)
+        #widgets.maximizeRestoreAppBtn.clicked.connect(self.buttonClick)
+        #widgets.closeAppBtn.clicked.connect(self.buttonClick)
         widgets.fileBtn.clicked.connect(self.buttonClick)
         widgets.homeBtn.clicked.connect(self.buttonClick)
         widgets.viewBtn.clicked.connect(self.buttonClick)
@@ -175,17 +178,17 @@ class MainWindow(QMainWindow):
             self.model.appendRow(item)
 
     # RESIZE EVENTS - needs fix
-    def resizeEvent(self, event):
-        UIFunctions.resize_grips(self)
+    #def resizeEvent(self, event):
+    #    UIFunctions.resize_grips(self)
 
-    def mousePressEvent(self, event):
-        self.dragPos = event.globalPos()
+    #def mousePressEvent(self, event):
+    #    self.dragPos = event.globalPos()
 
         # PRINT MOUSE EVENTS
-        if event.buttons() == Qt.LeftButton:
-            print('Mouse click: LEFT CLICK')
-        if event.buttons() == Qt.RightButton:
-            print('Mouse click: RIGHT CLICK')
+      #  if event.buttons() == Qt.LeftButton:
+      #      print('Mouse click: LEFT CLICK')
+      #  if event.buttons() == Qt.RightButton:
+       #     print('Mouse click: RIGHT CLICK')
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

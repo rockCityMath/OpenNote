@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.0
+## Created by: Qt User Interface Compiler version 6.3.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -38,7 +38,7 @@ class Ui_MainWindow(object):
         self.bgApp.setFrameShadow(QFrame.Raised)
         self.toolbar = QFrame(self.bgApp)
         self.toolbar.setObjectName(u"toolbar")
-        self.toolbar.setGeometry(QRect(0, 50, 1621, 100))
+        self.toolbar.setGeometry(QRect(0, 0, 1621, 100))
         self.toolbar.setStyleSheet(u"background-color: #f1f0ef;")
         self.toolbar.setFrameShape(QFrame.StyledPanel)
         self.toolbar.setFrameShadow(QFrame.Raised)
@@ -229,80 +229,15 @@ class Ui_MainWindow(object):
 "QToolButton::hover{\n"
 "background-color: #d9d9d9;\n"
 "}")
-        self.titlebar = QFrame(self.bgApp)
-        self.titlebar.setObjectName(u"titlebar")
-        self.titlebar.setGeometry(QRect(-10, 0, 1931, 50))
-        self.titlebar.setStyleSheet(u"background-color: #7c66ff;")
-        self.titlebar.setFrameShape(QFrame.StyledPanel)
-        self.titlebar.setFrameShadow(QFrame.Raised)
-        self.appTItle = QLabel(self.titlebar)
-        self.appTItle.setObjectName(u"appTItle")
-        self.appTItle.setGeometry(QRect(16, 8, 106, 30))
-        self.appTItle.setFont(font)
-        self.appTItle.setStyleSheet(u"color: #ffffff; font-size: 22px;")
-        self.notebookTitle = QLabel(self.titlebar)
-        self.notebookTitle.setObjectName(u"notebookTitle")
-        self.notebookTitle.setGeometry(QRect(610, 8, 135, 30))
-        self.notebookTitle.setFont(font)
-        self.notebookTitle.setStyleSheet(u"color: #ffffff; font-size: 22px;")
-        self.rightButtons = QFrame(self.titlebar)
-        self.rightButtons.setObjectName(u"rightButtons")
-        self.rightButtons.setGeometry(QRect(1130, 0, 127, 50))
-        self.rightButtons.setStyleSheet(u"")
-        self.rightButtons.setFrameShape(QFrame.StyledPanel)
-        self.rightButtons.setFrameShadow(QFrame.Raised)
-        self.minimizeAppBtn = QPushButton(self.rightButtons)
-        self.minimizeAppBtn.setObjectName(u"minimizeAppBtn")
-        self.minimizeAppBtn.setGeometry(QRect(40, 11, 28, 28))
-        self.minimizeAppBtn.setStyleSheet(u"QPushButton{\n"
-"	border: none;\n"
-"}\n"
-"\n"
-"QPushButton::hover{\n"
-"	background-color: rgb(106, 88, 221);\n"
-"}")
-        icon1 = QIcon()
-        icon1.addFile(u":/icons/images/icons/icon_minimize.png", QSize(), QIcon.Normal, QIcon.On)
-        self.minimizeAppBtn.setIcon(icon1)
-        self.minimizeAppBtn.setIconSize(QSize(20, 20))
-        self.maximizeRestoreAppBtn = QPushButton(self.rightButtons)
-        self.maximizeRestoreAppBtn.setObjectName(u"maximizeRestoreAppBtn")
-        self.maximizeRestoreAppBtn.setGeometry(QRect(70, 11, 28, 28))
-        self.maximizeRestoreAppBtn.setStyleSheet(u"QPushButton{\n"
-"	border: none;\n"
-"}\n"
-"\n"
-"QPushButton::hover{\n"
-"	background-color: rgb(106, 88, 221);\n"
-"}")
-        icon2 = QIcon()
-        icon2.addFile(u":/icons/images/icons/icon_maximize.png", QSize(), QIcon.Normal, QIcon.On)
-        self.maximizeRestoreAppBtn.setIcon(icon2)
-        self.maximizeRestoreAppBtn.setIconSize(QSize(20, 20))
-        self.maximizeRestoreAppBtn.setCheckable(False)
-        self.closeAppBtn = QPushButton(self.rightButtons)
-        self.closeAppBtn.setObjectName(u"closeAppBtn")
-        self.closeAppBtn.setGeometry(QRect(99, 11, 28, 28))
-        self.closeAppBtn.setStyleSheet(u"QPushButton{\n"
-"	border: none;\n"
-"}\n"
-"\n"
-"QPushButton::hover{\n"
-"	background-color: rgb(106, 88, 221);\n"
-"}")
-        icon3 = QIcon()
-        icon3.addFile(u":/icons/images/icons/icon_close.png", QSize(), QIcon.Normal, QIcon.On)
-        self.closeAppBtn.setIcon(icon3)
-        self.closeAppBtn.setIconSize(QSize(20, 20))
         self.sections = QFrame(self.bgApp)
         self.sections.setObjectName(u"sections")
-        self.sections.setGeometry(QRect(0, 150, 1621, 40))
+        self.sections.setGeometry(QRect(0, 100, 1621, 40))
         self.sections.setStyleSheet(u"background-color: #afafaf;")
         self.sections.setFrameShape(QFrame.StyledPanel)
         self.sections.setFrameShadow(QFrame.Raised)
         self.pages = QFrame(self.bgApp)
         self.pages.setObjectName(u"pages")
-        self.pages.setGeometry(QRect(0, 150, 240, 791))
+        self.pages.setGeometry(QRect(0, 100, 240, 791))
         self.pages.setStyleSheet(u"background-color: #ffffff;")
         self.pages.setFrameShape(QFrame.StyledPanel)
         self.pages.setFrameShadow(QFrame.Raised)
@@ -337,7 +272,7 @@ class Ui_MainWindow(object):
         self.notebookCB.setEditable(True)
         self.addPage = QFrame(self.pages)
         self.addPage.setObjectName(u"addPage")
-        self.addPage.setGeometry(QRect(0, 550, 240, 35))
+        self.addPage.setGeometry(QRect(0, 600, 240, 35))
         self.addPage.setStyleSheet(u"background-color: #d9d9d9;")
         self.addPage.setFrameShape(QFrame.StyledPanel)
         self.addPage.setFrameShadow(QFrame.Raised)
@@ -361,30 +296,26 @@ class Ui_MainWindow(object):
         self.pagesTitle.setStyleSheet(u"color: #000000; font-size: 24px;")
         self.pagesList = QListView(self.pages)
         self.pagesList.setObjectName(u"pagesList")
-        self.pagesList.setGeometry(QRect(10, 100, 211, 192))
+        self.pagesList.setGeometry(QRect(10, 90, 211, 501))
         font1 = QFont()
-        font1.setFamilies([u"MS Shell Dlg 2"])
+        font1.setFamilies([u"Segoe UI"])
+        font1.setPointSize(12)
         font1.setBold(False)
         self.pagesList.setFont(font1)
         self.pagesList.setFrameShape(QFrame.NoFrame)
         self.pagesList.setLineWidth(0)
-        self.workspace = QFrame(self.bgApp)
+        self.workspace = QWidget(self.bgApp)
         self.workspace.setObjectName(u"workspace")
-        self.workspace.setGeometry(QRect(240, 190, 1261, 631))
-        self.workspace.setFrameShape(QFrame.NoFrame)
-        self.workspace.setFrameShadow(QFrame.Raised)
+        self.workspace.setGeometry(QRect(240, 140, 1261, 631))
         self.activePage = QLabel(self.workspace)
         self.activePage.setObjectName(u"activePage")
-        self.activePage.setGeometry(QRect(70, 70, 311, 71))
+        self.activePage.setGeometry(QRect(70, 20, 311, 71))
         font2 = QFont()
         font2.setPointSize(28)
         self.activePage.setFont(font2)
         MainWindow.setCentralWidget(self.styleSheet)
 
         self.retranslateUi(MainWindow)
-        self.closeAppBtn.clicked.connect(MainWindow.close)
-        self.maximizeRestoreAppBtn.toggled.connect(MainWindow.showMaximized)
-        self.maximizeRestoreAppBtn.toggled.connect(MainWindow.showNormal)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -403,11 +334,6 @@ class Ui_MainWindow(object):
         self.viewBtn.setText(QCoreApplication.translate("MainWindow", u"View", None))
         self.helpBtn.setText(QCoreApplication.translate("MainWindow", u"Help", None))
         self.saveBtn.setText(QCoreApplication.translate("MainWindow", u"Save", None))
-        self.appTItle.setText(QCoreApplication.translate("MainWindow", u"OpenNote", None))
-        self.notebookTitle.setText(QCoreApplication.translate("MainWindow", u"My Notebook", None))
-        self.minimizeAppBtn.setText("")
-        self.maximizeRestoreAppBtn.setText("")
-        self.closeAppBtn.setText("")
         self.notebookCB.setCurrentText(QCoreApplication.translate("MainWindow", u"My Notebook", None))
         self.addPageBtn.setText(QCoreApplication.translate("MainWindow", u"+ Create New Page", None))
         self.pagesTitle.setText(QCoreApplication.translate("MainWindow", u"Pages", None))
