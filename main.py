@@ -12,7 +12,18 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 
 widgets = None
 
-
+def addToRecent(recentNote):
+    f = open("recent.txt", "r")
+    content = f.read()
+    f.close()
+    if recentNote not in content: 
+        print('file is new and added to recents')
+        f = open("recent.txt", "a")
+        f.write(recentNote)
+        f.close()
+    else:
+        print('file is in recents already')
+    
 class CreatePageDialogue(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -58,16 +69,27 @@ class CreatePageDialogue(QDialog):
             notebook.location = self.location.text() + '/' + self.input.text() + '.on'
             notebook.save()
             
-            f = open("recent.txt", "a")
-            f.write(self.location.text() + '/ -' + self.input.text()+'\n')
-            f.close()
+            # recent buffer
+            recent = notebook.location + '/ -' + notebook.title+'\n'
+            addToRecent(recent)
             
             self.close()
             self.w = MainWindow(notebook)
             self.w.show()     
 
 
-				
+
+class RecentCard(QWidget):
+    def __init__(self, title_loc):
+        super().__init__()
+        self.ui = Ui_Recentcard()
+        self.ui.setupUi(self)
+        global rwidgets
+        rwidgets = self.ui
+        arr = title_loc.split(' ')
+        rwidgets.title.setText(arr[1])
+        # rwidgets.location.setText(arr[0])
+						
 # Initial window that allows user to open or create notebook
 class NotebookSelection(QMainWindow):
     def __init__(self):
@@ -85,7 +107,17 @@ class NotebookSelection(QMainWindow):
         widgets.openNotebookButton.setCheckable(True)
         widgets.openNotebookButton.setObjectName('openNotebook')
         widgets.openNotebookButton.clicked.connect(self.buttonClick)
-           
+        f = open('recent.txt','r')
+        notebooks = f.readlines()
+        row = 1
+        col = 1
+        for i in range(len(notebooks)):
+            widgets.gridLayout.addWidget(RecentCard(notebooks[i]),row,col)
+            if col == 4:
+                col=0
+                row+=1
+            col+=1
+                
     # Handle dashboard button clicks
     def buttonClick(self):
         btn = self.sender()
@@ -96,8 +128,8 @@ class NotebookSelection(QMainWindow):
             dlg = CreatePageDialogue(self)
             if dlg.exec():
                 print("Success!")
-            # else:
-            #     self.close()
+            else:
+                self.close()
                 
             # notebook = Notebook(widgets.name.text())
             # notebook.location = widgets.location.text() + '/' + widgets.name.text() + '.on'
@@ -114,6 +146,9 @@ class NotebookSelection(QMainWindow):
             fileInfoTuple = QFileDialog.getOpenFileName(self, 'Open Notebook')
             print(fileInfoTuple[0])
             notebook = Notebook.load(fileInfoTuple[0])
+            
+            recent = notebook.location + '/ -' + notebook.title+'\n'
+            addToRecent(recent)
             self.w = MainWindow(notebook)
             self.w.show()  
             self.close()    

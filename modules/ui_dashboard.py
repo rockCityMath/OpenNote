@@ -59,7 +59,7 @@ class Ui_Dashboard(object):
         self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 839, 459))
         self.gridLayoutWidget = QWidget(self.scrollAreaWidgetContents)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(-1, -1, 841, 461))
+        self.gridLayoutWidget.setGeometry(QRect(10, 20, 811, 431))
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)

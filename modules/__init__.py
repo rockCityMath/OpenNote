@@ -20,7 +20,7 @@ from PySide6.QtWidgets import *
 # GUI FILE
 from . ui_main import Ui_MainWindow
 from . ui_dashboard import Ui_Dashboard
-
+from .ui_recent_card import Ui_Recentcard
 # GUI RESOURCES
 from . resources_rc import *
 
