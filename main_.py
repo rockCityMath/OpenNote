@@ -249,18 +249,7 @@ class MainWindow(QMainWindow):
 
     # save currently open file
     def file_save(self):
-        lambda: self.notebook.save()
-        #"""if self.path is None:
-        #    self.file_saveAs()
-        #else:
-        #    try:
-        #        text = self.editor.toHtml()
-        #        with open(self.path, 'w') as f:
-        #            f.write(text)
-        #            #self.notebook.save()
-        #            f.close
-        #    except Exception as e:
-        #        self.dialog_message(str(e))"""
+        lambda: self.file_saveAs(self)
 
     # save currently open file as...
     def file_saveAs(self):
