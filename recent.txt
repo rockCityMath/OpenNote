@@ -3,3 +3,4 @@
 ./notebook3.on/ -notebook3
 ./notebook4.on/ -notebook4
 ./notebook5.on/ -notebook5
+./capstone.on/ -capstone
