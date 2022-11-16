@@ -10,6 +10,10 @@ QToolBar {
     margin: 10px, 10px, 0, 0;
 }
 
+QComboBox {
+    width: 50px;
+}
+
 QToolButton::hover {
     background-color: #cecece;
 }
@@ -22,13 +26,12 @@ QToolButton::checked::hover {
     background-color: #9b9b9b;
 }
 
-QListView {
-    background-color: #ffffff;
+QTreeView {
+    background-color: #c2c2c2;
 }
 
 QPushButton {
     padding: 5px, 5px, 0, 0;
-    background-color: #d9d9d9;
 }
 
 QLabel#notebook_title {
@@ -39,7 +42,7 @@ QLabel#notebook_title {
 
 QLabel#pages_title {
     padding: 5px, 5px, 5px, 0;
-    background-color: #ffffff;
+    background-color: #c2c2c2;
 }
 
 QPushButton#addPage {
@@ -52,5 +55,5 @@ QPushButton#addPage::hover {
 }
 
 QTextEdit {
-    background-color: #c2c2c2;
+    background-color: #ffffff;
 }

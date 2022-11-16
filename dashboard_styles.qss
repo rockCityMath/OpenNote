@@ -1,0 +1,37 @@
+* {
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-family: "Segoe UI";
+    font-size: 16pt;
+}
+
+QToolBar {
+    padding: 10px;
+    background-color: rgb(200,100,217)
+}
+
+QToolButton {
+}
+
+QToolButton::hover {
+    background-color: rgb(180,80,197)
+}
+
+QLabel#dashboard-title {
+    
+}
+
+QWidget#container {
+
+}
+
+QWidget#recentCard {
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+
+QLabel#recentTitle {
+    margin: 10px;
+    font-size: 12pt;
+}

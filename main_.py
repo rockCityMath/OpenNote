@@ -8,34 +8,94 @@ from models.Page import Page
 os.environ["QT_FONT_DPI"] = "96"
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
+###GLOBAL FUNCTIONS###
+
+#add notebook to recents.txt
+def addToRecent(recent):
+    f = open("recent.txt", "r")
+    content = f.read()
+    f.close()
+    if recent not in content:
+        print('file is new and added to recents')
+        f = open("recent.txt", "a")
+        f.write(recent)
+        f.close()
+    else:
+        print("file is in recents already")
+
 ###DASHBOARD WINDOW### 
 
 class NotebookSelection(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # window title and resizing
+    # window title and resizing
         self.setWindowTitle("OpenNote - Select Notebook")
         self.screen_width, self.screen_height = self.geometry().width(), self.geometry().height()
-        self.resize(self.screen_width * 2, self.screen_height * 2)
+        self.resize(self.screen_width * 1.5, self.screen_height * 1.5)
+
+    # stylesheet
+        with open('OpenNote/dashboard_styles.qss',"r") as fh:
+          self.setStyleSheet(fh.read())
 
         toolbar = QToolBar()
+        toolbar.setObjectName("dashboard_toolbar")
         toolbar.setMovable(False)
         self.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
 
-    ###TOOLBAR ACTIONS
+    # display recent files
+        recentTitle = QLabel("Recent Notebooks")
+        container = QWidget()
+        container.setObjectName("container")
+        grid = QGridLayout()
+        layout = QVBoxLayout()
+        layout.addWidget(recentTitle)
+        layout.addLayout(grid)
+        recentTitle.setFixedHeight(30)
+        grid.setAlignment(Qt.AlignCenter)
+        self.setCentralWidget(container)
+        container.setLayout(layout)
+
+        f = open('recent.txt','r')
+        notebooks = f.readlines()
+        row = 1
+        col = 1
+        for i in range(len(notebooks)):
+            recentCard = QWidget()
+            recentCard.setObjectName("recentCard")
+            recentCard.setFixedSize(250, 250)
+            recentTitle = QLabel(recentCard)
+            recentTitle.setObjectName("recentTitle")
+            title = notebooks[i].split('- ')
+            recentTitle.setText(title[1])
+            grid.addWidget(recentCard,row,col)
+            if col == 4:
+                col=0
+                row+=1
+            col+=1
+
+    ###TOOLBAR ACTIONS###
+
+    # title
+        title = QLabel("OpenNote")
+        title.setObjectName("dashboard_title")
 
     # create
         self.create_notebook_action = self.create_action(self, './images/svg/arrow-down.svg', "Create Notebook", "Create Notebook", False)
-        #self.create_action.toggled.connect()
+        self.create_notebook_action.triggered.connect(self.create_notebook)
 
     # load
-        self.load_notebook_action = self.create_action(self, './images/svg/arrow-down.svg', "Load Notebook", "Load Notebook", False)
-        #self.load_action.toggled.connect()
+        self.open_file_action = self.create_action(self, './images/svg/arrow-down.svg', "Load Notebook", "Load Notebook", False)
+        self.open_file_action.triggered.connect(self.load_notebook)
 
     # add actions to toolbar
-        toolbar.addActions([self.create_notebook_action, self.load_notebook_action])
+        toolbar.addWidget(title)
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        toolbar.addWidget(spacer)
+        toolbar.addActions([self.create_notebook_action, self.open_file_action])
 
+    ###FUNCTIONS - DASHBOARD###
     # helper function to make creating actions easier (see toolbar actions)
     def create_action(self, parent, icon_path, action_name, set_status_tip, set_checkable):
         action = QAction(QIcon(icon_path), action_name, parent)
@@ -43,21 +103,59 @@ class NotebookSelection(QMainWindow):
         action.setCheckable(set_checkable)
         return action
 
+    # save currently open file as...
     def create_notebook(self):
-        return
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            'Save notebook as',
+            '',
+            filter = "OpenNote (*.on)"
+        )
+        title = os.path.basename(path)
+        self.notebook = Notebook(None, title)
+        self.notebook.location = path
+        self.notebook.save()
+
+        recent = self.notebook.location + '/ - ' + self.notebook.title+'\n'
+        addToRecent(recent)
+
+        self.w = MainWindow(self.notebook, False)
+        self.w.show()  
+        OpenNote.close()  
+
+    # open file
     def load_notebook(self):
-        return
+        path, _ = QFileDialog.getOpenFileName(
+            parent=self, 
+            caption = 'Open Notebook',
+            filter = "OpenNote (*.on)"
+        )
+        self.notebook = Notebook.load(path)
+
+        recent = self.notebook.location + '/ - ' + self.notebook.title+'\n'
+        addToRecent(recent)
+
+        self.w = MainWindow(self.notebook, True)
+        self.w.show()  
+        OpenNote.close()  
+
+
+
+class RecentCard(QWidget):
+    def __init__(self, title_loc):
+        super().__init__()
+        global rwidgets
+        
 
 ###MAIN WINDOW###
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, notebook, load):
         super().__init__()
 
     ###INITIALIZE APP###
-
-    # initialize notebook object
-        self.notebook = Notebook("", "Unititled")
+        self.notebook = notebook
+    
     # window title and resizing
         self.setWindowTitle(self.notebook.title + " - OpenNote")
         self.screen_width, self.screen_height = self.geometry().width(), self.geometry().height()
@@ -128,6 +226,7 @@ class MainWindow(QMainWindow):
     ###SIDEBAR WIDGETS###
 
     # notebook
+        
         self.notebook_title.setText(self.notebook.title)
 
     # pages
@@ -139,7 +238,7 @@ class MainWindow(QMainWindow):
             item = QStandardItem("Page " + str(i))
             parentItem.appendRow(item)
             parentItem = item
-        self.pages.setModel(self.model)
+        #self.pages.setModel(self.model)    
 
     # addPage
         addPage.clicked.connect(lambda: self.add_page_action(parentItem))
@@ -150,7 +249,6 @@ class MainWindow(QMainWindow):
         addSection = QPushButton()
         addSection.setText("+")
         addSection.setFixedWidth(30)    
-
         button1 = QPushButton("Section 1")
         button2 = QPushButton("Section 2")
         button3 = QPushButton("Section 3")
@@ -166,10 +264,9 @@ class MainWindow(QMainWindow):
         self.editor.selectionChanged.connect(self.update_format)
 
         self.editor.setAutoFormatting(QTextEdit.AutoFormattingFlag.AutoAll)
-        self.editor.setAcceptRichText(True)
-        font = QFont("Times", 12)
-        self.editor.setFont(font)
-        self.editor.setFontPointSize(12)
+        font = QFont("Times", 24)
+        self.editor.setFont("Segoe UI")
+        self.editor.setFontPointSize(24)
 
     ###MENUBAR ACTIONS###
 
@@ -189,14 +286,31 @@ class MainWindow(QMainWindow):
     # add actions to file menu
         file_menu.addActions([open_file_action, save_file_action, save_fileAs_action])
 
+    # initialize editor with new notebook object
+        if load:
+            if self.notebook.text:
+                self.editor.setText(self.notebook.text)
+            self.update_title()
+            self.update_notebook_title()
+        else:
+            self.update_title()
+            self.update_notebook_title()
+
     ###TOOLBAR ACTIONS###
 
     # current icons are all temporary/placeholders until I find better ones
 
     # undo
     # redo
-    # font style
+    # font family
+        self.font_family = QFontComboBox()
+        self.font_family.currentFontChanged.connect(self.editor.setCurrentFont)
+
     # font size
+        self.font_size = QComboBox()
+        self.font_size.addItems([str(fs) for fs in FONT_SIZES])
+        self.font_size.currentIndexChanged.connect(lambda font_size: self.editor.setFontPointSize(float(font_size)))
+
     # bold
         self.bold_action = self.create_action(self, './OpenNote/images/svg/bold.svg', "Bold", "Bold", True)
         self.bold_action.toggled.connect(lambda x: self.editor.setFontWeight(700 if x else 500))
@@ -211,10 +325,27 @@ class MainWindow(QMainWindow):
 
     # highlight
     # font color
+        self.font_color = QPushButton("Color")
+        self.font_color.setObjectName("font_color")
+        self.color_dialog = QColorDialog()
+        self.color = self.editor.textColor()
+        self.font_color.clicked.connect(lambda: self.font_color_action())
+        
 
     # add actions to toolbar
+        toolbar.addWidget(self.font_family)
+        toolbar.addWidget(self.font_size)
+        toolbar.addWidget(self.font_color)
+        toolbar.addSeparator()
         toolbar.addActions([self.bold_action, self.italic_action, self.underline_action])
 
+        self.format_actions = [
+            self.font_family,
+            self.font_size,
+            self.bold_action,
+            self.italic_action,
+            self.underline_action
+        ]
 
         self.update_format()
 
@@ -228,24 +359,11 @@ class MainWindow(QMainWindow):
             filter = self.filterTypes
         )
         self.notebook = Notebook.load(path)
+        recent = self.notebook.location + '/ - ' + self.notebook.title+'\n'
+        addToRecent(recent)
         self.editor.setText(self.notebook.text)
         self.update_title()
         self.update_notebook_title()
-
-        #self.editor.setText(notebook.text)
-        #self.editor.setText(self.notebook.text)
-        #"""if path:
-        #    try:
-        #        with open(path, 'r') as f:
-        #            text = f.read()
-        #            self.editor.setText(text)
-        #            #notebook = Notebook.load(path)
-        #    except Exception as e:
-        #        self.dialog_message(str(e))
-        #    else:
-        #        self.path = path
-        #        self.editor.setHtml(text)
-        #        self.update_title()"""
 
     # save currently open file
     def file_save(self):
@@ -264,23 +382,10 @@ class MainWindow(QMainWindow):
         self.notebook.title = os.path.basename(path)
         self.notebook.text = self.editor.toHtml()
         self.notebook.save()
+        recent = self.notebook.location + '/ - ' + self.notebook.title+'\n'
+        addToRecent(recent)
         self.update_title()
         self.update_notebook_title()
-        #"""text = self.editor.toHtml()
-
-        #if not path:
-        #    return
-        #else:
-        #    try:
-        #        with open(path, 'w') as f:
-        #            f.write(text)
-        #            #self.notebook.save()
-        #            f.close()
-        #    except Exception as e:
-        #        self.dialog_message(str(e))
-        #    else:
-        #        self.path = path
-        #        self.update_title()"""
 
     # create a new page
     def add_page_action(self, parentItem):
@@ -305,15 +410,29 @@ class MainWindow(QMainWindow):
     def update_notebook_title(self):
         self.notebook_title.setText(self.notebook.title)
 
+    def block_signals(self, actions, b):
+        for x in actions:
+            x.blockSignals(b)
+
+    def font_color_action(self):
+        self.color = self.color_dialog.getColor()
+        self.editor.setTextColor(self.color)
+        self.pal = QPalette()
+        self.pal.setColor(QPalette.Normal, QPalette.ButtonText, self.color)
+        self.font_color.setPalette(self.pal)
+
     # helper function to update toolbar options when text editor selection is changed
     def update_format(self):
-        self.blockSignals(True)
+        self.block_signals(self.format_actions, True)
+
+        self.font_family.setCurrentFont(self.editor.currentFont())
+        self.font_size.setCurrentText(str(int(self.editor.fontPointSize())))
 
         self.italic_action.setChecked(self.editor.fontItalic())
         self.underline_action.setChecked(self.editor.fontUnderline())
         self.bold_action.setChecked(self.editor.fontWeight() == QFont.bold)
 
-        self.blockSignals(False)
+        self.block_signals(self.format_actions, False)
 
     #helper function to show error messages
     def dialog_message(self, message):
@@ -325,7 +444,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    OpenNote = MainWindow()
-    #OpenNote = NotebookSelection()
+    #OpenNote = MainWindow()
+    OpenNote = NotebookSelection()
     OpenNote.show()
     sys.exit(app.exec())
