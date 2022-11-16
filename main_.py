@@ -35,7 +35,7 @@ class NotebookSelection(QMainWindow):
         self.resize(self.screen_width * 1.5, self.screen_height * 1.5)
 
     # stylesheet
-        with open('OpenNote/dashboard_styles.qss',"r") as fh:
+        with open('dashboard_styles.qss',"r") as fh:
           self.setStyleSheet(fh.read())
 
         toolbar = QToolBar()
@@ -166,7 +166,7 @@ class MainWindow(QMainWindow):
         self.filterTypes = "OpenNote (*.on)"
 
     # stylesheet
-        with open('OpenNote/styles.qss',"r") as fh:
+        with open('styles.qss',"r") as fh:
           self.setStyleSheet(fh.read())
 
     ###LAYOUT AND WIDGET INITIALIZATION###
@@ -234,10 +234,10 @@ class MainWindow(QMainWindow):
 
         self.model = QStandardItemModel()               # model should be saved - stores page titles
         parentItem = self.model.invisibleRootItem()
-        for i in range(0,4):
-            item = QStandardItem("Page " + str(i))
-            parentItem.appendRow(item)
-            parentItem = item
+        # for i in range(0,4):
+        #     item = QStandardItem("Page " + str(i))
+        #     parentItem.appendRow(item)
+        #     parentItem = item
         #self.pages.setModel(self.model)    
 
     # addPage
@@ -267,6 +267,7 @@ class MainWindow(QMainWindow):
         font = QFont("Times", 24)
         self.editor.setFont("Segoe UI")
         self.editor.setFontPointSize(24)
+        self.editor.setTextColor('black')
 
     ###MENUBAR ACTIONS###
 
