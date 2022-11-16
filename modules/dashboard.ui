@@ -111,10 +111,10 @@
      <widget class="QWidget" name="gridLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>-1</x>
-        <y>-1</y>
-        <width>841</width>
-        <height>461</height>
+        <x>10</x>
+        <y>20</y>
+        <width>811</width>
+        <height>431</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout"/>
@@ -135,38 +135,6 @@
     </property>
     <property name="text">
      <string>Recent</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="name">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>70</y>
-      <width>241</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">border-color: rgb(52, 52, 52);</string>
-    </property>
-    <property name="placeholderText">
-     <string>name</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="location">
-    <property name="geometry">
-     <rect>
-      <x>520</x>
-      <y>70</y>
-      <width>291</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">border-color: rgb(76, 76, 76);</string>
-    </property>
-    <property name="placeholderText">
-     <string>location</string>
     </property>
    </widget>
   </widget>

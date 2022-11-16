@@ -11,7 +11,85 @@ from models.Page import Page
 os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 
 widgets = None
-				
+
+def addToRecent(recentNote):
+    f = open("recent.txt", "r")
+    content = f.read()
+    f.close()
+    if recentNote not in content: 
+        print('file is new and added to recents')
+        f = open("recent.txt", "a")
+        f.write(recentNote)
+        f.close()
+    else:
+        print('file is in recents already')
+    
+class CreatePageDialogue(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Create Page")
+
+        QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+
+        # self.buttonBox = QDialogButtonBox(QBtn)
+        # self.buttonBox.accepted.connect(self.accept)
+        # self.buttonBox.rejected.connect(self.reject)
+
+        self.layout = QVBoxLayout()
+        message = QLabel("Lets create new Notebook")
+        
+        self.input = QLineEdit()
+        self.input.setPlaceholderText('page name')
+        self.location = QLineEdit()
+        self.location.setPlaceholderText('location: ( . or ./Desktop etc)')
+        
+        self.button = QPushButton("Press me for a dialog!")
+        self.button.clicked.connect(self.buttonClick)
+        self.button.setObjectName('createNotebook')
+        
+        self.layout.addWidget(message)
+        self.layout.addWidget(self.input)
+        self.layout.addWidget(self.location)
+        self.layout.addWidget(self.button)
+        # self.layout.addWidget(self.buttonBox)
+
+        self.setLayout(self.layout)
+
+    #     # Define open notebook button
+
+
+    def buttonClick(self):
+        btn = self.sender()
+        btnName = btn.objectName()
+
+        # Create a new .ON file to hold the notebook
+        if btnName=='createNotebook':
+            notebook = Notebook(self.input.text())
+            notebook.location = self.location.text() + '/' + self.input.text() + '.on'
+            notebook.save()
+            
+            # recent buffer
+            recent = notebook.location + '/ -' + notebook.title+'\n'
+            addToRecent(recent)
+            
+            self.close()
+            self.w = MainWindow(notebook)
+            self.w.show()     
+
+
+
+class RecentCard(QWidget):
+    def __init__(self, title_loc):
+        super().__init__()
+        self.ui = Ui_Recentcard()
+        self.ui.setupUi(self)
+        global rwidgets
+        rwidgets = self.ui
+        arr = title_loc.split(' ')
+        rwidgets.title.setText(arr[1])
+        # rwidgets.location.setText(arr[0])
+						
 # Initial window that allows user to open or create notebook
 class NotebookSelection(QMainWindow):
     def __init__(self):
@@ -29,36 +107,37 @@ class NotebookSelection(QMainWindow):
         widgets.openNotebookButton.setCheckable(True)
         widgets.openNotebookButton.setObjectName('openNotebook')
         widgets.openNotebookButton.clicked.connect(self.buttonClick)
-       
-        # self.input = QLineEdit()
-        # self.input.setPlaceholderText('page name')
-        # self.location = QLineEdit()
-        # self.location.setPlaceholderText('location: ( . or ./Desktop etc)')
-        # # Define open notebook button
-
-        # # Place buttons and fields on layout
-        # layout = QVBoxLayout()
-        # layout.addWidget(self.input)
-        # layout.addWidget(self.location)
-        # layout.addWidget(self.addNotebookButton)
-        # layout.addWidget(self.openNotebookButton)
-
-
-        
+        f = open('recent.txt','r')
+        notebooks = f.readlines()
+        row = 1
+        col = 1
+        for i in range(len(notebooks)):
+            widgets.gridLayout.addWidget(RecentCard(notebooks[i]),row,col)
+            if col == 4:
+                col=0
+                row+=1
+            col+=1
+                
     # Handle dashboard button clicks
     def buttonClick(self):
         btn = self.sender()
         btnName = btn.objectName()
 
-        # Create a new .ON file to hold the notebook
+        # # Create a new .ON file to hold the notebook
         if btnName=='createNotebook':
-            notebook = Notebook(widgets.name.text())
-            notebook.location = widgets.location.text() + '/' + widgets.name.text() + '.on'
-            notebook.save()
+            dlg = CreatePageDialogue(self)
+            if dlg.exec():
+                print("Success!")
+            else:
+                self.close()
+                
+            # notebook = Notebook(widgets.name.text())
+            # notebook.location = widgets.location.text() + '/' + widgets.name.text() + '.on'
+            # notebook.save()
             
-            self.close()
-            self.w = MainWindow(notebook)
-            self.w.show()     
+
+            # self.w = MainWindow(notebook)
+            # self.w.show()     
 
             
         
@@ -67,6 +146,9 @@ class NotebookSelection(QMainWindow):
             fileInfoTuple = QFileDialog.getOpenFileName(self, 'Open Notebook')
             print(fileInfoTuple[0])
             notebook = Notebook.load(fileInfoTuple[0])
+            
+            recent = notebook.location + '/ -' + notebook.title+'\n'
+            addToRecent(recent)
             self.w = MainWindow(notebook)
             self.w.show()  
             self.close()    
@@ -191,4 +273,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     selectionUI = NotebookSelection()
     selectionUI.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
