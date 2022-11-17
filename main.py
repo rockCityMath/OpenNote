@@ -7,6 +7,7 @@ from widgets import *
 
 from models.Notebook import Notebook
 from models.Page import Page
+import importlib
 
 os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 
@@ -89,7 +90,7 @@ class RecentCard(QWidget):
         arr = title_loc.split(' ')
         rwidgets.title.setText(arr[1])
         # rwidgets.location.setText(arr[0])
-						
+            
 # Initial window that allows user to open or create notebook
 class NotebookSelection(QMainWindow):
     def __init__(self):
@@ -161,6 +162,17 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         global widgets
         widgets = self.ui
+
+        self.ItemTypes = {}
+        for filename in os.listdir("./items"):
+            if filename[-3:]!=".py": continue
+            className = filename[:-3]
+            module = importlib.__import__(f"items.{className}")
+            c = getattr(module,className)
+            self.ItemTypes[className]=c
+        
+        for k in self.ItemTypes.keys():
+            print(k)
 
         # Editor Context
         self.notebook = notebook
