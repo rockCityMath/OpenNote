@@ -16,7 +16,7 @@ class Notebook:
     def save(self):
         file = open(self.location, "wb")
         pickle.dump(self, file)
-
+        
     @staticmethod
     def load(loc):
         file = open(loc,'rb')

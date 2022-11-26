@@ -3,12 +3,19 @@ import sys, os
 from modules import *
 from widgets import *
 from models.Notebook import Notebook
-from models.Page import Page
+
+from NotebookSelection import NotebookSelection
+
 
 os.environ["QT_FONT_DPI"] = "96"
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 ###GLOBAL FUNCTIONS###
+
+# Event object
+class Event(QObject):
+    notebookSelected = Signal(Notebook)
+
 
 #add notebook to recents.txt
 def addToRecent(recent):
@@ -23,128 +30,7 @@ def addToRecent(recent):
     else:
         print("file is in recents already")
 
-###DASHBOARD WINDOW### 
 
-class NotebookSelection(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-    # window title and resizing
-        self.setWindowTitle("OpenNote - Select Notebook")
-        self.screen_width, self.screen_height = self.geometry().width(), self.geometry().height()
-        self.resize(self.screen_width * 1.5, self.screen_height * 1.5)
-
-    # stylesheet
-        with open('dashboard_styles.qss',"r") as fh:
-          self.setStyleSheet(fh.read())
-
-        toolbar = QToolBar()
-        toolbar.setObjectName("dashboard_toolbar")
-        toolbar.setMovable(False)
-        self.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
-
-    # display recent files
-        recentTitle = QLabel("Recent Notebooks")
-        container = QWidget()
-        container.setObjectName("container")
-        grid = QGridLayout()
-        layout = QVBoxLayout()
-        layout.addWidget(recentTitle)
-        layout.addLayout(grid)
-        recentTitle.setFixedHeight(30)
-        grid.setAlignment(Qt.AlignCenter)
-        self.setCentralWidget(container)
-        container.setLayout(layout)
-
-        f = open('recent.txt','r')
-        notebooks = f.readlines()
-        row = 1
-        col = 1
-        for i in range(len(notebooks)):
-            recentCard = QWidget()
-            recentCard.setObjectName("recentCard")
-            recentCard.setFixedSize(250, 250)
-            recentTitle = QLabel(recentCard)
-            recentTitle.setObjectName("recentTitle")
-            title = notebooks[i].split('- ')
-            recentTitle.setText(title[1])
-            grid.addWidget(recentCard,row,col)
-            if col == 4:
-                col=0
-                row+=1
-            col+=1
-
-    ###TOOLBAR ACTIONS###
-
-    # title
-        title = QLabel("OpenNote")
-        title.setObjectName("dashboard_title")
-
-    # create
-        self.create_notebook_action = self.create_action(self, './images/svg/arrow-down.svg', "Create Notebook", "Create Notebook", False)
-        self.create_notebook_action.triggered.connect(self.create_notebook)
-
-    # load
-        self.open_file_action = self.create_action(self, './images/svg/arrow-down.svg', "Load Notebook", "Load Notebook", False)
-        self.open_file_action.triggered.connect(self.load_notebook)
-
-    # add actions to toolbar
-        toolbar.addWidget(title)
-        spacer = QWidget()
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        toolbar.addWidget(spacer)
-        toolbar.addActions([self.create_notebook_action, self.open_file_action])
-
-    ###FUNCTIONS - DASHBOARD###
-    # helper function to make creating actions easier (see toolbar actions)
-    def create_action(self, parent, icon_path, action_name, set_status_tip, set_checkable):
-        action = QAction(QIcon(icon_path), action_name, parent)
-        action.setStatusTip(set_status_tip)
-        action.setCheckable(set_checkable)
-        return action
-
-    # save currently open file as...
-    def create_notebook(self):
-        path, _ = QFileDialog.getSaveFileName(
-            self,
-            'Save notebook as',
-            '',
-            filter = "OpenNote (*.on)"
-        )
-        title = os.path.basename(path)
-        self.notebook = Notebook(None, title)
-        self.notebook.location = path
-        self.notebook.save()
-
-        recent = self.notebook.location + '/ - ' + self.notebook.title+'\n'
-        addToRecent(recent)
-
-        self.w = MainWindow(self.notebook, False)
-        self.w.show()  
-        OpenNote.close()  
-
-    # open file
-    def load_notebook(self):
-        path, _ = QFileDialog.getOpenFileName(
-            parent=self, 
-            caption = 'Open Notebook',
-            filter = "OpenNote (*.on)"
-        )
-        self.notebook = Notebook.load(path)
-
-        recent = self.notebook.location + '/ - ' + self.notebook.title+'\n'
-        addToRecent(recent)
-
-        self.w = MainWindow(self.notebook, True)
-        self.w.show()  
-        OpenNote.close()  
-
-
-
-class RecentCard(QWidget):
-    def __init__(self, title_loc):
-        super().__init__()
-        global rwidgets
         
 
 ###MAIN WINDOW###
@@ -234,6 +120,14 @@ class MainWindow(QMainWindow):
 
         self.model = QStandardItemModel()               # model should be saved - stores page titles
         parentItem = self.model.invisibleRootItem()
+
+
+        # init pages, bad way, should somehow sync list view titles and self.notebook.pages titles
+        for page in self.notebook.pages:
+            item = QStandardItem(page.title)
+            parentItem.appendRow(item)
+            self.pages.setModel(self.model)
+
         # for i in range(0,4):
         #     item = QStandardItem("Page " + str(i))
         #     parentItem.appendRow(item)
@@ -272,15 +166,15 @@ class MainWindow(QMainWindow):
     ###MENUBAR ACTIONS###
 
     # open file
-        open_file_action = self.create_action(self, './OpenNote/images/svg/arrow-down.svg', 'Open Notebook...', 'Open Notebook', False)
+        open_file_action = self.create_action(self, './images/svg/arrow-down.svg', 'Open Notebook...', 'Open Notebook', False)
         open_file_action.setShortcut(QKeySequence.StandardKey.Open)
         open_file_action.triggered.connect(self.file_open)
 
-        save_file_action = self.create_action(self, './OpenNote/images/svg/arrow-down.svg', 'Save Notebook', 'Save Notebook', False)
+        save_file_action = self.create_action(self, './images/svg/arrow-down.svg', 'Save Notebook', 'Save Notebook', False)
         save_file_action.setShortcut(QKeySequence.StandardKey.Save)
-        save_file_action.triggered.connect(self.file_saveAs)
+        save_file_action.triggered.connect(self.file_save)
 
-        save_fileAs_action = self.create_action(self, './OpenNote/images/svg/arrow-down.svg', 'Save Notebook As...', 'Save Notebook As', False)
+        save_fileAs_action = self.create_action(self, './images/svg/arrow-down.svg', 'Save Notebook As...', 'Save Notebook As', False)
         save_fileAs_action.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
         save_fileAs_action.triggered.connect(self.file_saveAs)
 
@@ -290,7 +184,7 @@ class MainWindow(QMainWindow):
     # initialize editor with new notebook object
         if load:
             if self.notebook.text:
-                self.editor.setText(self.notebook.text)
+                self.editor.setText("Replace me")
             self.update_title()
             self.update_notebook_title()
         else:
@@ -313,15 +207,15 @@ class MainWindow(QMainWindow):
         self.font_size.currentIndexChanged.connect(lambda font_size: self.editor.setFontPointSize(float(font_size)))
 
     # bold
-        self.bold_action = self.create_action(self, './OpenNote/images/svg/bold.svg', "Bold", "Bold", True)
+        self.bold_action = self.create_action(self, './images/svg/bold.svg', "Bold", "Bold", True)
         self.bold_action.toggled.connect(lambda x: self.editor.setFontWeight(700 if x else 500))
 
     # italic
-        self.italic_action = self.create_action(self, './OpenNote/images/svg/italic.svg', "Italic", "Italic", True)
+        self.italic_action = self.create_action(self, './images/svg/italic.svg', "Italic", "Italic", True)
         self.italic_action.toggled.connect(self.editor.setFontItalic)
 
     # underline
-        self.underline_action = self.create_action(self, './OpenNote/images/svg/underline.svg', "Underline", "Underline", True)
+        self.underline_action = self.create_action(self, './images/svg/underline.svg', "Underline", "Underline", True)
         self.underline_action.toggled.connect(self.editor.setFontUnderline)
 
     # highlight
@@ -352,7 +246,7 @@ class MainWindow(QMainWindow):
 
 ###FUNCTIONS###
 
-    # open file
+    # open notebook
     def file_open(self):
         path, _ = QFileDialog.getOpenFileName(
             parent=self, 
@@ -362,15 +256,20 @@ class MainWindow(QMainWindow):
         self.notebook = Notebook.load(path)
         recent = self.notebook.location + '/ - ' + self.notebook.title+'\n'
         addToRecent(recent)
-        self.editor.setText(self.notebook.text)
+
+        # self.editor.setText(self.notebook.pages[0].text)   #FIX THIS
         self.update_title()
         self.update_notebook_title()
 
-    # save currently open file
+    # save currently open notebook
     def file_save(self):
-        lambda: self.file_saveAs(self)
+        # lambda: self.file_saveAs(self.location)
 
-    # save currently open file as...
+        #should check to see if self.location is defined 
+        print("file saving")
+        self.notebook.save()
+
+    # save currently open notebook as...
     def file_saveAs(self):
         path, _ = QFileDialog.getSaveFileName(
             self,
@@ -378,10 +277,12 @@ class MainWindow(QMainWindow):
             '',
             self.filterTypes
         )
-        self.notebook.text = self.editor.toHtml()
-        self.notebook.location = path
-        self.notebook.title = os.path.basename(path)
-        self.notebook.text = self.editor.toHtml()
+
+        # self.notebook.text = self.editor.toHtml()
+        # self.notebook.location = path
+        # self.notebook.title = os.path.basename(path)
+        # self.notebook.text = self.editor.toHtml()
+
         self.notebook.save()
         recent = self.notebook.location + '/ - ' + self.notebook.title+'\n'
         addToRecent(recent)
@@ -395,6 +296,15 @@ class MainWindow(QMainWindow):
             item = QStandardItem(title)
             parentItem.appendRow(item)
             self.pages.setModel(self.model)
+
+        print("appending")
+
+        newPage = Page(title)
+        self.notebook.pages.append(newPage)
+
+        print("pages:")
+        for page in self.notebook.pages:
+            print(page.title)
 
     # helper function to make creating actions easier (see toolbar actions)
     def create_action(self, parent, icon_path, action_name, set_status_tip, set_checkable):
@@ -444,8 +354,25 @@ class MainWindow(QMainWindow):
 ###APPLICATION###
 
 if __name__ == "__main__":
+
     app = QApplication(sys.argv)
-    #OpenNote = MainWindow()
-    OpenNote = NotebookSelection()
-    OpenNote.show()
+
+    # On new notebook selected
+    def selectNotebook(notebook):
+
+        # If main window already open
+
+        # Open selected notebook in window
+        window = MainWindow(notebook, True)
+        window.show()  
+
+    # Global Event Handler
+    e = Event()
+
+    e.notebookSelected.connect(selectNotebook)
+
+    # Show the initial notebook selection
+    notebookSelectionWindow = NotebookSelection(e)
+    notebookSelectionWindow.show()
+
     sys.exit(app.exec())
