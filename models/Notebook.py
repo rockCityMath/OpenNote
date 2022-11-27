@@ -11,7 +11,6 @@ class Notebook:
         self.location = None
         self.dateCreated = datetime.now()
         self.dateEdited = datetime.now()
-        self.text = text
 
     def save(self):
         file = open(self.location, "wb")
