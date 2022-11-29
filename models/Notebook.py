@@ -5,7 +5,7 @@ from models.util import UniqueList
 import pickle
 
 class Notebook:
-    def __init__(self, title="Untitled"):
+    def __init__(self, text, title):
         self.title = title
         self.pages = UniqueList()  # no dups
         self.location = None
@@ -15,7 +15,7 @@ class Notebook:
     def save(self):
         file = open(self.location, "wb")
         pickle.dump(self, file)
-
+        
     @staticmethod
     def load(loc):
         file = open(loc,'rb')
