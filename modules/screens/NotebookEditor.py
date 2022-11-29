@@ -15,7 +15,7 @@ class NotebookEditor(QMainWindow):
         self.notebook = notebook
         self.currentPageIndex = 0
     
-        # window title and resizing
+        # window title and resizing  
         self.setWindowTitle(self.notebook.title + " - OpenNote")
         self.screen_width, self.screen_height = self.geometry().width(), self.geometry().height()
         self.resize(self.screen_width * 2, self.screen_height * 2)
