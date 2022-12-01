@@ -6,6 +6,14 @@
     font-size: 16pt;
 }
 
+QMenuBar {
+    background-color: rgb(169, 101, 255);
+}
+
+QMenuBar::item:selected {
+    background-color: rgb(200, 101, 255);
+}
+
 QToolBar {
     margin: 10px, 10px, 0, 0;
 }
@@ -14,7 +22,17 @@ QComboBox {
     width: 50px;
 }
 
-QToolButton::hover {
+QToolButton {
+    width: 25px;
+    height: 25px;
+}
+
+QPushButton#font_color {
+    width: 30px;
+    height: 20px;
+}
+
+QToolButton::hover, QPushButton#font_color::hover {
     background-color: #cecece;
 }
 

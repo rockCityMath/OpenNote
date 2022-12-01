@@ -65,11 +65,12 @@ class NotebookSelectionDashboard(QMainWindow):
         title.setObjectName("dashboard_title")
 
     # create
-        self.create_notebook_action = self.create_action(self, './images/svg/arrow-down.svg', "Create Notebook", "Create Notebook", False)
+        self.create_notebook_action = self.create_action(self, '', "Create Notebook", "Create Notebook", False)
         self.create_notebook_action.triggered.connect(self.create_notebook)
 
+
     # load
-        self.open_file_action = self.create_action(self, './images/svg/arrow-down.svg', "Load Notebook", "Load Notebook", False)
+        self.open_file_action = self.create_action(self, '', "Load Notebook", "Load Notebook", False)
         self.open_file_action.triggered.connect(self.load_notebook)
 
     # add actions to toolbar
@@ -91,7 +92,7 @@ class NotebookSelectionDashboard(QMainWindow):
     def create_notebook(self):
         path, _ = QFileDialog.getSaveFileName(
             self,
-            'Save notebook as',
+            'Create Notebook',
             '',
             filter = "OpenNote (*.on)"
         )

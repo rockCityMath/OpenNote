@@ -7,23 +7,26 @@
 }
 
 QToolBar {
-    padding: 10px;
-    background-color: rgb(200,100,217)
-}
-
-QToolButton {
-}
-
-QToolButton::hover {
-    background-color: rgb(180,80,197)
-}
-
-QLabel#dashboard-title {
+    background-color: rgb(169, 101, 255);
     
 }
 
-QWidget#container {
+QToolButton {
+    padding: 10px;
+    border-bottom: 2px solid rgb(169, 101, 255);
+}
 
+QToolButton::hover {
+    background-color: rgb(180, 101, 255);
+    border-bottom: 2px solid black;
+}
+
+QLabel#dashboard_title {
+    padding: 10px;
+}
+
+QWidget#container {
+    background-color: rgba(169, 101, 255, 25)
 }
 
 QWidget#recentCard {
@@ -31,7 +34,11 @@ QWidget#recentCard {
     border-radius: 10px;
 }
 
+QWidget#recentCard:hover {
+    background-color: #cecece;
+}
+
 QLabel#recentTitle {
-    margin: 10px;
-    font-size: 12pt;
+    padding: 10px;
+    font-size: 14pt;
 }
