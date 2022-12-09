@@ -130,15 +130,15 @@ class NotebookEditor(QMainWindow):
         ## ---------------------- Define Menu Items ----------------------- ##
 
         # open file
-        open_file_action = self.create_action(self, './images/svg/arrow-down.svg', 'Open Notebook...', 'Open Notebook', False)
+        open_file_action = self.create_action(self, 'styles/icons/svg_file_open', 'Open Notebook...', 'Open Notebook', False)
         open_file_action.setShortcut(QKeySequence.StandardKey.Open)
         open_file_action.triggered.connect(self.openNotebook)
 
-        save_file_action = self.create_action(self, './images/svg/arrow-down.svg', 'Save Notebook', 'Save Notebook', False)
+        save_file_action = self.create_action(self, 'styles/icons/svg_file_save', 'Save Notebook', 'Save Notebook', False)
         save_file_action.setShortcut(QKeySequence.StandardKey.Save)
         save_file_action.triggered.connect(self.saveNotebook)
 
-        save_fileAs_action = self.create_action(self, './images/svg/arrow-down.svg', 'Save Notebook As...', 'Save Notebook As', False)
+        save_fileAs_action = self.create_action(self, 'styles/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
         save_fileAs_action.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
         save_fileAs_action.triggered.connect(self.saveNotebookAs)
 
@@ -163,20 +163,32 @@ class NotebookEditor(QMainWindow):
         self.font_size.currentIndexChanged.connect(lambda font_size: self.editor.setFontPointSize(float(font_size)))
 
         # bold
-        self.bold_action = self.create_action(self, './images/svg/bold.svg', "Bold", "Bold", True)
+        self.bold_action = self.create_action(self, 'styles/icons/svg_font_bold', "Bold", "Bold", True)
         self.bold_action.toggled.connect(lambda x: self.editor.setFontWeight(700 if x else 500))
 
         # italic
-        self.italic_action = self.create_action(self, './images/svg/italic.svg', "Italic", "Italic", True)
+        self.italic_action = self.create_action(self, 'styles/icons/svg_font_italic', "Italic", "Italic", True)
         self.italic_action.toggled.connect(self.editor.setFontItalic)
 
         # underline
-        self.underline_action = self.create_action(self, './images/svg/underline.svg', "Underline", "Underline", True)
+        self.underline_action = self.create_action(self, 'styles/icons/svg_font_underline', "Underline", "Underline", True)
         self.underline_action.toggled.connect(self.editor.setFontUnderline)
 
         # highlight
         # font color
-        self.font_color = QPushButton("Color")
+
+        self.color = self.editor.textColor()
+        self.pixmap = QPixmap('styles/icons/svg_font_color.svg')
+        self.painter = QPainter(self.pixmap)
+        self.painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        self.painter.setBrush(self.color)
+        self.painter.setPen(self.color)
+        self.painter.drawRect(self.pixmap.rect())
+        self.font_color_icon = QIcon(self.pixmap)
+
+        self.font_color = QPushButton()
+        self.font_color.setIcon(QIcon(self.font_color_icon))
+        self.font_color.setIconSize(QSize(30,30))
         self.font_color.setObjectName("font_color")
         self.color_dialog = QColorDialog()
         self.color = self.editor.textColor()
@@ -187,6 +199,7 @@ class NotebookEditor(QMainWindow):
         toolbar.addWidget(self.font_size)
         toolbar.addWidget(self.font_color)
         toolbar.addSeparator()
+        toolbar.setIconSize(QSize(30, 30))
         toolbar.addActions([self.bold_action, self.italic_action, self.underline_action])
 
         self.format_actions = [
@@ -276,8 +289,17 @@ class NotebookEditor(QMainWindow):
         self.color = self.color_dialog.getColor()
         self.editor.setTextColor(self.color)
         self.pal = QPalette()
-        self.pal.setColor(QPalette.Normal, QPalette.ButtonText, self.color)
+        self.pal.setColor(QPalette.Normal, QPalette.Button, self.color)
         self.font_color.setPalette(self.pal)
+        self.color = self.editor.textColor()
+        #self.pixmap = QPixmap('styles/icons/svg_font_color.svg')
+        #self.painter = QPainter(self.pixmap)
+        #self.painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        #self.painter.setBrush(self.color)
+        #self.painter.setPen(self.color)
+        #self.painter.drawRect(self.pixmap.rect())
+        #self.font_color_icon = QIcon(self.pixmap)
+        #self.font_color.setIcon(QIcon(self.font_color_icon))
 
     ## ---------------------- Helper Functions ----------------------- ##
 
