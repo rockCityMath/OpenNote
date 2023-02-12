@@ -73,7 +73,12 @@ class NotebookEditor(QMainWindow):
         sections = QHBoxLayout()
         self.editor = QTextEdit()
         workspace.addLayout(sections)
-        workspace.addWidget(self.editor)
+        
+        self.frame = QFrame(self)
+        workspace.addWidget(self.frame)
+        self.frame.mousePressEvent = self.create_textedit #event that creates a text editor on click
+        self.textedits = [] #array that stores all text edits
+        self.dragging= False
 
         # stylesheet reference for widgets
         container.setObjectName("container")
@@ -213,7 +218,39 @@ class NotebookEditor(QMainWindow):
         self.update_format()
 
     ## ---------------------- Notebook Functions ----------------------- ##
+    #creates textedit when frame is clicked 
+    def create_textedit(self, event):
+        x = event.pos().x()
+        y = event.pos().y()
+        self.textedit = QTextEdit(self.frame)
+        self.textedit.setGeometry(x, y, 180, 90)
+        self.textedit.setStyleSheet("border: 5px solid #000; border-radius: 10px;")
+        self.textedit.mousePressEvent = self.mousePressEvent
+        self.textedit.mouseMoveEvent = self.mouseMoveEvent
+        self.textedit.mouseReleaseEvent = self.mouseReleaseEvent
+        self.textedits.append(self.textedit)
+        self.textedit.show()
 
+    # function is called when textedit is clicked and prepares to be dragged
+    def mousePressEvent(self, event):
+        for textedit in self.textedits:
+            local_pos = self.frame.mapFromGlobal(event.globalPos())
+            if textedit.geometry().contains(local_pos):
+                print('found')
+                self.dragged_textedit = textedit
+                self.offset = local_pos
+                self.dragging = True
+                break
+    # texteditor follows the mouse movement        
+    def mouseMoveEvent(self, event):
+        if self.dragging:
+            local_pos = self.frame.mapFromGlobal(event.globalPos())
+            new_pos = local_pos - self.offset
+            self.dragged_textedit.move(new_pos)
+    #stops dragging
+    def mouseReleaseEvent(self, event):
+        self.dragging = False
+   
     def openNotebook(self):
         path, _ = QFileDialog.getOpenFileName(
             parent=self, 
