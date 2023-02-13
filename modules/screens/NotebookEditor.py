@@ -232,9 +232,7 @@ class NotebookEditor(QMainWindow):
     def create_textedit(self, event):
         x = event.pos().x()
         y = event.pos().y()
-        self.textedit = QTextEdit(self.frame)
-        self.textedit.setGeometry(x, y, 180, 90)
-        self.textedit.setStyleSheet("border: 5px solid #000; border-radius: 10px;")
+        self.textedit = TextBoxDraggable(self.frame,x,y)
         self.textedit.mousePressEvent = self.mousePressEvent
         self.textedit.mouseMoveEvent = self.mouseMoveEvent
         self.textedit.mouseReleaseEvent = self.mouseReleaseEvent
@@ -250,10 +248,10 @@ class NotebookEditor(QMainWindow):
                 self.offset = local_pos - textedit.pos()
                 self.dragging = True
                 break
-        else:
-            textedit = QTextEdit(self.frame)
-            textedit.setGeometry(event.pos().x(), event.pos().y(), 100, 100)
-            self.textedits.append(textedit)
+        # else:
+        #     textedit = QTextEdit(self.frame)
+        #     textedit.setGeometry(event.pos().x(), event.pos().y(), 100, 100)
+        #     self.textedits.append(textedit)
 
             
     def mouseMoveEvent(self, event):
