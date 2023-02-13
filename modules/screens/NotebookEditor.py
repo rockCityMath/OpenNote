@@ -264,10 +264,12 @@ class NotebookEditor(QMainWindow):
 
     def mouseReleaseEvent(self, event):
         self.dragging = False
-        self.textedit = TextBoxDraggable(self, x, y)
-        self.notebook.pages[self.currentPageIndex].textedits.append(self.textedit)
-        # self.textedits.append(self.textedit)
-        self.textedit.show()
+        # x = event.pos().x()
+        # y = event.pos().y()
+        # self.textedit = TextBoxDraggable(self, x, y)
+        # self.notebook.pages[self.currentPageIndex].textedits.append(self.textedit)
+        # # self.textedits.append(self.textedit)
+        # self.textedit.show()
    
     def openNotebook(self):
         path, _ = QFileDialog.getOpenFileName(

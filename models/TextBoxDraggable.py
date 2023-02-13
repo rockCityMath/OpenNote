@@ -9,13 +9,6 @@ class TextBoxDraggable(QTextEdit):
         self.setStyleSheet("border: 5px solid #000; border-radius: 10px;")
         self.isMoving = False
         
-    def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            self.isMoving = True
-            mimeData = QMimeData()
-            drag = QDrag(self)
-            drag.setMimeData(mimeData)
-            drag.exec_(Qt.MoveAction)
 
     def __getstate__(self):
         self = self
