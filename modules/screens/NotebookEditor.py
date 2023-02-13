@@ -76,9 +76,18 @@ class NotebookEditor(QMainWindow):
         
         self.frame = QFrame(self)
         workspace.addWidget(self.frame)
+        
+        
+        self.textedits = []
+        self.dragged_textedit = None
+        self.dragging = False
+        self.offset = None
+
+        self.frame.mousePressEvent = self.mousePressEvent
+        self.frame.mouseMoveEvent = self.mouseMoveEvent
+        self.frame.mouseReleaseEvent = self.mouseReleaseEvent
+        self.frame.setMouseTracking(True)
         self.frame.mousePressEvent = self.create_textedit #event that creates a text editor on click
-        self.textedits = [] #array that stores all text edits
-        self.dragging= False
 
         # stylesheet reference for widgets
         container.setObjectName("container")
@@ -236,11 +245,15 @@ class NotebookEditor(QMainWindow):
         for textedit in self.textedits:
             local_pos = self.frame.mapFromGlobal(event.globalPos())
             if textedit.geometry().contains(local_pos):
-                print('found')
                 self.dragged_textedit = textedit
-                self.offset = local_pos
+                self.offset = local_pos - textedit.pos()
                 self.dragging = True
                 break
+        else:
+            textedit = QTextEdit(self.frame)
+            textedit.setGeometry(event.pos().x(), event.pos().y(), 100, 100)
+            self.textedits.append(textedit)
+
             
     def mouseMoveEvent(self, event):
         if self.dragging:
