@@ -1,6 +1,15 @@
-./notebook1.on/ -notebook1
-./notebook2.on/ -notebook2
-./notebook3.on/ -notebook3
-./notebook4.on/ -notebook4
-./notebook5.on/ -notebook5
-./capstone.on/ -capstone
+C:/Users/Zach/Desktop/OpenNote/newone.on/ - newone.on
+C:/Users/Zach/Desktop/OpenNote/drag.on/ - drag.on
+C:/Users/Zach/Desktop/OpenNote/newdrag.on/ - newdrag.on
+C:/Users/Zach/Desktop/OpenNote/ffff.on/ - ffff.on
+C:/Users/Zach/Desktop/OpenNote/newest.on/ - newest.on
+C:/Users/Zach/Desktop/OpenNote/an.on/ - an.on
+C:/Users/Zach/Desktop/OpenNote/sdf.on/ - sdf.on
+C:/Users/Zach/Desktop/OpenNote/ff.on/ - ff.on
+C:/Users/Zach/Desktop/OpenNote/newesrser.on/ - newesrser.on
+C:/Users/Zach/Desktop/OpenNote/ffffffff.on/ - ffffffff.on
+C:/Users/Zach/Desktop/OpenNote/dfggg.on/ - dfggg.on
+C:/Users/Zach/Desktop/OpenNote/new.on/ - new.on
+C:/Users/Zach/Desktop/OpenNote/test.on/ - test.on
+C:/Users/Zach/Desktop/OpenNote/fffff.on/ - fffff.on
+C:/Users/Zach/Desktop/OpenNote/ssfsf.on/ - ssfsf.on
