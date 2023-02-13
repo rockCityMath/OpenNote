@@ -236,7 +236,6 @@ class NotebookEditor(QMainWindow):
         for textedit in self.textedits:
             local_pos = self.frame.mapFromGlobal(event.globalPos())
             if textedit.geometry().contains(local_pos):
-                print('found')
                 self.dragged_textedit = textedit
                 self.offset = local_pos
                 self.dragging = True
