@@ -228,6 +228,7 @@ class NotebookEditor(QMainWindow):
 
     ## ---------------------- Notebook Functions ----------------------- ##
     #creates textedit when frame is clicked 
+    
     def create_textedit(self, event):
         x = event.pos().x()
         y = event.pos().y()
@@ -263,6 +264,10 @@ class NotebookEditor(QMainWindow):
 
     def mouseReleaseEvent(self, event):
         self.dragging = False
+        self.textedit = TextBoxDraggable(self, x, y)
+        self.notebook.pages[self.currentPageIndex].textedits.append(self.textedit)
+        # self.textedits.append(self.textedit)
+        self.textedit.show()
    
     def openNotebook(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -314,13 +319,22 @@ class NotebookEditor(QMainWindow):
         print(self)
 
     def onChangePage(self, QModelIndex):
-
+    
         # Update the current page index
         self.currentPageIndex = QModelIndex.row()
 
+        # Hide old page's textedits
+        for textedit in self.textedits:
+            textedit.hide()
+
         # Switch to the new pages content
-        newPageText = self.notebook.pages[self.currentPageIndex].text
-        self.editor.setText(newPageText)
+        self.textedits = self.notebook.pages[self.currentPageIndex].textedits
+
+        # Show current page's textedits
+        for textedit in self.textedits:
+            textedit.show()
+
+        
 
     # Update toolbar options when text editor selection is changed
     def onSelectionChanged(self):
