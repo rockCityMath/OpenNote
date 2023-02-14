@@ -2,6 +2,9 @@ import sys, os
 
 from modules import *
 from models import *
+import importlib
+
+global PluginItems
 
 def addToRecent(recent):
     f = open("recent.txt", "r")
@@ -15,6 +18,7 @@ def addToRecent(recent):
 # When a notebook is selected (notebook selection event emits a notebook)
 def onNotebookSelected(notebook):
     global notebookEditorWindow
+    global PluginItems
     if notebookEditorWindow != None:
         notebookEditorWindow.close()
 
@@ -23,12 +27,26 @@ def onNotebookSelected(notebook):
     addToRecent(recent)
 
     # Open selected notebook in window
-    notebookEditorWindow = NotebookEditor(notebook)
+    notebookEditorWindow = NotebookEditor(notebook,PluginItems)
     notebookEditorWindow.show()  
 
 ## Start Application ##
 if __name__ == "__main__":
 
+    global PluginItems
+    PluginItems = {}
+    for filename in os.listdir("./items"):
+        if filename[-3:]!=".py": continue
+        className = filename[:-3]
+				#begin magic
+        module = importlib.__import__(f"items.{className}")
+        c = getattr(getattr(module,className),className)
+				#end magic
+        PluginItems[className]=c
+
+    for k in PluginItems.keys():
+        print(k)
+        
     app = QApplication(sys.argv)
 
     # Instantialize notebook editor window
