@@ -9,6 +9,8 @@ class Page:
 		self.parent = None
 		self.children=UniqueList()
 
+		self.text = "" # temporary, remove when items (drag and drop) is implemented
+
 	def setChild(self,page):
 		#IMO we should just model this stuff at the UI level. add an indent field that just indents the page name
 		#this breaks in any complex case

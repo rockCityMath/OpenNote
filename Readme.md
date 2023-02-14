@@ -6,10 +6,7 @@ OpenNote aims to provide much of the functionality of Microsoft's OneNote softwa
 ## Development Setup
 - Install Python
 - Install PySide6 (pip install pyside6)
-- Install [QT Designer](https://build-system.fman.io/qt-designer-download) (questionable link)
 
-> Open main.ui in QT Designer to develop UI
-> 
 > Open modules/app_functions to develop most functionality
 > 
 > Run program with `python main.py`
@@ -31,26 +28,17 @@ OpenNote aims to provide much of the functionality of Microsoft's OneNote softwa
 ## Project Files And Folders
 > **main.py**: Application initialization file.
 > 
-> **main.ui**: Qt Designer project.
-> 
-> **resouces.qrc**: Qt Designer resoucers, Use version 6 >
-> 
 > **setup.py**: Build script (install cx-freeze)
 > 
-> **themes/**: Themes (.qss).
-> 
-> **modules/**: Module for running PyDracula GUI.
+> **modules/**: GUI Modules
 > 
 > **modules/app_funtions.py**: Application's functions.
 > 
 > **modules/app_settings.py**: Global variables to configure user interface.
 > 
-> **modules/resources_rc.py**: "resource.qrc" file compiled for python using the command: ```pyside6-rcc resources.qrc -o resources_rc.py```.
-> 
 > **modules/ui_functions.py**: Functions related to the user interface / GUI.
 > 
 > **images/**: Images and icons here, convert to Python (resources_re.py) ```pyside6-rcc resources.qrc -o resources_rc.py```.
-  
   
 This project's UI is based on [PyDracula](https://github.com/Wanderson-Magalhaes/Modern_GUI_PyDracula_PySide6_or_PyQt6) 
 
