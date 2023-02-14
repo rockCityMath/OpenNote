@@ -11,9 +11,10 @@ class TextBoxDraggable(QTextEdit):
         
 
     def __getstate__(self):
-        self = self
-        return self.__dict__
-        
-    def __setstate__(self, dict):
-        self.__dict__ = dict
-        self = self
+        state = self.__dict__.copy()
+        # We don't want to pickle the parent object, so we remove it.
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.__init__()

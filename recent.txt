@@ -1,1 +1,4 @@
 /Users/suleiman/Desktop/OpenNote/test.on/ - test.on
+/Users/suleiman/Desktop/OpenNote/frhtht.on/ - frhtht.on
+/Users/suleiman/Desktop/OpenNote/new.on/ - new.on
+/Users/suleiman/Desktop/OpenNote/tg.on/ - tg.on
