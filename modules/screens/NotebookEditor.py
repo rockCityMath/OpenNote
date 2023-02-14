@@ -76,9 +76,10 @@ class NotebookEditor(QMainWindow):
         workspace.addLayout(sections)
         
         self.frame = QFrame(self)
+        self.frame.setStyleSheet("background-color: white;")
         workspace.addWidget(self.frame)
         self.frame.mousePressEvent = self.create_textedit #event that creates a text editor on click
-        self.textedits = []
+        # self.textedits = []
 
         # stylesheet reference for widgets
         container.setObjectName("container")
@@ -233,8 +234,8 @@ class NotebookEditor(QMainWindow):
 
     # Creates textedit when frame is clicked 
     def create_textedit(self, event):
-        x = event.pos().x()
-        y = event.pos().y()
+        x = event.pos().x() + 150
+        y = event.pos().y() + 100
 
         self.textedit = TextBoxDraggable(self, x, y)
         self.notebook.pages[self.currentPageIndex].textedits.append(self.textedit)
@@ -293,18 +294,17 @@ class NotebookEditor(QMainWindow):
 
     def onChangePage(self, QModelIndex):
 
+        for textedit in self.notebook.pages[self.currentPageIndex].textedits:
+            textedit.hide()
+
         # Update the current page index
         self.currentPageIndex = QModelIndex.row()
 
-        # Hide old page's textedits
-        for textedit in self.textedits:
-            textedit.hide()
-
         # Switch to the new pages content
-        self.textedits = self.notebook.pages[self.currentPageIndex].textedits
+        # self.textedits = self.notebook.pages[self.currentPageIndex].textedits
 
         # Show current page's textedits
-        for textedit in self.textedits:
+        for textedit in self.notebook.pages[self.currentPageIndex].textedits:
             textedit.show()
 
 
