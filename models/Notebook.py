@@ -20,4 +20,4 @@ class Notebook:
     @staticmethod
     def load(loc):
         file = open(loc,'rb')
-        return pickle.load(file)       
+        return pickle.load(file)

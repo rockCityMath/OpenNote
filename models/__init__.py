@@ -4,3 +4,4 @@ from .Page import *
 from .util import *
 from .Event import *
 from .TextBoxDraggable import *
+from .ImageDraggable import *

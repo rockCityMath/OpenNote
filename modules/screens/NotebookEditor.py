@@ -1,12 +1,13 @@
 import os, sys
 from modules import *
 from models import *
+from pprint import pprint
 
 # move to settings?
 os.environ["QT_FONT_DPI"] = "96"
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
-###MAIN WINDOW###
+### MAIN WINDOW###
 class NotebookEditor(QMainWindow):
     def __init__(self, notebook):
         super().__init__()
@@ -78,8 +79,8 @@ class NotebookEditor(QMainWindow):
         self.frame = QFrame(self)
         self.frame.setStyleSheet("background-color: white;")
         workspace.addWidget(self.frame)
+        
         self.frame.mousePressEvent = self.create_textedit #event that creates a text editor on click
-        # self.textedits = []
 
         # stylesheet reference for widgets
         container.setObjectName("container")
@@ -87,6 +88,7 @@ class NotebookEditor(QMainWindow):
         self.pages_title.setObjectName("pages_title")
         self.pages.setObjectName("pages")
         addPage.setObjectName("addPage")
+        
 
         # notebook
         self.notebook_title.setText(self.notebook.title)
@@ -105,9 +107,11 @@ class NotebookEditor(QMainWindow):
             self.pages.setModel(self.model)
 
         self.pages.clicked.connect(self.onChangePage) 
-
+        
         # addPage
         addPage.clicked.connect(lambda: self.onPageAdded(parentItem))
+
+        
 
         # sections
         addSection = QPushButton()
@@ -117,10 +121,16 @@ class NotebookEditor(QMainWindow):
         button2 = QPushButton("Section 2")
         button3 = QPushButton("Section 3")
         button4 = QPushButton("Section 4")
+        button5 = QPushButton("Add Image")
         sections.addWidget(button1)
         sections.addWidget(button2)
         sections.addWidget(button3)
         sections.addWidget(button4)
+        sections.addWidget(button5)
+
+        button5.setObjectName("addImage")
+        #addimage
+        button5.clicked.connect(lambda: self.addImage())
 
         sections.addWidget(addSection)
 
@@ -219,17 +229,23 @@ class NotebookEditor(QMainWindow):
         self.update_format()
 
     ## ---------------------- Notebook Functions ----------------------- ##
-    
     def dragEnterEvent(self, event):
         event.accept() # accept the movement event
 
     def dropEvent(self, event):
         position = event.pos()
 
+        # this is so bad...
         for textedit in self.notebook.pages[self.currentPageIndex].textedits: # look thru all textedits in array
             if textedit.isMoving: # this is set by the mouse event on the TextBoxDraggable object when it starts moving
                 textedit.move(position.x(), position.y()) 
                 textedit.isMoving = False
+                event.accept()
+
+        for image in self.notebook.pages[self.currentPageIndex].images:
+            if image.isMoving:
+                image.move(position.x(), position.y()) 
+                image.isMoving = False
                 event.accept()
 
     # Creates textedit when frame is clicked 
@@ -237,9 +253,8 @@ class NotebookEditor(QMainWindow):
         x = event.pos().x() + 150
         y = event.pos().y() + 100
 
-        self.textedit = TextBoxDraggable(self, x, y)
+        self.textedit = TextBoxDraggable(self, x, y, None)
         self.notebook.pages[self.currentPageIndex].textedits.append(self.textedit)
-        # self.textedits.append(self.textedit)
         self.textedit.show()
    
     def openNotebook(self):
@@ -285,6 +300,16 @@ class NotebookEditor(QMainWindow):
             self.notebook.pages.append(newPage)
             # could add a call to onChangePage here to switch to new page on creation
 
+    def addImage(self):
+        path, _ = QFileDialog.getOpenFileName(
+            parent=self, 
+            caption = 'Add Image',
+        )
+
+        img = TextBoxDraggable(self, 50, 50, path)
+        img.show()
+        self.notebook.pages[self.currentPageIndex].images.append(img)
+
     def onUpdateText(self):
         self.notebook.pages[self.currentPageIndex].text = self.editor.toHtml()
 
@@ -297,6 +322,9 @@ class NotebookEditor(QMainWindow):
         for textedit in self.notebook.pages[self.currentPageIndex].textedits:
             textedit.hide()
 
+        for image in self.notebook.pages[self.currentPageIndex].images:
+            image.hide()
+
         # Update the current page index
         self.currentPageIndex = QModelIndex.row()
 
@@ -307,6 +335,8 @@ class NotebookEditor(QMainWindow):
         for textedit in self.notebook.pages[self.currentPageIndex].textedits:
             textedit.show()
 
+        for image in self.notebook.pages[self.currentPageIndex].images:
+            image.show()
 
         # self.editor.setText(newPageText)
 

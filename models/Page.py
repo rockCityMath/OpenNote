@@ -11,6 +11,7 @@ class Page:
 
 		self.text = "" # temporary, remove when items (drag and drop) is implemented
 		self.textedits = [] # all the text boxes (TextBoxDraggable)
+		self.images = []
 
 	def setChild(self,page):
 		#IMO we should just model this stuff at the UI level. add an indent field that just indents the page name

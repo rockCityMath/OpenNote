@@ -4,11 +4,21 @@ from PySide6.QtWidgets import *
 from pprint import pprint
 
 class TextBoxDraggable(QTextEdit):
-    def __init__(self, parent, x, y):
+    def __init__(self, parent, x, y, imagePath):
         super().__init__(parent)
-        self.setGeometry(x, y, 260, 45)
-        self.setStyleSheet("border: 1px dashed #000; border-radius: 10px;")
-        self.isMoving = False
+        self.setStyleSheet("border: 1px dashed #000;")
+
+        #if text
+        if imagePath == None:
+            self.setGeometry(x, y, 260, 45)
+            self.isMoving = False
+
+        #if image
+        else:
+            self.setGeometry(x, y, 260, 45)
+            fragment = QTextDocumentFragment.fromHtml(f"<img src={imagePath} height='%1' width='%2'>")
+            self.textCursor().insertFragment(fragment)
+            self.resize(300, 300)
         
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton:
