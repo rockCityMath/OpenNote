@@ -8,7 +8,7 @@ FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 ###MAIN WINDOW###
 class NotebookEditor(QMainWindow):
-    def __init__(self, notebook):
+    def __init__(self, notebook,PluginItems):
         super().__init__()
 
         ## ---------------------- Initialize App ----------------------- ##
@@ -33,6 +33,7 @@ class NotebookEditor(QMainWindow):
         # menubar
         file_menu = self.menuBar().addMenu('&File')
         edit_menu = self.menuBar().addMenu('&Edit')
+        items_menu = self.menuBar().addMenu('&Items')
 
         # toolbar
         toolbar = QToolBar('Edit')
@@ -141,6 +142,18 @@ class NotebookEditor(QMainWindow):
         save_fileAs_action = self.create_action(self, 'styles/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
         save_fileAs_action.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
         save_fileAs_action.triggered.connect(self.saveNotebookAs)
+
+        for name,c in PluginItems.items():
+            displayName = getattr(c,"DisplayName",name)
+            print(displayName,c)
+            shortcut = getattr(c,"ShortcutKey","")
+            item_action = self.create_action(self,'',displayName,displayName,False)
+            if shortcut!="":
+                item_action.setShortcut(QKeySequence.fromString(shortcut))
+            #item_action.triggered.connect(self.addItem)
+            items_menu.addActions([item_action])
+
+            
 
         # add actions to file menu
         file_menu.addActions([open_file_action, save_file_action, save_fileAs_action])
