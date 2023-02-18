@@ -1,5 +1,6 @@
 build/
 __pycache__/
+recent.txt
 .pyc
 .git
 *.on
