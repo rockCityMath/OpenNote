@@ -15,7 +15,6 @@ class NotebookEditor(QMainWindow):
         ## ---------------------- Initialize App ----------------------- ##
         self.notebook = notebook
         self.currentPageIndex = 0
-        self.currentSectionIndex = 0
         self.setAcceptDrops(True)
     
         # window title and resizing  
@@ -29,13 +28,13 @@ class NotebookEditor(QMainWindow):
 
         # stylesheet
         with open('styles/styles.qss',"r") as fh:
-          self.setStyleSheet(fh.read())
+            self.setStyleSheet(fh.read())
 
         ## ---------------------- Layout & Widget Initialization ----------------------- ##
 
         # menubar
         file_menu = self.menuBar().addMenu('&File')
-        edit_menu = self.menuBar().addMenu('&Edit')
+        #edit_menu = self.menuBar().addMenu('&Edit')    --  build later
 
         # toolbar
         toolbar = QToolBar('Edit')
@@ -66,7 +65,6 @@ class NotebookEditor(QMainWindow):
         self.notebook_title = QLabel()
         self.pages_title = QLabel()
         self.pages = QTreeView()
-        self.sectionsView = QTreeView()
         addPage = QPushButton("Create New Page")
         sidebar.addWidget(self.notebook_title)
         sidebar.addWidget(self.pages_title)
@@ -74,15 +72,15 @@ class NotebookEditor(QMainWindow):
         sidebar.addWidget(addPage)
 
         # workspace widgets
-        self.sections = QHBoxLayout()
+        sections = QHBoxLayout()
         self.editor = QTextEdit()
-        workspace.addLayout(self.sections)
+        workspace.addLayout(sections)
         
         self.frame = QFrame(self)
         self.frame.setStyleSheet("background-color: white;")
         workspace.addWidget(self.frame)
         
-        self.frame.mousePressEvent = self.create_textedit #event that creates a text editor on click
+        #self.frame.mousePressEvent = self.create_textedit() #event that creates a text editor on click
 
         # stylesheet reference for widgets
         container.setObjectName("container")
@@ -98,10 +96,8 @@ class NotebookEditor(QMainWindow):
         # pages
         self.pages_title.setText("Pages")
 
-        self.model = QStandardItemModel()   
-        self.sModel = QStandardItemModel()           
+        self.model = QStandardItemModel()              
         parentItem = self.model.invisibleRootItem()
-        parentSectionItem = self.sModel.invisibleRootItem()
 
         # init pages, this should probably move to an onUpdatedPages() function that adding, deleting, (renaming?) pages emits
         for page in self.notebook.pages:
@@ -109,41 +105,34 @@ class NotebookEditor(QMainWindow):
             item.setEditable(False)                   # Take this out when implementing renaming
             parentItem.appendRow(item)
             self.pages.setModel(self.model)
-            for _section in page._sections:
-                section = QStandardItem(_section.title)
-                section.setEditable(False)
-                parentSectionItem.appendRow(section)
-                self.sections.setModel(self.sModel)
 
         self.pages.clicked.connect(self.onChangePage) 
         
         # addPage
         addPage.clicked.connect(lambda: self.onPageAdded(parentItem))
 
-        
-
         # sections
-        addSection = QPushButton("+")
+        addSection = QPushButton()
+        addSection.setText("+")
         addSection.setFixedWidth(30)    
-        addImage = QPushButton("Add Image")
-        addImage.setFixedWidth(100)
-        
+        #button1 = QPushButton("Section 1")
+        #button2 = QPushButton("Section 2")
+        #button3 = QPushButton("Section 3")
+        #button4 = QPushButton("Section 4")
+        #addImage = QPushButton("Add Image")
+        #sections.addWidget(button1)
+        #sections.addWidget(button2)
+        #sections.addWidget(button3)
+        #sections.addWidget(button4)
+        #sections.addWidget(addImage)
 
-        addImage.setObjectName("addImage")
+        #addImage.setObjectName("addImage")
         #addimage
-        addImage.clicked.connect(lambda: self.addImage())
-        addSection.clicked.connect(self.addSection)
-        self.sections.addWidget(addImage)
-        self.sections.addWidget(addSection)
+        #addImage.clicked.connect(lambda: self.addImage())
 
-        # editor
-        self.editor.selectionChanged.connect(self.onSelectionChanged)
-        self.editor.textChanged.connect(self.onUpdateText)
-        self.editor.setAutoFormatting(QTextEdit.AutoFormattingFlag.AutoAll)
-        font = QFont("Times", 24)
-        self.editor.setFont("Segoe UI")
-        self.editor.setFontPointSize(24)
-        self.editor.setTextColor('black')
+        sections.addWidget(addSection)
+
+
 
         ## ---------------------- Define Menu Items ----------------------- ##
 
@@ -165,35 +154,54 @@ class NotebookEditor(QMainWindow):
 
         # initialize editor with first page of notebook
         #if self.notebook.pages:
-        #    self.editor.setText(self.notebook.pages[0].text)
+            #self.textedit.setText(self.notebook.pages[0].text)
 
         ## ---------------------- Define Toolbar Actions ----------------------- ##
+
+        # editor
+#        self.frame.textedit.selectionChanged.connect(self.onSelectionChanged)
+#        self.frame.textedit.textChanged.connect(self.onUpdateText)
+#        self.frame.textedit.setAutoFormatting(QTextEdit.AutoFormattingFlag.AutoAll)
+#        font = QFont("Times", 24)
+#        self.frame.textedit.setFont("Segoe UI")
+#        self.frame.textedit.setFontPointSize(24)
+#        self.frame.textedit.setTextColor('black')
 
         # undo
         # redo
         # font family
         self.font_family = QFontComboBox()
-        self.font_family.currentFontChanged.connect(self.editor.setCurrentFont)
+        self.font_family.currentFontChanged.connect(lambda x: self.frame.textedit.setCurrentFont)
 
         # font size
         self.font_size = QComboBox()
         self.font_size.addItems([str(fs) for fs in FONT_SIZES])
-        self.font_size.currentIndexChanged.connect(lambda font_size: self.editor.setFontPointSize(float(font_size)))
+        self.font_size.currentIndexChanged.connect(lambda font_size: self.frame.textedit.setFontPointSize(float(font_size)))
 
         # bold
         self.bold_action = self.create_action(self, 'styles/icons/svg_font_bold', "Bold", "Bold", True)
-        self.bold_action.toggled.connect(lambda x: self.editor.setFontWeight(700 if x else 500))
+        self.bold_action.toggled.connect(lambda x: self.frame.textedit.setFontWeight(700 if x else 500))
 
         # italic
         self.italic_action = self.create_action(self, 'styles/icons/svg_font_italic', "Italic", "Italic", True)
-        self.italic_action.toggled.connect(self.editor.setFontItalic)
+        self.italic_action.toggled.connect(lambda x: self.frame.textedit.setFontItalic)
 
         # underline
         self.underline_action = self.create_action(self, 'styles/icons/svg_font_underline', "Underline", "Underline", True)
-        self.underline_action.toggled.connect(self.editor.setFontUnderline)
+        self.underline_action.toggled.connect(lambda x: self.frame.textedit.setFontUnderline)
 
         # highlight
         # font color
+
+        #text
+        self.add_text_action = self.create_action(self, '', "Text", "Add Image", False)
+        self.add_text_action.triggered.connect(lambda: self.create_textedit())
+
+        #image
+        self.add_image_action = self.create_action(self, '', "Image", "Add Image", False)
+        self.add_image_action.triggered.connect(lambda: self.addImage())
+
+        #image
 
         self.color = self.editor.textColor()
         self.pixmap = QPixmap('styles/icons/svg_font_color.svg')
@@ -203,14 +211,13 @@ class NotebookEditor(QMainWindow):
         self.painter.setPen(self.color)
         self.painter.drawRect(self.pixmap.rect())
         self.font_color_icon = QIcon(self.pixmap)
-        self.painter.end()
 
         self.font_color = QPushButton()
         self.font_color.setIcon(QIcon(self.font_color_icon))
         self.font_color.setIconSize(QSize(30,30))
         self.font_color.setObjectName("font_color")
         self.color_dialog = QColorDialog()
-        self.color = self.editor.textColor()
+        self.color = lambda x: self.frame.textedit.textColor()
         self.font_color.clicked.connect(self.onFontColor)
 
         # add actions to toolbar
@@ -219,7 +226,8 @@ class NotebookEditor(QMainWindow):
         toolbar.addWidget(self.font_color)
         toolbar.addSeparator()
         toolbar.setIconSize(QSize(30, 30))
-        toolbar.addActions([self.bold_action, self.italic_action, self.underline_action])
+        toolbar.setBaseSize(QSize(50, 30))
+        toolbar.addActions([self.bold_action, self.italic_action, self.underline_action, self.add_text_action, self.add_image_action])
 
         self.format_actions = [
             self.font_family,
@@ -239,28 +247,33 @@ class NotebookEditor(QMainWindow):
         position = event.pos()
 
         # this is so bad...
-        for textedit in self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].textedits: # look thru all textedits in array
+        for textedit in self.notebook.pages[self.currentPageIndex].textedits: # look thru all textedits in array
             if textedit.isMoving: # this is set by the mouse event on the TextBoxDraggable object when it starts moving
                 textedit.move(position.x(), position.y()) 
                 textedit.isMoving = False
                 event.accept()
 
-        for image in self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].images:
+        for image in self.notebook.pages[self.currentPageIndex].images:
             if image.isMoving:
                 image.move(position.x(), position.y()) 
                 image.isMoving = False
                 event.accept()
 
     # Creates textedit when frame is clicked 
-    def create_textedit(self, event):
-        x = event.pos().x() + 150
-        y = event.pos().y() + 100
+    def create_textedit(self):
+        x = self.frame.geometry().width() - (self.frame.geometry().width()*5/8)
+        y = self.frame.geometry().height() - (self.frame.geometry().height()*3/4)
 
-        self.textedit = TextBoxDraggable(self, x, y, None)
-        print("addtextpage", self.currentPageIndex)
-        print("addtextsection", self.currentSectionIndex)
-        self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].textedits.append(self.textedit)
-        self.textedit.show()
+        self.frame.textedit = TextBoxDraggable(self, x, y, None)
+        self.notebook.pages[self.currentPageIndex].textedits.append(self.frame.textedit)
+        self.frame.textedit.selectionChanged.connect(self.onSelectionChanged)
+        self.frame.textedit.textChanged.connect(self.onUpdateText)
+        self.frame.textedit.setAutoFormatting(QTextEdit.AutoFormattingFlag.AutoAll)
+        font = QFont("Times", 24)
+        self.frame.textedit.setFont("Segoe UI")
+        self.frame.textedit.setFontPointSize(24)
+        self.frame.textedit.setTextColor('black')
+        self.frame.textedit.show()
    
     def openNotebook(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -272,7 +285,7 @@ class NotebookEditor(QMainWindow):
         recent = self.notebook.location + '/ - ' + self.notebook.title+'\n'
         # addToRecent(recent)
 
-        self.editor.setText(self.notebook.pages[0].text)
+        self.frame.textedit.setText(self.notebook.pages[0].text)
         self.update_title()
         self.update_notebook_title()
 
@@ -300,26 +313,10 @@ class NotebookEditor(QMainWindow):
             item = QStandardItem(title)
             parentItem.appendRow(item)
             self.pages.setModel(self.model)
+
             newPage = Page(title)
             self.notebook.pages.append(newPage)
-            self.currentSectionIndex = 0
             # could add a call to onChangePage here to switch to new page on creation
-
-    def addSection(self):
-        title, accept = QInputDialog.getText(self, 'New Section Title', 'Enter title of new section: ')
-        if accept:
-            self.currentSectionIndex = len(self.notebook.pages[self.currentPageIndex]._sections)
-            button = QPushButton(title)
-            button.setObjectName(title)
-            button.clicked.connect(self.onChangeSection)
-            self.sections.addWidget(button)
-            newSection = Section(self.currentSectionIndex, title)
-            #self.currentSectionIndex =+ 1
-            section = QStandardItem(title)
-            self.notebook.pages[self.currentPageIndex].sections.append(button)
-            self.notebook.pages[self.currentPageIndex]._sections.append(newSection)
-            
-
 
     def addImage(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -329,30 +326,21 @@ class NotebookEditor(QMainWindow):
 
         img = TextBoxDraggable(self, 50, 50, path)
         img.show()
-        #self.notebook.pages[self.currentPageIndex].images.append(img)
-        self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].images.append(img)
+        self.notebook.pages[self.currentPageIndex].images.append(img)
 
     def onUpdateText(self):
-        self.notebook.pages[self.currentPageIndex].text = self.editor.toHtml()
+        self.notebook.pages[self.currentPageIndex].text = self.frame.textedit.toHtml()
 
     def onPageRename(self):
         print("rename!")
         print(self)
 
     def onChangePage(self, QModelIndex):
-        for i in range(self.sections.count()):
-            item = self.sections.itemAt(i).widget()
-            item.setStyleSheet("background-color: #f0f0f0")
-        for section in self.notebook.pages[self.currentPageIndex].sections:
-            self.sections.removeWidget(section)
-            section.hide()
 
-        #for textedit in self.notebook.pages[self.currentPageIndex].textedits:
-        for textedit in self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].textedits:
+        for textedit in self.notebook.pages[self.currentPageIndex].textedits:
             textedit.hide()
 
-        #for image in self.notebook.pages[self.currentPageIndex].images:
-        for image in self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].images:
+        for image in self.notebook.pages[self.currentPageIndex].images:
             image.hide()
 
         # Update the current page index
@@ -362,77 +350,42 @@ class NotebookEditor(QMainWindow):
         # self.textedits = self.notebook.pages[self.currentPageIndex].textedits
 
         # Show current page's textedits
-        #for textedit in self.notebook.pages[self.currentPageIndex].textedits:
-        for section in self.notebook.pages[self.currentPageIndex].sections:
-            self.sections.addWidget(section)
-            section.show()
-        
-        #for textedit in self.notebook.pages[self.currentPageIndex]._sections[0].textedits:
-        #    textedit.show()
-
-        #for image in self.notebook.pages[self.currentPageIndex].images:
-        #for image in self.notebook.pages[self.currentPageIndex]._sections[0].images:
-        #   image.show()
-        #self.onChangeSection()
-
-
-
-        # self.editor.setText(newPageText)
-
-    def onChangeSection(self):
-       # self.currentPageIndex = QModelIndex.row()
-        print("page1", self.currentPageIndex)
-        print("sec1", self.currentSectionIndex)
-        for textedit in self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].textedits:
-            textedit.hide()
-
-        for image in self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].images:
-            image.hide()
-
-        
-        #print(self.sections.count())
-        for i in range(self.sections.count()):
-            item = self.sections.itemAt(i).widget()
-            item.setStyleSheet("background-color: #f0f0f0")
-
-
-        for section in self.notebook.pages[self.currentPageIndex]._sections:
-            #print(self.focusWidget().objectName())
-            #print(section.title)
-            #print(section.index)
-            if(self.focusWidget().objectName() == section.title):
-                self.focusWidget().setStyleSheet("background-color: #c2c2c2;")
-                self.currentSectionIndex = section.index
-        print("page2", self.currentPageIndex)
-        print("sec2", self.currentSectionIndex)
-        #self.currentSectionIndex = self.notebook.pages[self.currentPageIndex]._sections.index
-
-        for textedit in self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].textedits:
+        for textedit in self.notebook.pages[self.currentPageIndex].textedits:
             textedit.show()
 
-        for image in self.notebook.pages[self.currentPageIndex]._sections[self.currentSectionIndex].images:
+        for image in self.notebook.pages[self.currentPageIndex].images:
             image.show()
+
+        # self.editor.setText(newPageText)
 
     # Update toolbar options when text editor selection is changed
     def onSelectionChanged(self):
         self.block_signals(self.format_actions, True)
 
-        self.font_family.setCurrentFont(self.editor.currentFont())
-        self.font_size.setCurrentText(str(int(self.editor.fontPointSize())))
+        self.font_family.setCurrentFont(self.frame.textedit.currentFont())
+        self.font_size.setCurrentText(str(int(self.frame.textedit.fontPointSize())))
 
-        self.italic_action.setChecked(self.editor.fontItalic())
-        self.underline_action.setChecked(self.editor.fontUnderline())
-        self.bold_action.setChecked(self.editor.fontWeight() == QFont.bold)
+        self.italic_action.setChecked(self.frame.textedit.fontItalic())
+        self.underline_action.setChecked(self.frame.textedit.fontUnderline())
+        self.bold_action.setChecked(self.frame.textedit.fontWeight() == QFont.bold)
 
         self.block_signals(self.format_actions, False)
 
     def onFontColor(self):
         self.color = self.color_dialog.getColor()
-        self.editor.setTextColor(self.color)
+        self.frame.textedit.setTextColor(self.color)
         self.pal = QPalette()
         self.pal.setColor(QPalette.Normal, QPalette.Button, self.color)
         self.font_color.setPalette(self.pal)
-        self.color = self.editor.textColor()
+        self.color = self.frame.textedit.textColor()
+        #self.pixmap = QPixmap('styles/icons/svg_font_color.svg')
+        #self.painter = QPainter(self.pixmap)
+        #self.painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        #self.painter.setBrush(self.color)
+        #self.painter.setPen(self.color)
+        #self.painter.drawRect(self.pixmap.rect())
+        #self.font_color_icon = QIcon(self.pixmap)
+        #self.font_color.setIcon(QIcon(self.font_color_icon))
 
     ## ---------------------- Helper Functions ----------------------- ##
 
