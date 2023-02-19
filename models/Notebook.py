@@ -2,6 +2,7 @@ from datetime import datetime
 from models.Page import Page
 from models.DragItem import DragItem
 from models.util import UniqueList
+from models.TextBoxDraggable import TextBoxDraggable
 import pickle
 
 class Notebook:
@@ -19,4 +20,4 @@ class Notebook:
     @staticmethod
     def load(loc):
         file = open(loc,'rb')
-        return pickle.load(file)       
+        return pickle.load(file)
