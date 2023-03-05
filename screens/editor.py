@@ -15,8 +15,8 @@ class Editor(QMainWindow):
         # When the application is started, open a new, empty notebook
         self.notebook = Notebook('Untitled')    # Current notebook object
         self.object = []                        # List of Widgets on current Page/Section
-        self.page = -1                           # Index of current Page
-        self.section = -1                        # Index of current Section
+        self.page = -1                          # Index of current Page
+        self.section = -1                       # Index of current Section
         self.selected = None                    # Selected object (for font attributes of TextBox)
 
         # models.notebook.Notebook is where all Notebook and Object data is stored

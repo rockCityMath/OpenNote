@@ -37,15 +37,17 @@ def change_section(editor):
 # When a user changes sections (or changes pages, which will cause the section to change)
 # Store params from all Widgets into their respective Objects in models.notebook.Notebook
 def store_section(editor):
-    for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
-        if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'text':
-            editor.notebook.page[editor.page].section[editor.section].object[o].text = editor.object[o].toHtml()
-            editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
-            editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
-            editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
-            editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
-        if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'image':
-            editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
-            editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
-            editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
-            editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
+    if(len(editor.notebook.page) > 0 and len(editor.notebook.page[editor.page].section) > 0):
+        if(len(editor.notebook.page[editor.page].section[editor.section].object)) > 0:
+            for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
+                if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'text':
+                    editor.notebook.page[editor.page].section[editor.section].object[o].text = editor.object[o].toHtml()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
+                if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'image':
+                    editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
