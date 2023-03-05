@@ -1,0 +1,7 @@
+build/
+__pycache__/
+models/__pycache__/
+modules/__pycache__/
+.pyc
+.git
+*.on

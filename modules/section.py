@@ -8,6 +8,7 @@ def add_section(editor):
     title, accept = QInputDialog.getText(editor, 'New Section Title', 'Enter title of new section: ')
     if accept:
         build_section(editor, title)
+        editor.section += 1
         editor.notebook.page[editor.page].section.append(Section(title))
 
 def build_section(editor, title):
@@ -24,7 +25,9 @@ def change_section(editor):
     editor.object.clear()
 
     for s in range(len(editor.notebook.page[editor.page].section)):
+        editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
         if(editor.focusWidget().objectName() == editor.notebook.page[editor.page].section[s].title):
+            editor.sections.itemAt(s).widget().setStyleSheet("background-color: #c2c2c2")
             editor.section = s
 
     for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
