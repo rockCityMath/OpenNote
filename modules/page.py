@@ -72,7 +72,6 @@ def change_page(editor):
         for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
             params = editor.notebook.page[editor.page].section[editor.section].object[o]
             build_object(editor, params)
-        #print("objectname", editor.sections.itemAt(editor.section).widget().objectName())
         editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
     else:
         editor.section = -1
@@ -91,14 +90,11 @@ def add_page_change(editor):
 
     # Empty list of Widgets in editor
     editor.object.clear()
-    #editor.page = 0
+
     # Destroy all Section Widgets on current Page
     if len(editor.notebook.page[editor.page].section) > 0:
-        print("Page", editor.page)
         for s in range(len(editor.notebook.page[editor.page].section)):
-            print("sec index", s)
             editor.sections.itemAt(s).widget().deleteLater()
-    print("sec count", editor.sections.count())
     # editor.page is set to new page
     editor.page += 1
 
@@ -138,8 +134,73 @@ def rename_page(editor):
         editor.focusWidget().setText(title)
 
 def delete_page(editor):
-    print("delete")
-    # delete all widgets
-    # delete all sections
-    # from notebook object and editor
-    # go to page 0 section 0 if exists, -1 if DNE
+    accept = QMessageBox.question(editor, 'Delete Page', 'Deleting this page will delete all sections and objects inside it. Are you sure you want to delete it?')
+    if accept == QMessageBox.Yes:
+
+        for p in range(len(editor.notebook.page)):
+            if editor.focusWidget().objectName() == editor.notebook.page[p].title:
+
+                # Remove page from sidebar
+                editor.pages.itemAt(p).widget().deleteLater()
+
+                # If current page is deleted, remove widgets from editor
+                if editor.page == p:
+
+                    if(len(editor.notebook.page[p].section)) > 0:
+                        # Destroy all Sections
+                        for s in range(len(editor.notebook.page[p].section)):
+                            editor.sections.itemAt(s).widget().deleteLater()
+
+                        if(len(editor.notebook.page[p].section[editor.section].object)) > 0:
+                            # Destory all Objects
+                            for o in range(len(editor.notebook.page[p].section[editor.section].object)):
+                                editor.object[o].deleteLater()
+
+                # Remove objects from model
+
+                #Remove all objects from all sections in Page[del]
+                for s in range(len(editor.notebook.page[p].section)):
+                        if len(editor.notebook.page[p].section[s].object) > 0:
+                            editor.notebook.page[p].section[s].object.clear()
+
+                # Remove all sections from Page[del]
+                editor.notebook.page[p].section.clear()
+
+                # Remove Page[del] from Notebook
+                editor.notebook.page.pop(p)
+
+                # Set current page and section to 0 if exists, build widgets if exists
+                # If DNE, set page/section to -1
+                if editor.page == p:
+                    if len(editor.notebook.page) > 0:
+                        # Select Page[0] if exists
+                        editor.page = 0
+
+                        # Highlight Page[0]
+                        for p in range(editor.pages.count()):
+                            editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
+                        editor.pages.itemAt(0).widget().setStyleSheet("background-color: #c2c2c2")
+
+                        # Build Sections, Widgets select Section[0] if exists
+                        if len(editor.notebook.page[0].section) > 0:
+                            for s in range(len(editor.notebook.page[0].section)):
+                                params = editor.notebook.page[0].section[s]
+                                build_section(editor, params.title)
+                                editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
+                            editor.section = 0
+                            editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
+
+                            #CASE: Page[0]/Section[0] Exists: Build Widgets in Section[0]
+                            for o in range(len(editor.notebook.page[0].section[0].object)):
+                                params = editor.notebook.page[0].section[0].object[o]
+                                build_object(editor, params)
+                        else:
+                            editor.section = -1
+                    else:
+                        editor.page = -1
+                        editor.section = -1
+
+                # Stop search for page after found (can cause index OOB w/o)
+                return
+
+
