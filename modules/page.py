@@ -2,6 +2,8 @@ from models.notebook import *
 from modules.section import *
 
 from PySide6.QtWidgets import *
+from PySide6.QtCore import *
+from PySide6.QtGui import *
 
 # When a user creates a new page
 # 1 Call page.build_page to build a Widget and add to the sidebar (Page list)
@@ -20,8 +22,13 @@ def add_page(editor):
 # Case 1: When Notebook is loaded
 # Case 2: When new Page is created by user
 def build_page(editor, title):
+    page = QTextEdit(title)
     page = QPushButton(title)
-    page.clicked.connect(lambda: change_page(editor))
+    #page.clicked.connect(lambda: change_page(editor))
+    #page.mousePressEvent = lambda editor: change_page(editor)
+    page.mousePressEvent = lambda x: page_menu(editor, x)
+    #page.setContextMenuPolicy(Qt.CustomContextMenu)
+    #page.customContextMenuRequested.connect(lambda: page_menu(editor))
     page.setObjectName(title)
     editor.pages.addWidget(page)
 
@@ -65,7 +72,7 @@ def change_page(editor):
         for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
             params = editor.notebook.page[editor.page].section[editor.section].object[o]
             build_object(editor, params)
-        print("objectname", editor.sections.itemAt(editor.section).widget().objectName())
+        #print("objectname", editor.sections.itemAt(editor.section).widget().objectName())
         editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
     else:
         editor.section = -1
@@ -99,3 +106,40 @@ def add_page_change(editor):
         editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
 
     editor.pages.itemAt(editor.page).widget().setStyleSheet("background-color: #c2c2c2")
+
+# Handles Page Clicks
+def page_menu(editor, event):
+
+    # Change Page
+    if event.buttons() == Qt.LeftButton:
+        change_page(editor)
+
+    # Open Context Menu
+    if event.buttons() == Qt.RightButton:
+        page_menu = QMenu(editor)
+
+        rename = QAction("Rename", editor)
+        rename.triggered.connect(lambda: rename_page(editor))
+        page_menu.addAction(rename)
+
+        delete = QAction("Delete", editor)
+        delete.triggered.connect(lambda: delete_page(editor))
+        page_menu.addAction(delete)
+
+        page_menu.exec(event.globalPos())
+
+def rename_page(editor):
+    title, accept = QInputDialog.getText(editor, 'Change Page Title', 'Enter new title of new page: ')
+    if accept:
+        for p in range(len(editor.notebook.page)):
+            if editor.focusWidget().objectName() == editor.notebook.page[p].title:
+                editor.notebook.page[p].title = title
+        editor.focusWidget().setObjectName(title)
+        editor.focusWidget().setText(title)
+
+def delete_page(editor):
+    print("delete")
+    # delete all widgets
+    # delete all sections
+    # from notebook object and editor
+    # go to page 0 section 0 if exists, -1 if DNE
