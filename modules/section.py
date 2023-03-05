@@ -8,8 +8,8 @@ def add_section(editor):
     title, accept = QInputDialog.getText(editor, 'New Section Title', 'Enter title of new section: ')
     if accept:
         build_section(editor, title)
-        editor.section += 1
         editor.notebook.page[editor.page].section.append(Section(title))
+        editor.section += 1
 
 def build_section(editor, title):
     section = QPushButton(title)
