@@ -71,7 +71,3 @@ QPushButton#addPage {
 QPushButton#addPage::hover {
     background-color: #cecece;
 }
-
-QTextEdit {
-    background-color: #ffffff;
-}
