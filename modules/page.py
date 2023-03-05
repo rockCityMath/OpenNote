@@ -22,13 +22,8 @@ def add_page(editor):
 # Case 1: When Notebook is loaded
 # Case 2: When new Page is created by user
 def build_page(editor, title):
-    page = QTextEdit(title)
     page = QPushButton(title)
-    #page.clicked.connect(lambda: change_page(editor))
-    #page.mousePressEvent = lambda editor: change_page(editor)
     page.mousePressEvent = lambda x: page_menu(editor, x)
-    #page.setContextMenuPolicy(Qt.CustomContextMenu)
-    #page.customContextMenuRequested.connect(lambda: page_menu(editor))
     page.setObjectName(title)
     editor.pages.addWidget(page)
 
@@ -125,7 +120,7 @@ def page_menu(editor, event):
         page_menu.exec(event.globalPos())
 
 def rename_page(editor):
-    title, accept = QInputDialog.getText(editor, 'Change Page Title', 'Enter new title of new page: ')
+    title, accept = QInputDialog.getText(editor, 'Change Page Title', 'Enter new title of page: ')
     if accept:
         for p in range(len(editor.notebook.page)):
             if editor.focusWidget().objectName() == editor.notebook.page[p].title:
