@@ -21,9 +21,6 @@ def load(editor):
         file = open(path, 'rb')
         destroy(editor)
         editor.notebook = pickle.load(file)
-        editor.page = 0
-        editor.section = 0
-        #print("l", editor.notebook.page)
     build(editor)
 
 # Builds widgets for Page[0], Section[0] from params in loaded models.notebook.Notebook object
@@ -34,19 +31,25 @@ def build(editor):
     editor.setWindowTitle(editor.notebook.title + " - OpenNote")
     editor.notebook_title.setText(editor.notebook.title)
 
-    if len(editor.notebook.page) > 0:
+    if len(editor.notebook.page) > 0:   # If pages exist
+
         # Show all Pages in Notebook
         for p in range(len(editor.notebook.page)):
             params = editor.notebook.page[p]
             build_page(editor, params.title)    # Build functions add widgets to editor
+        editor.pages.itemAt(0).widget().setStyleSheet("background-color: #c2c2c2")
+        editor.page = 0
 
-        if len(editor.notebook.page[0].section) > 0:
+        if len(editor.notebook.page[0].section) > 0:    #If sections exist
+
             # Show all Sections in page 1
             for s in range(len(editor.notebook.page[0].section)):  
                 params = editor.notebook.page[0].section[s]
                 build_section(editor, params.title)
-    
-            if len(editor.notebook.page[0].section[0].object) > 0:
+            editor.sections.itemAt(0).widget().setStyleSheet("background-color: #c2c2c2")
+            editor.section = 0
+
+            if len(editor.notebook.page[0].section[0].object) > 0:  # If objects exist
                 # Show objects in page1, section1
                 for o in range(len(editor.notebook.page[0].section[0].object)):
                     params = editor.notebook.page[0].section[0].object[o]
