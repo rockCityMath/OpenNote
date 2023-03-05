@@ -12,8 +12,8 @@ def add_page(editor):
         build_page(editor, title)
         editor.notebook.page.append(Page(title))
         editor.page += 1
-        editor.section = 0
-        add_section(editor)
+        #editor.section = 0
+        #add_section(editor)
 
 # Create page widget in sidebar when
 # Case 1: When Notebook is loaded
@@ -32,25 +32,28 @@ def change_page(editor):
         store_section(editor)
 
     # Destroy all Widgets (TextBox, ImageObj, etc.)
-    for o in range(len(editor.object)):
-        editor.object[o].deleteLater()
+    if len(editor.object) > 0:
+        for o in range(len(editor.object)):
+            editor.object[o].deleteLater()
 
     # Empty list of Widgets in editor
     editor.object.clear()
 
     # Destroy all Section Widgets on current Page
-    for s in range(len(editor.notebook.page[editor.page].section)):
-        editor.sections.itemAt(s).widget().deleteLater()
+    if len(editor.notebook.page[editor.page].section) > 0:
+        for s in range(len(editor.notebook.page[editor.page].section)):
+            editor.sections.itemAt(s).widget().deleteLater()
 
     # edtor.page is set to new page
     #print("change page")
     for p in range(len(editor.notebook.page)):
         #print("page num", p)
-        #editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
+        #print("page title", editor.notebook.page[editor.page].title)
+        editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
         if(editor.focusWidget().objectName() == editor.notebook.page[editor.page].title):
             #print("selected page", p)
             #print(editor.focusWidget())
-            #editor.pages.itemAt(p).widget().setStyleSheet("background-color: #c2c2c2")
+            editor.pages.itemAt(p).widget().setStyleSheet("background-color: #c2c2c2")
             editor.page = p
     # Above can probably be improved
 
@@ -60,8 +63,10 @@ def change_page(editor):
 
     # editor.section is set to Section[0]
     # build all objects on Page[x], Section[0]
-    editor.section = 0
     if(len(editor.notebook.page[editor.page].section)) > 0:
+        editor.section = 0
         for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
             params = editor.notebook.page[editor.page].section[editor.section].object[o]
             build_object(editor, params)
+    else:
+        editor.section = -1
