@@ -11,6 +11,9 @@ def add_page(editor):
     if accept:
         build_page(editor, title)
         editor.notebook.page.append(Page(title))
+        editor.page += 1
+        editor.section = 0
+        add_section(editor)
 
 # Create page widget in sidebar when
 # Case 1: When Notebook is loaded
@@ -35,15 +38,30 @@ def change_page(editor):
     # Empty list of Widgets in editor
     editor.object.clear()
 
+    # Destroy all Section Widgets on current Page
+    for s in range(len(editor.notebook.page[editor.page].section)):
+        editor.sections.itemAt(s).widget().deleteLater()
+
     # edtor.page is set to new page
+    #print("change page")
     for p in range(len(editor.notebook.page)):
+        #print("page num", p)
+        #editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
         if(editor.focusWidget().objectName() == editor.notebook.page[editor.page].title):
+            #print("selected page", p)
+            #print(editor.focusWidget())
+            #editor.pages.itemAt(p).widget().setStyleSheet("background-color: #c2c2c2")
             editor.page = p
     # Above can probably be improved
+
+    # Build all Section Widgets on current Page
+    for s in range(len(editor.notebook.page[editor.page].section)):
+        build_section(editor, editor.notebook.page[editor.page].section[s].title)
 
     # editor.section is set to Section[0]
     # build all objects on Page[x], Section[0]
     editor.section = 0
-    for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
-        params = editor.notebook.page[editor.page].section[editor.section].object[o]
-        build_object(editor, params)
+    if(len(editor.notebook.page[editor.page].section)) > 0:
+        for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
+            params = editor.notebook.page[editor.page].section[editor.section].object[o]
+            build_object(editor, params)

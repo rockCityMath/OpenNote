@@ -11,15 +11,16 @@ from PySide6.QtGui import *
 
 # Loads models.notebook.Notebook class from file
 def load(editor):
-    path, _ = QFileDialog.getOpenFileName(
+    path, accept = QFileDialog.getOpenFileName(
         editor, 
         'Open Notebook',
         '',
         'OpenNote (*.on)'
     )
-
-    file = open(path, 'rb')
-    editor.notebook = pickle.load(file)
+    if accept:
+        file = open(path, 'rb')
+        destroy(editor)
+        editor.notebook = pickle.load(file)
 
     build(editor)
 
@@ -49,3 +50,16 @@ def build(editor):
     # Select page1, section1
     editor.page = 0
     editor.section = 0
+
+# Destroy all Widgets in the Current Notebook
+def destroy(editor):
+
+    if(len(editor.notebook.page)) > 0:
+        for p in range (len(editor.notebook.page)):
+            editor.pages.itemAt(p).widget().deleteLater()
+        if(len(editor.notebook.page[editor.page].section)) > 0:
+            for s in range(len(editor.notebook.page[editor.page].section)):
+                editor.sections.itemAt(s).widget().deleteLater()
+            if(len(editor.notebook.page[editor.page].section[editor.section].object)) > 0:
+                for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
+                    editor.object[o].deleteLater()
