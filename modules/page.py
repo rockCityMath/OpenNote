@@ -155,6 +155,7 @@ def delete_page(editor):
                             # Destory all Objects
                             for o in range(len(editor.notebook.page[p].section[editor.section].object)):
                                 editor.object[o].deleteLater()
+                            editor.object.clear()
 
                 # Remove objects from model
 
