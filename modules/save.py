@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QFileDialog
 
 # Dump models.notebook.Notebook into .on file
 def save(editor, notebook):
+    editor.notebook.title = editor.notebook_title.toPlainText()
     store_section(editor)   # Add objects from user's current section to models.notebook.Notebook
     if notebook.path:       # If a file does not exist, call saveAs to create one
         file = open(notebook.path, "wb")
@@ -14,12 +15,13 @@ def save(editor, notebook):
         saveAs(editor, notebook)
 
 def saveAs(editor, notebook):
-    path, _ = QFileDialog.getSaveFileName(
+    path, accept = QFileDialog.getSaveFileName(
         editor,
         'Save notebook as',
-        '',
+        editor.notebook.title,
         'OpenNote (*.on)'
     )
-    notebook.path = path
-    save(editor, notebook)
+    if accept:
+        notebook.path = path
+        save(editor, notebook)
    

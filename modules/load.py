@@ -14,6 +14,7 @@ from PySide6.QtGui import *
 def new(editor):
     destroy(editor)
     editor.notebook = Notebook('Untitled')
+    editor.notebook_title.setText(editor.notebook.title)
     editor.page = -1
     editor.section = -1
     editor.selected = None
