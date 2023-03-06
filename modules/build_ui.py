@@ -20,6 +20,8 @@ def build_ui(editor):
     build_window(editor)
     build_menubar(editor)
     build_toolbar(editor)
+
+
     container = QWidget()
     grid = QGridLayout()
     editor.setCentralWidget(container)
@@ -29,8 +31,13 @@ def build_ui(editor):
 
     # sidebar and workspace layout
     sidebar = QVBoxLayout()
+    sidebar_widget = QWidget()
+    sidebar_widget.setFixedWidth(250)
+    sidebar_widget.setLayout(sidebar)
+    #sidebar.setContentsMargins(0, 0, 0, 0)
     workspace = QVBoxLayout()
-    grid.addLayout(sidebar, 0, 0, -1, 1)
+    #grid.addLayout(sidebar, 0, 0, -1, 1)
+    grid.addWidget(sidebar_widget)
     grid.addLayout(workspace, 0, 1, -1, 1)
     grid.setColumnStretch(0, 1)
     grid.setColumnStretch(1, 4)
@@ -42,6 +49,8 @@ def build_ui(editor):
     editor.pages_title = QLabel()
     editor.pages_title.setFixedHeight(40)
     editor.pages = QVBoxLayout()
+    sidebar.setContentsMargins(0, 0, 0, 0)
+    editor.pages.setContentsMargins(0, 0, 0, 0)
     editor.pages_frame = QFrame()
     
     #sidebar.setStretchFactor(editor.pages, 1)
@@ -54,12 +63,32 @@ def build_ui(editor):
     sidebar.addWidget(addPage)
 
     # workspace widgets
+
+
+    sections = QHBoxLayout()
+    sections_widget = QWidget()
+    sections_widget.setFixedHeight(40)
+    sections_widget.setLayout(sections)
+    
+
     editor.sections = QHBoxLayout()
-    workspace.addLayout(editor.sections)
+    editor.sections_frame = QFrame()
+
+    editor.add_section = QPushButton("+")
+    editor.add_section.setFixedWidth(50)
+    editor.add_section.setStyleSheet("background-color: #c2c2c2;")
+    editor.add_section.clicked.connect(lambda: add_section(editor))
+    sections.addWidget(editor.add_section)
+    sections.addLayout(editor.sections)
+    sections.addWidget(editor.sections_frame)
+    sections.setContentsMargins(0, 0, 0, 0)
+    editor.sections.setContentsMargins(0, 0, 0, 0)
+    workspace.addWidget(sections_widget)
+
     editor.frame = QFrame(editor)
     editor.frame.setStyleSheet("background-color: white;")
+    editor.frame.mousePressEvent = lambda event: frame_menu(editor, event)
     workspace.addWidget(editor.frame)
-
 
     # stylesheet reference
     container.setObjectName("container")
@@ -84,7 +113,7 @@ def build_window(editor):
 def build_menubar(editor):
     file = editor.menuBar().addMenu('&File')
     #edit = editor.menuBar().addMenu('&edit')
-    items = editor.menuBar().addMenu('&Items')
+    plugins = editor.menuBar().addMenu('&Plugins')
 
     new_file = build_action(editor, 'assets/icons/svg_file_open', 'New Notebook...', 'New Notebook', False)
     new_file.setShortcut(QKeySequence.StandardKey.New)
@@ -127,22 +156,9 @@ def build_toolbar(editor):
     underline = build_action(toolbar, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
     underline.toggled.connect(lambda x: editor.selected.setFontUnderline(True if x else False))
 
-    editor.add_section = QPushButton("Add Section")
-    editor.add_section.clicked.connect(lambda: add_section(editor))
-
-    editor.add_textbox = QPushButton("Add Text")
-    editor.add_textbox.clicked.connect(lambda: add_object(editor, 'text'))
-
-    editor.add_image = QPushButton("Add Image")
-    editor.add_image.clicked.connect(lambda: add_object(editor, 'image'))
-
     toolbar.addWidget(font)
     toolbar.addWidget(size)
     toolbar.addActions([bold, italic, underline])
-    toolbar.addSeparator()
-    toolbar.addWidget(editor.add_section)
-    toolbar.addWidget(editor.add_textbox)
-    toolbar.addWidget(editor.add_image)
 
 
 def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
@@ -151,4 +167,18 @@ def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action.setCheckable(set_checkable)
     return action
 
+def frame_menu(editor, event):
+    # Open Context Menu
+    if event.buttons() == Qt.RightButton:
+        if editor.section > -1:
+            frame_menu = QMenu(editor)
 
+            add_textbox = QAction("Add Text", editor)
+            add_textbox.triggered.connect(lambda: add_object(editor, event, 'text'))
+            frame_menu.addAction(add_textbox)
+
+            add_image = QAction("Add Image", editor)
+            add_image.triggered.connect(lambda: add_object(editor, event, 'image'))
+            frame_menu.addAction(add_image)
+
+            frame_menu.exec(event.globalPos())
