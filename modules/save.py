@@ -15,12 +15,13 @@ def save(editor, notebook):
         saveAs(editor, notebook)
 
 def saveAs(editor, notebook):
-    path, _ = QFileDialog.getSaveFileName(
+    path, accept = QFileDialog.getSaveFileName(
         editor,
         'Save notebook as',
-        '',
+        editor.notebook.title,
         'OpenNote (*.on)'
     )
-    notebook.path = path
-    save(editor, notebook)
+    if accept:
+        notebook.path = path
+        save(editor, notebook)
    
