@@ -11,6 +11,12 @@ from PySide6.QtGui import *
 def add_page(editor):
     title, accept = QInputDialog.getText(editor, 'New Page Title', 'Enter title of new page: ')
     if accept:
+        for p in range(len(editor.notebook.page)):
+            if title == editor.notebook.page[p].title:
+                error = QMessageBox(editor)
+                error.setText("A Page with that name already exists.")
+                error.show()
+                return
         build_page(editor, title)
         editor.notebook.page.append(Page(title))
         add_page_change(editor)
@@ -121,6 +127,12 @@ def page_menu(editor, event):
 def rename_page(editor):
     title, accept = QInputDialog.getText(editor, 'Change Page Title', 'Enter new title of page: ')
     if accept:
+        for p in range(len(editor.notebook.page)):
+            if title == editor.notebook.page[p].title:
+                error = QMessageBox(editor)
+                error.setText("A Page with that name already exists.")
+                error.show()
+                return
         for p in range(len(editor.notebook.page)):
             if editor.focusWidget().objectName() == editor.notebook.page[p].title:
                 editor.notebook.page[p].title = title

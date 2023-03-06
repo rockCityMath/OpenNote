@@ -9,6 +9,12 @@ from PySide6.QtGui import *
 def add_section(editor):
     title, accept = QInputDialog.getText(editor, 'New Section Title', 'Enter title of new section: ')
     if accept:
+        for s in range(len(editor.notebook.page[editor.page].section)):
+            if title == editor.notebook.page[editor.page].section[s].title:
+                error = QMessageBox(editor)
+                error.setText("A section with that name already exists.")
+                error.show()
+                return
         build_section(editor, title)
         editor.notebook.page[editor.page].section.append(Section(title))
         editor.section += 1
@@ -79,6 +85,12 @@ def section_menu(editor, event):
 def rename_section(editor):
     title, accept = QInputDialog.getText(editor, 'Change Section Title', 'Enter new title of section: ')
     if accept:
+        for s in range(len(editor.notebook.page[editor.page].section)):
+            if title == editor.notebook.page[editor.page].section[s].title:
+                error = QMessageBox(editor)
+                error.setText("A section with that name already exists.")
+                error.show()
+                return
         for s in range(len(editor.notebook.page[editor.page].section)):
             if editor.focusWidget().objectName() == editor.notebook.page[editor.page].section[s].title:
                 editor.notebook.page[editor.page].section[s].title = title
