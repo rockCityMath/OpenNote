@@ -1,5 +1,6 @@
 import pickle
 
+from models.notebook import *
 from models.object import TextBox
 from modules.page import build_page
 from modules.section import build_section
@@ -8,6 +9,15 @@ from modules.object import build_object
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
+
+# Creates a new notebook
+def new(editor):
+    destroy(editor)
+    editor.notebook = Notebook('Untitled')
+    editor.page = -1
+    editor.section = -1
+    editor.selected = None
+    editor.object = []
 
 # Loads models.notebook.Notebook class from file
 def load(editor):
