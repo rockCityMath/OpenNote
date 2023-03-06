@@ -11,16 +11,14 @@ class Editor(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        build_ui(self)
-
         # When the application is started, open a new, empty notebook
-        self.notebook = Notebook('Untitled')    # Current notebook object
+        self.notebook = Notebook('Untitled Notebook')    # Current notebook object
         self.object = []                        # List of Widgets on current Page/Section
         self.page = -1                          # Index of current Page (New notebook has no pages: set to -1)
         self.section = -1                       # Index of current Section (New notebook has no sections: set to -1)
         self.selected = None                    # Selected object (for font attributes of TextBox)
 
-        new(self)
+        build_ui(self)
 
         # models.notebook.Notebook is where all Notebook and Object data is stored
         # models.object.* are models for Widgets used in the editor
