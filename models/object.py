@@ -11,9 +11,10 @@ class TextBox(QTextEdit):
         textbox.setStyleSheet("border: 1px dashed #000;")
         textbox.setGeometry(x, y, w, h)
         textbox.setText(text)
-        #textbox.mouseDoubleClickEvent = lambda x: object_menu(editor, x)
-        textbox.mouseDoubleClickEvent = lambda x: dragEvent(editor, x)
+        textbox.mouseReleaseEvent = lambda pos: select(editor, pos)
+        textbox.mouseDoubleClickEvent = lambda event: drag(editor, event)
         textbox.setContextMenuPolicy(Qt.CustomContextMenu)
+        textbox.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
         textbox.show()
 
 class ImageObj(QTextEdit):
@@ -23,29 +24,41 @@ class ImageObj(QTextEdit):
         image.setGeometry(x, y, w, h)
         fragment = QTextDocumentFragment.fromHtml(f"<img src={path} height='%1' width='%2'>")
         image.textCursor().insertFragment(fragment)
-        image.mousePressEvent = lambda x: object_menu(editor, x)
-        image.mouseDoubleClickEvent = lambda x: dragEvent(editor, x)
+        image.mouseDoubleClickEvent = lambda event: drag(editor, event)
+        image.setContextMenuPolicy(Qt.CustomContextMenu)
+        image.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
         image.show()
 
-def dragEvent(self, event): 
+# Select TextBox for font styling
+def select(editor, event):
+    editor.selected = editor.focusWidget()
 
+def drag(editor, event): 
     if (event.buttons() == Qt.LeftButton):
-        drag = QDrag(self)
+        drag = QDrag(editor)
         mimeData = QMimeData()
         drag.setMimeData(mimeData)
         drag.exec(Qt.MoveAction)   
 
-def object_menu(editor, event):
-    if event.buttons() == Qt.LeftButton:
-        editor.selected = editor.focusWidget()
-    if event.buttons() == Qt.RightButton:
-        object_menu = QMenu(editor)
+def object_menu(editor, pos):
+    object_menu = QMenu(editor)
 
-        delete = QAction("Delete", editor)
-        delete.triggered.connect(lambda: delete_object(editor))
-        object_menu.addAction(delete)
+    delete = QAction("Delete", editor)
+    delete.triggered.connect(lambda: delete_object(editor))
+    object_menu.addAction(delete)
 
-        object_menu.exec(event.globalPos())
+    object_menu.exec(editor.focusWidget().viewport().mapToGlobal(pos))
 
 def delete_object(editor):
-    print("delete")
+
+    for o in range(len(editor.object)):
+        if (editor.object[o] == editor.focusWidget()):
+
+            # Remove Widget from editor
+            editor.object[o].deleteLater()
+            editor.object.pop(o)
+
+            #Remove object from model
+            editor.notebook.page[editor.page].section[editor.section].object.pop(o)
+            return
+
