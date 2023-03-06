@@ -26,10 +26,6 @@ class Editor(QMainWindow):
         #   The editor will create and destroy Widgets per Page/Section (see modules.page.change_section, modules.load.build)
         #       A Section's Widgets also exist in self.object, ordered by time of creation
 
-    # Select object event (for text styling)
-    def select(self, event):
-        self.selected = self.focusWidget()
-
     # Drag object event
     def dragEnterEvent(self, event):
         event.acceptProposedAction()
