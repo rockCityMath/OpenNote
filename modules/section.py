@@ -12,6 +12,9 @@ def add_section(editor):
         build_section(editor, title)
         editor.notebook.page[editor.page].section.append(Section(title))
         editor.section += 1
+        for s in range(len(editor.notebook.page[editor.page].section)):
+            editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
+        editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
 
 def build_section(editor, title):
     section = QPushButton(title)
@@ -84,5 +87,47 @@ def rename_section(editor):
         editor.focusWidget().setText(title)
 
 def delete_section(editor):
-    print("delete")
-    return
+    accept = QMessageBox.question(editor, 'Delete Section', 'Deleting this section will delete all objects inside it. Are you sure you want to delete it?')
+    if accept == QMessageBox.Yes:
+
+        p = editor.page
+
+        for s in range(len(editor.notebook.page[p].section)):
+            if editor.focusWidget().objectName() == editor.notebook.page[p].section[s].title:
+
+                #Remove section Widget from editor
+                editor.sections.itemAt(s).widget().deleteLater()
+
+                # If current section is deleted, remove all objects from editor
+                if editor.section == s:
+                    if len(editor.notebook.page[p].section[s].object) > 0:
+                        
+                        for o in range(len(editor.notebook.page[p].section[s].object)):
+                            editor.object[o].deleteLater()
+                        editor.object.clear()
+
+                # Remove objects from model
+                if len(editor.notebook.page[p].section[s].object) > 0:
+                    editor.notebook.page[p].section[s].object.clear()
+                
+                # Remove section from model
+                editor.notebook.page[p].section.pop(s)
+
+                if editor.section == s:
+                    if len(editor.notebook.page[p].section) > 0:
+                        editor.section = 0
+
+                        for x in range(editor.sections.count()):
+                            editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
+                        editor.sections.itemAt(0).widget().setStyleSheet("background-color: #c2c2c2")
+
+                        if len(editor.notebook.page[p].section[0].object) > 0:
+                            for o in range(len(editor.notebook.page[p].section[0].object)):
+                                params = editor.notebook.page[p].section[0].object[o]
+                                build_object(editor, params)
+                else:
+                    editor.section = -1
+
+                return
+
+
