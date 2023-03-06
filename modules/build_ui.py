@@ -1,5 +1,5 @@
 from modules.save import save, saveAs
-from modules.load import load
+from modules.load import new, load
 from modules.page import add_page
 from modules.section import add_section
 from modules.object import add_object
@@ -76,22 +76,26 @@ def build_window(editor):
 
 def build_menubar(editor):
     file = editor.menuBar().addMenu('&File')
-    edit = editor.menuBar().addMenu('&edit')
-    items = editor.menuBar().addMenu('&items')
+    #edit = editor.menuBar().addMenu('&edit')
+    items = editor.menuBar().addMenu('&Items')
 
-    open_file = build_action(editor, 'styles/icons/svg_file_open', 'Open Notebook...', 'Open Notebook', False)
+    new_file = build_action(editor, 'assets/icons/svg_file_open', 'New Notebook...', 'New Notebook', False)
+    new_file.setShortcut(QKeySequence.StandardKey.New)
+    new_file.triggered.connect(lambda: new(editor))
+
+    open_file = build_action(editor, 'assets/icons/svg_file_open', 'Open Notebook...', 'Open Notebook', False)
     open_file.setShortcut(QKeySequence.StandardKey.Open)
     open_file.triggered.connect(lambda: load(editor))
 
-    save_file = build_action(editor, 'styles/icons/svg_file_save', 'Save Notebook', 'Save Notebook', False)
+    save_file = build_action(editor, 'assets/icons/svg_file_save', 'Save Notebook', 'Save Notebook', False)
     save_file.setShortcut(QKeySequence.StandardKey.Save)
     save_file.triggered.connect(lambda: save(editor, editor.notebook))
 
-    save_fileAs = build_action(editor, 'styles/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
+    save_fileAs = build_action(editor, 'assets/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
     save_fileAs.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
     save_fileAs.triggered.connect(lambda: saveAs(editor, editor.notebook))
 
-    file.addActions([open_file, save_file, save_fileAs])
+    file.addActions([new_file, open_file, save_file, save_fileAs])
 
 
 def build_toolbar(editor):
