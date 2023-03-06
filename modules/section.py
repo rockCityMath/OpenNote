@@ -7,25 +7,31 @@ from PySide6.QtGui import *
 
 # Refer to page.(add, build, change)_page in Page.py for notes
 def add_section(editor):
-    title, accept = QInputDialog.getText(editor, 'New Section Title', 'Enter title of new section: ')
-    if accept:
-        for s in range(len(editor.notebook.page[editor.page].section)):
-            if title == editor.notebook.page[editor.page].section[s].title:
-                error = QMessageBox(editor)
-                error.setText("A section with that name already exists.")
-                error.show()
-                return
-        build_section(editor, title)
-        editor.notebook.page[editor.page].section.append(Section(title))
-        editor.section += 1
-        for s in range(len(editor.notebook.page[editor.page].section)):
-            editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
-        editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
+    if editor.page > -1:
+        title, accept = QInputDialog.getText(editor, 'New Section Title', 'Enter title of new section: ')
+        if accept:
+            for s in range(len(editor.notebook.page[editor.page].section)):
+                if title == editor.notebook.page[editor.page].section[s].title:
+                    error = QMessageBox(editor)
+                    error.setText("A section with that name already exists.")
+                    error.show()
+                    return
+            build_section(editor, title)
+            editor.notebook.page[editor.page].section.append(Section(title))
+            editor.section += 1
+            for s in range(len(editor.notebook.page[editor.page].section)):
+                editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
+            editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
+    else:
+        error = QMessageBox(editor)
+        error.setText("Cannot create a section without a page.")
+        error.show()
 
 def build_section(editor, title):
     section = QPushButton(title)
     section.mousePressEvent = lambda x: section_menu(editor, x)
     section.setObjectName(title)
+    editor.sections_frame.setFixedWidth(0)
     editor.sections.addWidget(section)
 
 def change_section(editor):

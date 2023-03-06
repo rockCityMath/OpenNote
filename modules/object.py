@@ -7,11 +7,11 @@ from PySide6.QtWidgets import *
 # 1 Create a Widget of (type)
 # 2 Create an Object of (type) and add it to models.Notebook.Page[x].Section[x]
 # 3 Add Widget to editor.object list (List of widgets in Page[current], Section[current])
-def add_object(editor, type):
+def add_object(editor, event, type):
 
     # Defaults for object
-    x = 300
-    y = 300
+    x = event.pos().x() + 250
+    y = event.pos().y() + 130
     w = 100
     h = 100
     t = '...'
