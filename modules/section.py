@@ -18,7 +18,6 @@ def add_section(editor):
 
 def build_section(editor, title):
     section = QPushButton(title)
-    #section.clicked.connect(lambda: change_section(editor))
     section.mousePressEvent = lambda x: section_menu(editor, x)
     section.setObjectName(title)
     editor.sections.addWidget(section)
