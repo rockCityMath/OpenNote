@@ -1,5 +1,6 @@
 from models.notebook import *
 from modules.build_ui import *
+from modules.load import new
 
 from PyQt6 import *
 from PySide6.QtCore import *
@@ -18,6 +19,8 @@ class Editor(QMainWindow):
         self.page = -1                          # Index of current Page (New notebook has no pages: set to -1)
         self.section = -1                       # Index of current Section (New notebook has no sections: set to -1)
         self.selected = None                    # Selected object (for font attributes of TextBox)
+
+        new(self)
 
         # models.notebook.Notebook is where all Notebook and Object data is stored
         # models.object.* are models for Widgets used in the editor

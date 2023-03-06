@@ -36,7 +36,8 @@ def build_ui(editor):
     grid.setColumnStretch(1, 4)
 
     # sidebar widgets
-    editor.notebook_title = QLabel()
+    editor.notebook_title = QTextEdit()
+    editor.notebook_title.setFixedHeight(40)
     editor.pages_title = QLabel()
     editor.pages = QVBoxLayout()
     addPage = QPushButton("Create New Page")
