@@ -16,7 +16,6 @@ def add_page(editor):
         add_page_change(editor)
         editor.section = -1
         add_section(editor)
-        editor.sections.itemAt(0).widget().setStyleSheet("background-color: #c2c2c2")
 
 # Create page widget in sidebar when
 # Case 1: When Notebook is loaded
