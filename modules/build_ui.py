@@ -3,6 +3,7 @@ from modules.load import new, load
 from modules.page import add_page
 from modules.section import add_section
 from modules.object import add_object
+from modules.plugins import get_plugins
 
 from PyQt6 import *
 from PySide6.QtCore import *
@@ -133,6 +134,14 @@ def build_menubar(editor):
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
 
+    for name, c in get_plugins():
+        displayName = getattr(c,"DisplayName",name)
+        shortcut = getattr(c,"ShortcutKey","")
+        item_action = build_action(editor,'',displayName,displayName,False)
+        if shortcut!="":
+            item_action.setShortcut(QKeySequence.fromString(shortcut))
+        #item_action.triggered.connect(self.addItem)
+        plugins.addActions([item_action])
 
 def build_toolbar(editor):
     toolbar = QToolBar()
