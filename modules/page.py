@@ -22,6 +22,7 @@ def add_page(editor):
         add_page_change(editor)
         editor.section = -1
         add_section(editor)
+        editor.autosaver.onChangeMade()
 
 # Create page widget in sidebar when
 # Case 1: When Notebook is loaded
@@ -102,6 +103,7 @@ def add_page_change(editor):
         editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
 
     editor.pages.itemAt(editor.page).widget().setStyleSheet("background-color: #c2c2c2")
+    editor.autosaver.onChangeMade()
 
 # Handles Page Clicks
 def page_menu(editor, event):
@@ -138,6 +140,7 @@ def rename_page(editor):
                 editor.notebook.page[p].title = title
         editor.focusWidget().setObjectName(title)
         editor.focusWidget().setText(title)
+        editor.autosaver.onChangeMade()
 
 def delete_page(editor):
     accept = QMessageBox.question(editor, 'Delete Page', 'Deleting this page will delete all sections and objects inside it. Are you sure you want to delete it?')
@@ -209,5 +212,5 @@ def delete_page(editor):
 
                 # Stop search for page after found (can cause index OOB w/o)
                 return
-
+        editor.autosaver.onChangeMade()
 

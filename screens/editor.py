@@ -1,6 +1,7 @@
 from models.notebook import *
 from modules.build_ui import *
 from modules.load import new
+from modules.save import Autosaver
 
 from PyQt6 import *
 from PySide6.QtCore import *
@@ -17,6 +18,7 @@ class Editor(QMainWindow):
         self.page = -1                          # Index of current Page (New notebook has no pages: set to -1)
         self.section = -1                       # Index of current Section (New notebook has no sections: set to -1)
         self.selected = None                    # Selected object (for font attributes of TextBox)
+        self.autosaver = Autosaver(self, self.notebook)  # Object with method for indicating changes and determining if we should autosave  
 
         build_ui(self)
 
@@ -39,3 +41,4 @@ class Editor(QMainWindow):
             return
         self.focusWidget().move(event.pos().x(), event.pos().y())
         event.acceptProposedAction()
+        self.autosaver.onChangeMade()

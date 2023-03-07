@@ -5,6 +5,7 @@ from models.object import TextBox
 from modules.page import build_page
 from modules.section import build_section
 from modules.object import build_object
+from modules.save import Autosaver
 
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
@@ -47,6 +48,9 @@ def build(editor):
     # Display Notebook title
     editor.setWindowTitle(editor.notebook.title + " - OpenNote")
     editor.notebook_title.setText(editor.notebook.title)
+
+    # Initialize the autosaver
+    editor.autosaver = Autosaver(editor, editor.notebook)
 
     if len(editor.notebook.page) > 0:   # If pages exist
 
