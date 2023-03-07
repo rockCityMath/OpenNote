@@ -26,6 +26,7 @@ def add_object(editor, event, type):
             editor, 
             'Add Image',
         )
+        print(path)
         image = ImageObj(editor, x, y, w+100, h+100, path)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
         editor.object.append(image)  
@@ -42,3 +43,20 @@ def build_object(editor, params):
     if params.type == "image":
         image = ImageObj(editor, params.x, params.y, params.w, params.h, params.path)
         editor.object.append(image)
+    
+    if params.type == 'plugin':
+        params.show()
+        editor.object.append(params)
+
+def add_plugin_object(editor, event, name, c):
+
+    # Defaults for object
+    x = event.pos().x() + 250
+    y = event.pos().y() + 130
+    w = 100
+    h = 100
+
+    inst = c(editor,x,y,w,h)
+    editor.notebook.page[editor.page].section[editor.section].object.append(inst)
+    editor.object.append(inst)
+
