@@ -7,10 +7,10 @@ def get_plugins():
     for filename in os.listdir("./plugins"):
         if filename[-3:]!=".py": continue
         className = filename[:-3]
-				#begin magic
+        #begin magic
         module = importlib.__import__(f"plugins.{className}")
         c = getattr(getattr(module,className),className)
-				#end magic
+        #end magic
         plugins[className]=c
 
     return plugins.items()

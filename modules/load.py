@@ -32,6 +32,12 @@ def load(editor):
         file = open(path, 'rb')
         destroy(editor)
         editor.notebook = pickle.load(file)
+        for page in editor.notebook.page:
+          for section in page.section:
+            for o in section.object:
+              if o.type=="plugin":
+                o.restoreWidget(editor)
+                o.hide()
     build(editor)
 
 # Builds widgets for Page[0], Section[0] from params in loaded models.notebook.Notebook object

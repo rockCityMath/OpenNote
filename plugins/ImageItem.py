@@ -2,41 +2,44 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
-class TextboxItem(QTextEdit):
-    DisplayName = "Textbox"
-    def __init__(self, editor, x, y, w, h):
+class ImageItem(QTextEdit):
+    DisplayName = "Image"
+    def __init__(self, editor, x, y, w, h, path=None):
         super().__init__(editor)
-        self.setStyleSheet("border: 1px dashed #000;")
+        if path==None:
+            path, _ = QFileDialog.getOpenFileName(
+                editor, 
+                'Add Image',
+            )
+
         self.setGeometry(x, y, w, h)
-        self.setText("...")
-        self.mouseReleaseEvent = lambda pos: select(editor, pos)
+        self.path = path
+        fragment = QTextDocumentFragment.fromHtml(f"<img src={path} height='%1' width='%2'>")
+        self.textCursor().insertFragment(fragment)
         self.mouseDoubleClickEvent = lambda event: drag(editor, event)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(lambda event: object_menu(editor, event, self))
-        self.type='plugin' #hack until old sys is removed
+        self.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
+        self.type="plugin"
         self.show()
     
     def __getstate__(self):
-      data = {}
-      data['pos'] = self.geometry()
-      data['text'] = self.toHtml()
-      data['style'] = self.styleSheet()
+        data = {}
+        data['pos'] = self.geometry()
+        data['path'] = self.path
 
-      return data
+        return data
 
     def __setstate__(self,data):
-      self.type='plugin'
-      self.__data=data
+        self.type='plugin'
+        self.__data=data
       
     def restoreWidget(self,editor): #mega hack to deal with qt
-      x,y,w,h = self.__data['pos'].getRect()
-      self.__init__(editor,x,y,w,h)
-      self.setText(self.__data['text'])
-      self.setStyleSheet(self.__data['style'])
+        x,y,w,h = self.__data['pos'].getRect()
+        self.__init__(editor,x,y,w,h,path=self.__data['path'])
 
 
     def deleteLater(self): #ultra hack
-      self.hide()
+        self.hide()
 
 def select(editor, event):
     editor.selected = editor.focusWidget()

@@ -39,3 +39,16 @@ class Editor(QMainWindow):
             return
         self.focusWidget().move(event.pos().x(), event.pos().y())
         event.acceptProposedAction()
+
+    def deleteObject(self):
+
+      for o in range(len(self.object)):
+        if (self.object[o] == self.focusWidget()):
+
+          # Remove Widget from self
+          self.object[o].deleteLater()
+          self.object.pop(o)
+
+          #Remove object from model
+          self.notebook.page[self.page].section[self.section].object.pop(o)
+          return
