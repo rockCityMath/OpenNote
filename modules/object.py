@@ -28,7 +28,9 @@ def add_object(editor, event, type):
         )
         image = ImageObj(editor, x, y, w+100, h+100, path)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
-        editor.object.append(image)  
+        editor.object.append(image)
+
+    editor.autosaver.onChangeMade()
 
 # Create Widget of (type) with (params) from models.Notebook.Page[x].Section[x]
 # Case 1: When a Notebook is loaded, function is called for every 

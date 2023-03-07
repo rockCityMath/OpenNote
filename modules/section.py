@@ -22,6 +22,7 @@ def add_section(editor):
             for s in range(len(editor.notebook.page[editor.page].section)):
                 editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
             editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
+            editor.autosaver.onChangeMade()
     else:
         error = QMessageBox(editor)
         error.setText("Cannot create a section without a page.")
@@ -102,6 +103,7 @@ def rename_section(editor):
                 editor.notebook.page[editor.page].section[s].title = title
         editor.focusWidget().setObjectName(title)
         editor.focusWidget().setText(title)
+        editor.autosaver.onChangeMade()
 
 def delete_section(editor):
     accept = QMessageBox.question(editor, 'Delete Section', 'Deleting this section will delete all objects inside it. Are you sure you want to delete it?')
@@ -144,7 +146,8 @@ def delete_section(editor):
                                 build_object(editor, params)
                 else:
                     editor.section = -1
-
+                    
+                editor.autosaver.onChangeMade()
                 return
-
+        editor.autosaver.onChangeMade()
 
