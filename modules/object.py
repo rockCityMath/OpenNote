@@ -1,6 +1,6 @@
 from models.notebook import *
 from models.object import *
-
+from modules.undo import *
 from PySide6.QtWidgets import *
 
 # When a user creates a new Object (TextBox, ImageObj, etc.)
@@ -20,7 +20,8 @@ def add_object(editor, event, type):
         text = TextBox(editor, x, y, w, h, t)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
         editor.object.append(text)  
-
+        cmd = Undo({'type':'text', 'action':'create'})
+        editor.undo_stack.append(cmd)
     if type == 'image':
         path, _ = QFileDialog.getOpenFileName(
             editor, 
@@ -30,6 +31,8 @@ def add_object(editor, event, type):
         image = ImageObj(editor, x, y, w+100, h+100, path)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
         editor.object.append(image)
+        cmd = Undo({'type':'image', 'action':'create'})
+        editor.undo_stack.append(cmd)
 
     editor.autosaver.onChangeMade()
 
