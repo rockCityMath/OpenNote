@@ -5,7 +5,6 @@ from modules.section import add_section
 from modules.object import add_object,add_plugin_object
 from modules.plugins import get_plugins
 
-from PyQt6 import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
