@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 *.git
 *.on
+*.ontemp
 *.png
 *.jpg
 *.vim

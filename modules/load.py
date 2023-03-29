@@ -27,7 +27,7 @@ def load(editor):
         editor, 
         'Open Notebook',
         '',
-        'OpenNote (*.on)'
+        'OpenNote (*.on *.ontemp)'
     )
     if accept:
         file = open(path, 'rb')
@@ -39,6 +39,8 @@ def load(editor):
               if o.type=="plugin":
                 o.restoreWidget(editor)
                 o.hide()
+    else:
+        return
     build(editor)
 
 # Builds widgets for Page[0], Section[0] from params in loaded models.notebook.Notebook object
