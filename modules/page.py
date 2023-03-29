@@ -31,7 +31,7 @@ def add_page(editor):
 # Case 2: When new Page is created by user
 def build_page(editor, title):
     page = QPushButton(title)
-    page.mousePressEvent = lambda x: page_menu(editor, x)
+    page.mousePressEvent = lambda x: page_menu(editor, page, x)
     page.setObjectName(title)
     editor.pages.addWidget(page)
 
@@ -108,8 +108,8 @@ def add_page_change(editor):
     editor.autosaver.onChangeMade()
 
 # Handles Page Clicks
-def page_menu(editor, event):
-
+def page_menu(editor, page, event):
+    page.setFocus()
     # Change Page
     if event.buttons() == Qt.LeftButton:
         change_page(editor)

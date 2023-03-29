@@ -3,7 +3,6 @@ from modules.build_ui import *
 from modules.load import new
 from modules.save import Autosaver
 
-from PyQt6 import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *

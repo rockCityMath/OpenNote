@@ -30,14 +30,13 @@ def add_section(editor):
 
 def build_section(editor, title):
     section = QPushButton(title)
-    section.mousePressEvent = lambda x: section_menu(editor, x)
+    section.mousePressEvent = lambda x: section_menu(editor, section, x)
     section.setObjectName(title)
     editor.sections_frame.setFixedWidth(0)
     editor.sections.addWidget(section)
 
-def change_section(editor):
+def change_section(editor, section):
     store_section(editor)
-
     for o in range(len(editor.object)):
         editor.object[o].deleteLater()
     editor.object.clear()
@@ -47,7 +46,6 @@ def change_section(editor):
         if(editor.focusWidget().objectName() == editor.notebook.page[editor.page].section[s].title):
             editor.sections.itemAt(s).widget().setStyleSheet("background-color: #c2c2c2")
             editor.section = s
-
     for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
         params = editor.notebook.page[editor.page].section[editor.section].object[o]
         build_object(editor, params)
@@ -70,10 +68,11 @@ def store_section(editor):
                     editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
                     editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
 
-def section_menu(editor, event):
+def section_menu(editor, section, event):
+    section.setFocus()
     # Change Page
     if event.buttons() == Qt.LeftButton:
-        change_section(editor)
+        change_section(editor, section)
 
     # Open Context Menu
     if event.buttons() == Qt.RightButton:

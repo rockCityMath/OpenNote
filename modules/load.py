@@ -51,6 +51,8 @@ def build(editor):
 
     # Initialize the autosaver
     editor.autosaver = Autosaver(editor, editor.notebook)
+    editor.object = []
+    editor.selected = None
 
     if len(editor.notebook.page) > 0:   # If pages exist
 
