@@ -11,6 +11,9 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
+import os
+from pathlib import Path
+
 # Creates a new notebook
 def new(editor):
     destroy(editor)
@@ -20,6 +23,7 @@ def new(editor):
     editor.section = -1
     editor.selected = None
     editor.object = []
+    editor.autosaver = Autosaver(editor, editor.notebook)
 
 # Loads models.notebook.Notebook class from file
 def load(editor):
@@ -27,7 +31,7 @@ def load(editor):
         editor, 
         'Open Notebook',
         '',
-        'OpenNote (*.on)'
+        'OpenNote (*.on *.ontemp)'
     )
     if accept:
         file = open(path, 'rb')
@@ -39,7 +43,30 @@ def load(editor):
               if o.type=="plugin":
                 o.restoreWidget(editor)
                 o.hide()
+    else:
+        return
     build(editor)
+
+# Try to find and open the most recent OneNote related file
+def load_most_recent_notebook(editor):
+    directory_files = reversed(sorted(filter(os.path.isfile, os.listdir(os.getcwd())), key = os.path.getmtime)) # damn
+    for f in directory_files:
+        if (f.endswith(".on") or f.endswith(".ontemp")):
+            try:
+                print("Opening: " + str(f))
+                file = open(os.path.join(os.getcwd(), f), 'rb')
+                destroy(editor)
+                editor.notebook = pickle.load(file)
+                for page in editor.notebook.page:
+                  for section in page.section:
+                    for o in section.object:
+                      if o.type=="plugin":
+                        o.restoreWidget(editor)
+                        o.hide()
+                build(editor)
+                return
+            except:
+                continue
 
 # Builds widgets for Page[0], Section[0] from params in loaded models.notebook.Notebook object
 # Sets initial editor.page & editor.section to 0 (first page & section)
@@ -51,6 +78,9 @@ def build(editor):
 
     # Initialize the autosaver
     editor.autosaver = Autosaver(editor, editor.notebook)
+    editor.object = []
+    editor.selected = None
+
     editor.object = []
     editor.selected = None
 

@@ -1,6 +1,6 @@
 from models.notebook import *
 from models.object import *
-
+from modules.undo import *
 from PySide6.QtWidgets import *
 
 # When a user creates a new Object (TextBox, ImageObj, etc.)
@@ -20,18 +20,43 @@ def add_object(editor, event, type):
         text = TextBox(editor, x, y, w, h, t)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
         editor.object.append(text)  
-
+        cmd = Undo({'type':'text', 'action':'create'})
+        editor.undo_stack.append(cmd)
     if type == 'image':
         path, _ = QFileDialog.getOpenFileName(
             editor, 
             'Add Image',
         )
-        print(path)
+        if path == "":
+            return
         image = ImageObj(editor, x, y, w+100, h+100, path)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
         editor.object.append(image)
+        cmd = Undo({'type':'image', 'action':'create'})
+        editor.undo_stack.append(cmd)
 
     editor.autosaver.onChangeMade()
+
+def paste_object(editor, event):
+    if isinstance(editor.clipboard_object, ClipboardObject):
+        x = event.pos().x() + 250
+        y = event.pos().y() + 130
+        w = editor.clipboard_object.width
+        h = editor.clipboard_object.height
+        t = editor.clipboard_object.html
+
+        text = TextBox(editor, x, y, w, h, t)
+        editor.object.append(text)
+        editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
+
+        cmd = Undo({'type':'clipboard', 'action':'paste'})
+        editor.undo_stack.append(cmd)
+        editor.autosaver.onChangeMade()
+
+    elif editor.clipboard_object == None:
+        return
+    else: # Because anything thats not a QTextEdit prob wont work like this
+        print("ERROR: Pasting unsupported object.")
 
 # Create Widget of (type) with (params) from models.Notebook.Page[x].Section[x]
 # Case 1: When a Notebook is loaded, function is called for every 

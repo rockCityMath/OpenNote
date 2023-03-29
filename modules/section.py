@@ -1,6 +1,6 @@
 from models.notebook import *
 from modules.object import build_object
-
+from modules.undo import *
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -91,6 +91,7 @@ def section_menu(editor, section, event):
 def rename_section(editor):
     title, accept = QInputDialog.getText(editor, 'Change Section Title', 'Enter new title of section: ')
     if accept:
+        old_name = editor.notebook.page[editor.page].section[s].title
         for s in range(len(editor.notebook.page[editor.page].section)):
             if title == editor.notebook.page[editor.page].section[s].title:
                 error = QMessageBox(editor)
@@ -103,6 +104,8 @@ def rename_section(editor):
         editor.focusWidget().setObjectName(title)
         editor.focusWidget().setText(title)
         editor.autosaver.onChangeMade()
+        cmd = Undo({'object_name':editor.focusWidget().objectName(),'type':'section', 'action':'rename', 'old_name':old_name})
+        editor.undo_stack.append(cmd)
 
 def delete_section(editor):
     accept = QMessageBox.question(editor, 'Delete Section', 'Deleting this section will delete all objects inside it. Are you sure you want to delete it?')
