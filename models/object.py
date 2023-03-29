@@ -4,6 +4,13 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
+# Holds clipboard object info, QT things can't be copied by value :(
+class ClipboardObject:
+    def __init__(self, width, height, html):
+        self.width = width
+        self.height = height
+        self.html = html
+
 class TextBox(QTextEdit):
     def __init__(textbox, editor, x, y, w, h, text):
         super().__init__(editor)
@@ -40,25 +47,51 @@ def drag(editor, event):
         drag.setMimeData(mimeData)
         drag.exec(Qt.MoveAction)   
 
-def object_menu(editor, pos):
+def object_menu(editor, event):
     object_menu = QMenu(editor)
 
+    # Delete
     delete = QAction("Delete", editor)
     delete.triggered.connect(lambda: delete_object(editor))
     object_menu.addAction(delete)
 
-    object_menu.exec(editor.focusWidget().viewport().mapToGlobal(pos))
+    # Copy
+    copy = QAction("Copy", editor)
+    copy.triggered.connect(lambda: copy_object(editor))
+    object_menu.addAction(copy)
+
+    # Cut
+    cut = QAction("Cut", editor)
+    cut.triggered.connect(lambda: cut_object(editor))
+    object_menu.addAction(cut)
+
+    object_menu.exec(editor.focusWidget().viewport().mapToGlobal(event))
 
 def delete_object(editor):
+    try:
+        for o in range(len(editor.object)):
+            if (editor.object[o] == editor.focusWidget()):
 
+                # Remove Widget from editor
+                editor.object[o].deleteLater()
+                editor.object.pop(o)
+
+                #Remove object from model
+                editor.notebook.page[editor.page].section[editor.section].object.pop(o)
+                editor.autosaver.onChangeMade()
+                return
+    except:
+        return # Sometimes this logs an err to console that doesnt seem like it matters
+
+def copy_object(editor):
     for o in range(len(editor.object)):
         if (editor.object[o] == editor.focusWidget()):
 
-            # Remove Widget from editor
-            editor.object[o].deleteLater()
-            editor.object.pop(o)
+            # Store the object that was clicked on in the editor's clipboard 
+            ob = editor.object[o]
+            editor.clipboard_object = ClipboardObject(ob.frameGeometry().width(), ob.frameGeometry().height(), ob.toHtml())
 
-            #Remove object from model
-            editor.notebook.page[editor.page].section[editor.section].object.pop(o)
-            return
+def cut_object(editor):
+    copy_object(editor)
+    delete_object(editor)
 
