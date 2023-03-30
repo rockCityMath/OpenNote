@@ -1,18 +1,15 @@
 from PyQt6.QtCore import *
 
 from PyQt6.QtWidgets import *
-
+from modules.object import *
 
 class Undo:
     def __init__(self, parameter):
         self.parameter = parameter
 
-    def redo(self):
-        # Implement the operation that this command represents
-        print(self.parameter+'redo')
-
-    def undo(self):
+    def undo(self, editor):
         # Implement the undo operation for this command
-        print(self.parameter+'undo')
-
-# print(print(issubclass(PageUndo, QUndoCommand)))
+        if self.parameter['action']=='move':
+            print('move obj to old location')
+        elif self.parameter['action']=='create':
+            print('delete object')

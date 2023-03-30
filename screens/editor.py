@@ -2,7 +2,7 @@ from models.notebook import *
 from modules.build_ui import *
 from modules.load import new
 from modules.save import Autosaver
-
+from modules.undo import Undo
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
@@ -20,11 +20,12 @@ class Editor(QMainWindow):
         self.autosaver = Autosaver(self, self.notebook)  # Object with method for indicating changes and determining if we should autosave 
         self.undo_stack = [] #QUndoStack()
         self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
+        self.shortcut.setContext(Qt.ApplicationShortcut)
         self.shortcut.activated.connect(self.undo_event)
+        
         build_ui(self)
         self.setFocus()
-
- 
+        self.temp_buffer=[]
         # models.notebook.Notebook is where all Notebook and Object data is stored
         # models.object.* are models for Widgets used in the editor
         #   Notebook Objects and Widgets from these models share params (geometry, text, image path, etc.)
@@ -35,6 +36,9 @@ class Editor(QMainWindow):
     # Drag object event
     def dragEnterEvent(self, event):
         event.acceptProposedAction()
+        obj = self.focusWidget()
+        self.temp_buffer.append(Undo({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()}))
+
 
     # Drop object event
     def dropEvent(self, event):
@@ -45,8 +49,17 @@ class Editor(QMainWindow):
         self.focusWidget().move(event.pos().x(), event.pos().y())
         event.acceptProposedAction()
         self.autosaver.onChangeMade()
+        self.undo_stack += self.temp_buffer[:1]
+        self.temp_buffer = []
+        
+        # debugginh
+        print(self.undo_stack[-1].parameter)
+        print('--')
+        for i in self.undo_stack:
+            print(i.parameter)
         
     def undo_event(self):
         if len(self.undo_stack)>0:
             pop_item = self.undo_stack.pop(-1)
-            print(pop_item.parameter)
+            print(pop_item.undo(self))
+     

@@ -2,6 +2,8 @@ from models.notebook import *
 from models.object import *
 from modules.undo import *
 from PySide6.QtWidgets import *
+import random
+
 
 # When a user creates a new Object (TextBox, ImageObj, etc.)
 # 1 Create a Widget of (type)
@@ -18,6 +20,8 @@ def add_object(editor, event, type):
 
     if type == 'text':
         text = TextBox(editor, x, y, w, h, t)
+        random_number = random.randint(100, 999)
+        text.setObjectName('textbox-'+str(random_number))
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
         editor.object.append(text)  
         cmd = Undo({'type':'text', 'action':'create'})
@@ -27,7 +31,8 @@ def add_object(editor, event, type):
             editor, 
             'Add Image',
         )
-        print(path)
+        random_number = random.randint(100, 999)
+        text.setObjectName('imagebox-'+str(random_number))
         image = ImageObj(editor, x, y, w+100, h+100, path)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
         editor.object.append(image)
