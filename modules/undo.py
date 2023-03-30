@@ -1,8 +1,3 @@
-from PyQt6.QtCore import *
-
-from PyQt6.QtWidgets import *
-
-
 class Undo:
     def __init__(self, parameter):
         self.parameter = parameter
