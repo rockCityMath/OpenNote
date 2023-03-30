@@ -53,12 +53,18 @@ def delete_object(editor):
 
     for o in range(len(editor.object)):
         if (editor.object[o] == editor.focusWidget()):
-
+            editor.undo_stack.append(
+                {'type':'object',
+                 'name':editor.object[o].objectName(), 
+                 'action':'delete'
+                 })
             # Remove Widget from editor
             editor.object[o].deleteLater()
             editor.object.pop(o)
 
             #Remove object from model
-            editor.notebook.page[editor.page].section[editor.section].object.pop(o)
+            item = editor.notebook.page[editor.page].section[editor.section].object.pop(o)
+            editor.undo_stack[-1]['data']=item
+
             return
 

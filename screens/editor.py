@@ -57,15 +57,23 @@ class Editor(QMainWindow):
         print('--')
         for i in self.undo_stack:
             print(i)
-        
+      
+      
+  
     def undo_event(self):
         if len(self.undo_stack)>0:
             pop_item = self.undo_stack.pop(-1)
+            #TODO instead of object[0] i need to find object by name
             if pop_item['action'] == 'move':
-                print('move to old pos')
+                params = self.notebook.page[self.page].section[self.section].object[0]
+                params.x = pop_item['x']
+                params.y = pop_item['y']  
+                self.notebook.page[self.page].section[self.section].object[0] = params
+                #TODO Hide old location
+                build_object(self,params)
             elif pop_item['action'] == 'create':
                 print('delete')
-            else: 
-                print('create back')
+            else:
+                build_object(self,pop_item['data'])
             # print(pop_item.undo(self))
      
