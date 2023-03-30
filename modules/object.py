@@ -1,6 +1,6 @@
 from models.notebook import *
 from models.object import *
-from modules.undo import *
+# from modules.undo import *
 from PySide6.QtWidgets import *
 import random
 
@@ -21,10 +21,11 @@ def add_object(editor, event, type):
     if type == 'text':
         text = TextBox(editor, x, y, w, h, t)
         random_number = random.randint(100, 999)
-        text.setObjectName('textbox-'+str(random_number))
-        editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
+        name = 'textbox-'+str(random_number)
+        text.setObjectName(name)
+        editor.notebook.page[editor.page].section[editor.section].object.append(Text(name,x, y, w, h, t))
         editor.object.append(text)  
-        cmd = Undo({'type':'text', 'action':'create'})
+        cmd = {'type':'text','name':name, 'action':'create'}
         editor.undo_stack.append(cmd)
     if type == 'image':
         path, _ = QFileDialog.getOpenFileName(
@@ -32,11 +33,12 @@ def add_object(editor, event, type):
             'Add Image',
         )
         random_number = random.randint(100, 999)
-        text.setObjectName('imagebox-'+str(random_number))
+        name = 'imagebox-'+str(random_number)
+        text.setObjectName(name)
         image = ImageObj(editor, x, y, w+100, h+100, path)
-        editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
+        editor.notebook.page[editor.page].section[editor.section].object.append(Image(name,x, y, w, h, t))
         editor.object.append(image)
-        cmd = Undo({'type':'image', 'action':'create'})
+        cmd = {'type':'image','name':name, 'action':'create'}
         editor.undo_stack.append(cmd)
 
     editor.autosaver.onChangeMade()

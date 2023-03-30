@@ -2,7 +2,7 @@ from models.notebook import *
 from modules.build_ui import *
 from modules.load import new
 from modules.save import Autosaver
-from modules.undo import Undo
+from modules.object import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
@@ -37,7 +37,7 @@ class Editor(QMainWindow):
     def dragEnterEvent(self, event):
         event.acceptProposedAction()
         obj = self.focusWidget()
-        self.temp_buffer.append(Undo({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()}))
+        self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()})
 
 
     # Drop object event
@@ -53,13 +53,19 @@ class Editor(QMainWindow):
         self.temp_buffer = []
         
         # debugginh
-        print(self.undo_stack[-1].parameter)
+        print(self.undo_stack[-1])
         print('--')
         for i in self.undo_stack:
-            print(i.parameter)
+            print(i)
         
     def undo_event(self):
         if len(self.undo_stack)>0:
             pop_item = self.undo_stack.pop(-1)
-            print(pop_item.undo(self))
+            if pop_item['action'] == 'move':
+                print('move to old pos')
+            elif pop_item['action'] == 'create':
+                print('delete')
+            else: 
+                print('create back')
+            # print(pop_item.undo(self))
      

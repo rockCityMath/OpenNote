@@ -156,6 +156,7 @@ def build_toolbar(editor):
     underline = build_action(toolbar, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
     underline.toggled.connect(lambda x: editor.selected.setFontUnderline(True if x else False))
 
+
     toolbar.addWidget(font)
     toolbar.addWidget(size)
     toolbar.addActions([bold, italic, underline])
