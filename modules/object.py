@@ -19,12 +19,12 @@ def add_object(editor, event, type):
     if type == 'text':
         text = TextBox(editor, x, y, w, h, t)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
-        editor.object.append(text)  
+        editor.object.append(text)
         cmd = Undo({'type':'text', 'action':'create'})
         editor.undo_stack.append(cmd)
     if type == 'image':
         path, _ = QFileDialog.getOpenFileName(
-            editor, 
+            editor,
             'Add Image',
         )
         if path == "":
@@ -34,6 +34,23 @@ def add_object(editor, event, type):
         editor.object.append(image)
         cmd = Undo({'type':'image', 'action':'create'})
         editor.undo_stack.append(cmd)
+
+    editor.autosaver.onChangeMade()
+
+def add_snip(editor, event_pos, path):
+
+    # Defaults for object
+    x = event_pos['x'] + 250
+    y = event_pos['y'] + 130
+    w = 100
+    h = 100
+    t = "..."
+
+    image = ImageObj(editor, x, y, w+100, h+100, path)
+    editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
+    editor.object.append(image)
+    cmd = Undo({'type':'image', 'action':'create'})
+    editor.undo_stack.append(cmd)
 
     editor.autosaver.onChangeMade()
 
@@ -59,7 +76,7 @@ def paste_object(editor, event):
         print("ERROR: Pasting unsupported object.")
 
 # Create Widget of (type) with (params) from models.Notebook.Page[x].Section[x]
-# Case 1: When a Notebook is loaded, function is called for every 
+# Case 1: When a Notebook is loaded, function is called for every
 #         Object in models.Notebook.Page[0].Section[0]
 # Case 2: When a user selects a new Page or Section in the editor
 def build_object(editor, params):
@@ -70,7 +87,7 @@ def build_object(editor, params):
     if params.type == "image":
         image = ImageObj(editor, params.x, params.y, params.w, params.h, params.path)
         editor.object.append(image)
-    
+
     if params.type == 'plugin':
         params.show()
         editor.object.append(params)

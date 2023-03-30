@@ -2,10 +2,22 @@ from models.notebook import *
 from modules.build_ui import *
 from modules.load import new
 from modules.save import Autosaver
+from modules.screensnip import SnippingWidget
+from modules.object import add_snip
 
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
+import cv2
+import os
+from datetime import datetime
+
+# models.notebook.Notebook is where all Notebook and Object data is stored
+# models.object.* are models for Widgets used in the editor
+#   Notebook Objects and Widgets from these models share params (geometry, text, image path, etc.)
+#   Pickle will save the Notebook object
+#   The editor will create and destroy Widgets per Page/Section (see modules.page.change_section, modules.load.build)
+#       A Section's Widgets also exist in self.object, ordered by time of creation
 
 class Editor(QMainWindow):
     def __init__(self):
@@ -22,16 +34,33 @@ class Editor(QMainWindow):
         self.clipboard_object = None
         self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
         self.shortcut.activated.connect(self.undo_event)
-        build_ui(self)
         self.setFocus()
+        self.snippingWidget = SnippingWidget(app=QApplication.instance())
+        self.snippingWidget.onSnippingCompleted = self.onSnippingCompleted
+
+        build_ui(self)
+
+    # If user takes a screensnip, save it to a file and put it on the page
+    def onSnippingCompleted(self, image_blob):
+        print(self.snippingWidget.event_pos)
+        self.setWindowState(Qt.WindowActive)
+        if image_blob is None:
+            return
+
+        pos = self.snippingWidget.event_pos
+
+        currentDatetime = datetime.now()
+        fileName = currentDatetime.strftime("%d-%m-%Y_%H-%M-%S") + ".png"
+
+        path = os.getcwd() + "/screenshots/" + fileName
+        cv2.imwrite(path, image_blob)
+        add_snip(self, pos, path)
+
+    def snipArea(self, event_pos):
+        self.setWindowState(Qt.WindowMinimized)
+        self.snippingWidget.start(event_pos)
 
 
-        # models.notebook.Notebook is where all Notebook and Object data is stored
-        # models.object.* are models for Widgets used in the editor
-        #   Notebook Objects and Widgets from these models share params (geometry, text, image path, etc.)
-        #   Pickle will save the Notebook object
-        #   The editor will create and destroy Widgets per Page/Section (see modules.page.change_section, modules.load.build)
-        #       A Section's Widgets also exist in self.object, ordered by time of creation
 
     # Drag object event
     def dragEnterEvent(self, event):

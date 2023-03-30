@@ -28,7 +28,7 @@ def new(editor):
 # Loads models.notebook.Notebook class from file
 def load(editor):
     path, accept = QFileDialog.getOpenFileName(
-        editor, 
+        editor,
         'Open Notebook',
         '',
         'OpenNote (*.on *.ontemp)'
@@ -53,7 +53,6 @@ def load_most_recent_notebook(editor):
     for f in directory_files:
         if (f.endswith(".on") or f.endswith(".ontemp")):
             try:
-                print("Opening: " + str(f))
                 file = open(os.path.join(os.getcwd(), f), 'rb')
                 destroy(editor)
                 editor.notebook = pickle.load(file)
@@ -96,7 +95,7 @@ def build(editor):
         if len(editor.notebook.page[0].section) > 0:    #If sections exist
 
             # Show all Sections in page 1
-            for s in range(len(editor.notebook.page[0].section)):  
+            for s in range(len(editor.notebook.page[0].section)):
                 params = editor.notebook.page[0].section[s]
                 build_section(editor, params.title)
             editor.sections.itemAt(0).widget().setStyleSheet("background-color: #c2c2c2")

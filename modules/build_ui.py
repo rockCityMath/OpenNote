@@ -185,16 +185,20 @@ def frame_menu(editor, event):
             paste.triggered.connect(lambda: paste_object(editor, event))
             frame_menu.addAction(paste)
 
-            lambduhs=[]
-            for name, c in get_plugins():
-                displayName = getattr(c,"DisplayName",name)
-                shortcut = getattr(c,"ShortcutKey","")
-                item_action = QAction(displayName, editor)
-                if shortcut!="":
-                        item_action.setShortcut(QKeySequence.fromString(shortcut))
-                def tmp(name,c):
-                    return lambda: add_plugin_object(editor,event,name,c)
-                item_action.triggered.connect(tmp(name,c))
-                frame_menu.addAction(item_action)
+            take_screensnip = QAction("Snip Screen", editor)
+            take_screensnip.triggered.connect(lambda: editor.snipArea({'x': event.pos().x(), 'y': event.pos().y()}))
+            frame_menu.addAction(take_screensnip)
+
+#            lambduhs=[]
+#            for name, c in get_plugins():
+#                displayName = getattr(c,"DisplayName",name)
+#                shortcut = getattr(c,"ShortcutKey","")
+#                item_action = QAction(displayName, editor)
+#                if shortcut!="":
+#                        item_action.setShortcut(QKeySequence.fromString(shortcut))
+#                def tmp(name,c):
+#                    return lambda: add_plugin_object(editor,event,name,c)
+#                item_action.triggered.connect(tmp(name,c))
+#                frame_menu.addAction(item_action)
 
             frame_menu.exec(event.globalPos())
