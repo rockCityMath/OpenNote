@@ -17,6 +17,7 @@ class Editor(QMainWindow):
         self.page = -1                          # Index of current Page (New notebook has no pages: set to -1)
         self.section = -1                       # Index of current Section (New notebook has no sections: set to -1)
         self.selected = None                    # Selected object (for font attributes of TextBox)
+
         self.autosaver = Autosaver(self, self.notebook)  # Object with method for indicating changes and determining if we should autosave 
         self.undo_stack = [] #QUndoStack()
         self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
@@ -26,6 +27,9 @@ class Editor(QMainWindow):
         build_ui(self)
         self.setFocus()
         self.temp_buffer=[]
+
+
+
         # models.notebook.Notebook is where all Notebook and Object data is stored
         # models.object.* are models for Widgets used in the editor
         #   Notebook Objects and Widgets from these models share params (geometry, text, image path, etc.)

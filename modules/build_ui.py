@@ -2,7 +2,7 @@ from modules.save import save, saveAs
 from modules.load import new, load
 from modules.page import add_page
 from modules.section import add_section
-from modules.object import add_object,add_plugin_object
+from modules.object import add_object, add_plugin_object, paste_object
 from modules.plugins import get_plugins
 
 from PySide6.QtCore import *
@@ -52,7 +52,7 @@ def build_ui(editor):
     sidebar.setContentsMargins(0, 0, 0, 0)
     editor.pages.setContentsMargins(0, 0, 0, 0)
     editor.pages_frame = QFrame()
-    
+
     #sidebar.setStretchFactor(editor.pages, 1)
     addPage = QPushButton("Create New Page")
     addPage.clicked.connect(lambda: add_page(editor))
@@ -69,7 +69,7 @@ def build_ui(editor):
     sections_widget = QWidget()
     sections_widget.setFixedHeight(40)
     sections_widget.setLayout(sections)
-    
+
 
     editor.sections = QHBoxLayout()
     editor.sections_frame = QFrame()
@@ -182,6 +182,10 @@ def frame_menu(editor, event):
             add_image = QAction("Add Image", editor)
             add_image.triggered.connect(lambda: add_object(editor, event, 'image'))
             frame_menu.addAction(add_image)
+
+            paste = QAction("Paste", editor)
+            paste.triggered.connect(lambda: paste_object(editor, event))
+            frame_menu.addAction(paste)
 
             lambduhs=[]
             for name, c in get_plugins():

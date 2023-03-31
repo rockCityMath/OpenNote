@@ -35,13 +35,35 @@ def add_object(editor, event, type):
         random_number = random.randint(100, 999)
         name = 'imagebox-'+str(random_number)
         text.setObjectName(name)
+        if path == "":
+            return
         image = ImageObj(editor, x, y, w+100, h+100, path)
         editor.notebook.page[editor.page].section[editor.section].object.append(Image(name,x, y, w, h, t))
         editor.object.append(image)
         cmd = {'type':'object','name':name, 'action':'create'}
         editor.undo_stack.append(cmd)
-
     editor.autosaver.onChangeMade()
+
+def paste_object(editor, event):
+    if isinstance(editor.clipboard_object, ClipboardObject):
+        x = event.pos().x() + 250
+        y = event.pos().y() + 130
+        w = editor.clipboard_object.width
+        h = editor.clipboard_object.height
+        t = editor.clipboard_object.html
+
+        text = TextBox(editor, x, y, w, h, t)
+        editor.object.append(text)
+        editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
+
+        cmd = Undo({'type':'clipboard', 'action':'paste'})
+        editor.undo_stack.append(cmd)
+        editor.autosaver.onChangeMade()
+
+    elif editor.clipboard_object == None:
+        return
+    else: # Because anything thats not a QTextEdit prob wont work like this
+        print("ERROR: Pasting unsupported object.")
 
 # Create Widget of (type) with (params) from models.Notebook.Page[x].Section[x]
 # Case 1: When a Notebook is loaded, function is called for every 
