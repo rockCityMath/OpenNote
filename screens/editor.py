@@ -74,7 +74,9 @@ class Editor(QMainWindow):
                     params.x = pop_item['x']
                     params.y = pop_item['y']  
                     self.notebook.page[self.page].section[self.section].object[index] = params
-                    self.object[index]=params
+                    #deleting in old position
+                    self.object[index].deleteLater()
+                    self.object.pop(index)
                     #TODO Hide old location
                     build_object(self,params)
                 elif pop_item['action'] == 'create':
@@ -84,7 +86,7 @@ class Editor(QMainWindow):
                     self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])
                     build_object(self,pop_item['data'])
                 # print(pop_item.undo(self))
-            elif pop_item['type']=='section':
+            elif pop_item['type']=='section':     
                 print('undoing section here')
             else:
                 print('undoing page here')
