@@ -25,7 +25,7 @@ def add_object(editor, event, type):
         text.setObjectName(name)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(name,x, y, w, h, t))
         editor.object.append(text)  
-        cmd = {'type':'text','name':name, 'action':'create'}
+        cmd = {'type':'object','name':name, 'action':'create'}
         editor.undo_stack.append(cmd)
     if type == 'image':
         path, _ = QFileDialog.getOpenFileName(
@@ -38,7 +38,7 @@ def add_object(editor, event, type):
         image = ImageObj(editor, x, y, w+100, h+100, path)
         editor.notebook.page[editor.page].section[editor.section].object.append(Image(name,x, y, w, h, t))
         editor.object.append(image)
-        cmd = {'type':'image','name':name, 'action':'create'}
+        cmd = {'type':'object','name':name, 'action':'create'}
         editor.undo_stack.append(cmd)
 
     editor.autosaver.onChangeMade()

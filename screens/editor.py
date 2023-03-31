@@ -80,7 +80,9 @@ class Editor(QMainWindow):
                     #TODO Hide old location
                     build_object(self,params)
                 elif pop_item['action'] == 'create':
-                    print('delete')
+                    self.object[index].deleteLater()
+                    self.object.pop(index)
+                    self.notebook.page[self.page].section[self.section].object.pop(index)
                 else:
                     self.object.append(pop_item['data'])
                     self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])
