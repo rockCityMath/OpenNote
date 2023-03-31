@@ -63,17 +63,28 @@ class Editor(QMainWindow):
     def undo_event(self):
         if len(self.undo_stack)>0:
             pop_item = self.undo_stack.pop(-1)
-            #TODO instead of object[0] i need to find object by name
-            if pop_item['action'] == 'move':
-                params = self.notebook.page[self.page].section[self.section].object[0]
-                params.x = pop_item['x']
-                params.y = pop_item['y']  
-                self.notebook.page[self.page].section[self.section].object[0] = params
-                #TODO Hide old location
-                build_object(self,params)
-            elif pop_item['action'] == 'create':
-                print('delete')
+            if pop_item['type']=='object':
+                index = 0
+                for i in range(len(self.notebook.page[self.page].section[self.section].object)):
+                    if pop_item['name']==self.notebook.page[self.page].section[self.section].object[i].name:
+                        index=i
+                #TODO instead of object[0] i need to find object by name
+                if pop_item['action'] == 'move':
+                    params = self.notebook.page[self.page].section[self.section].object[index]
+                    params.x = pop_item['x']
+                    params.y = pop_item['y']  
+                    self.notebook.page[self.page].section[self.section].object[index] = params
+                    self.object[index]=params
+                    #TODO Hide old location
+                    build_object(self,params)
+                elif pop_item['action'] == 'create':
+                    print('delete')
+                else:
+                    self.object.append(pop_item['data'])
+                    self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])
+                    build_object(self,pop_item['data'])
+                # print(pop_item.undo(self))
+            elif pop_item['type']=='section':
+                print('undoing section here')
             else:
-                build_object(self,pop_item['data'])
-            # print(pop_item.undo(self))
-     
+                print('undoing page here')
