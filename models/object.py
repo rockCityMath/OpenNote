@@ -5,11 +5,11 @@ from PySide6.QtWidgets import *
 
 # Holds clipboard object info, QT things can't be copied by value :(
 class ClipboardObject:
-    def __init__(self, width, height, html, undo_name, type):
+    def __init__(self,name, width, height, html, type):
         self.width = width
         self.height = height
         self.html = html
-        self.undo_name = undo_name
+        self.name = name
         self.type = type
 
 class TextBox(QTextEdit):
@@ -98,10 +98,11 @@ def copy_object(editor):
 
             # Store the object that was clicked on in the editor's clipboard
             ob = editor.object[o]
+            name = ob.objectName()+'(1)'
             if ob.type == 'image':
-                editor.clipboard_object = ClipboardObject(ob.frameGeometry().width(), ob.frameGeometry().height(), ob.path, 1234, ob.type)
+                editor.clipboard_object = ClipboardObject(name,ob.frameGeometry().width(), ob.frameGeometry().height(), ob.path, ob.type)
             else:
-                editor.clipboard_object = ClipboardObject(ob.frameGeometry().width(), ob.frameGeometry().height(), ob.toHtml(), 1234, ob.type)
+                editor.clipboard_object = ClipboardObject(name,ob.frameGeometry().width(), ob.frameGeometry().height(), ob.toHtml(), ob.type)
 
 
 def cut_object(editor):

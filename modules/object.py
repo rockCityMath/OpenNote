@@ -91,20 +91,22 @@ def paste_object(editor, event):
         w = editor.clipboard_object.width
         h = editor.clipboard_object.height
         t = editor.clipboard_object.html
-        n = editor.clipboard_object.undo_name
+        n = editor.clipboard_object.name
 
         if editor.clipboard_object.type == 'image':
             image = ImageObj(editor, x, y, w, h, t)
+            image.setObjectName(n)
             editor.object.append(image)
             editor.notebook.page[editor.page].section[editor.section].object.append(Image(n, x, y, w, h, t))
 
         else:
             text = TextBox(editor, x, y, w, h, t)
+            text.setObjectName(n)
             editor.object.append(text)
             editor.notebook.page[editor.page].section[editor.section].object.append(Text(n, x, y, w, h, t))
 
-        #cmd = Undo({'type':'clipboard', 'action':'paste'}) # This was throwing errors
-        #editor.undo_stack.append(cmd)
+        cmd = {'type':'object','name':name, 'action':'create'}
+        editor.undo_stack.append(cmd)
         editor.autosaver.onChangeMade()
 
     elif editor.clipboard_object == None:
