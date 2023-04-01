@@ -23,7 +23,8 @@ class Section:
         self.object = []
 
 class Text:
-    def __init__(self, x, y, w, h, text):
+    def __init__(self,name, x, y, w, h, text):
+        self.name=name
         self.x = x          # Stores geometry of models.object.TextBox widget
         self.y = y
         self.w = w
@@ -32,7 +33,8 @@ class Text:
         self.type = 'text'  # Type for modules.object.build_object
 
 class Image:
-    def __init__(self, x, y, w, h, path):
+    def __init__(self,name, x, y, w, h, path):
+        self.name = name
         self.x = x          # Geometry of models.object.ImageObj widget
         self.y = y
         self.w = w

@@ -104,8 +104,8 @@ def rename_section(editor):
         editor.focusWidget().setObjectName(title)
         editor.focusWidget().setText(title)
         editor.autosaver.onChangeMade()
-        cmd = Undo({'object_name':editor.focusWidget().objectName(),'type':'section', 'action':'rename', 'old_name':old_name})
-        editor.undo_stack.append(cmd)
+        # cmd = Undo({'object_name':editor.focusWidget().objectName(),'type':'section', 'action':'rename', 'old_name':old_name})
+        # editor.undo_stack.append(cmd)
 
 def delete_section(editor):
     accept = QMessageBox.question(editor, 'Delete Section', 'Deleting this section will delete all objects inside it. Are you sure you want to delete it?')
