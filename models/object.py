@@ -1,22 +1,22 @@
 # Draggable objects that can be used in the editor
-
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
 # Holds clipboard object info, QT things can't be copied by value :(
 class ClipboardObject:
-    def __init__(self,name, width, height, html):
+    def __init__(self,name, width, height, html, type):
         self.width = width
         self.height = height
-        self.name = name
-        
         self.html = html
+        self.name = name
+        self.type = type
 
 class TextBox(QTextEdit):
     def __init__(textbox, editor, x, y, w, h, text):
         super().__init__(editor)
 
+        textbox.type = 'image'
         textbox.setStyleSheet("border: 1px dashed #000;")
         textbox.setGeometry(x, y, w, h)
         textbox.setText(text)
@@ -30,6 +30,8 @@ class ImageObj(QTextEdit):
     def __init__(image, editor, x, y, w, h, path):
         super().__init__(editor)
 
+        image.type = 'image'
+        image.path = path
         image.setGeometry(x, y, w, h)
         fragment = QTextDocumentFragment.fromHtml(f"<img src={path} height='%1' width='%2'>")
         image.textCursor().insertFragment(fragment)
@@ -42,12 +44,12 @@ class ImageObj(QTextEdit):
 def select(editor, event):
     editor.selected = editor.focusWidget()
 
-def drag(editor, event): 
+def drag(editor, event):
     if (event.buttons() == Qt.LeftButton):
         drag = QDrag(editor)
         mimeData = QMimeData()
         drag.setMimeData(mimeData)
-        drag.exec(Qt.MoveAction)   
+        drag.exec(Qt.MoveAction)
 
 def object_menu(editor, event):
     object_menu = QMenu(editor)
@@ -75,7 +77,7 @@ def delete_object(editor):
             if (editor.object[o] == editor.focusWidget()):
                 editor.undo_stack.append(
                     {'type':'object',
-                     'name':editor.object[o].objectName(), 
+                     'name':editor.object[o].objectName(),
                      'action':'delete'
                      })
                 # Remove Widget from editor
@@ -94,11 +96,14 @@ def copy_object(editor):
     for o in range(len(editor.object)):
         if (editor.object[o] == editor.focusWidget()):
 
-            # Store the object that was clicked on in the editor's clipboard 
+            # Store the object that was clicked on in the editor's clipboard
             ob = editor.object[o]
             name = ob.objectName()+'(1)'
-            editor.clipboard_object = ClipboardObject(name, ob.frameGeometry().width(), ob.frameGeometry().height(), ob.toHtml())
-            
+            if ob.type == 'image':
+                editor.clipboard_object = ClipboardObject(name,ob.frameGeometry().width(), ob.frameGeometry().height(), ob.path, ob.type)
+            else:
+                editor.clipboard_object = ClipboardObject(name,ob.frameGeometry().width(), ob.frameGeometry().height(), ob.toHtml(), ob.type)
+
 
 def cut_object(editor):
     copy_object(editor)

@@ -121,7 +121,7 @@ def delete_section(editor):
                 # If current section is deleted, remove all objects from editor
                 if editor.section == s:
                     if len(editor.notebook.page[p].section[s].object) > 0:
-                        
+
                         for o in range(len(editor.notebook.page[p].section[s].object)):
                             editor.object[o].deleteLater()
                         editor.object.clear()
@@ -129,7 +129,7 @@ def delete_section(editor):
                 # Remove objects from model
                 if len(editor.notebook.page[p].section[s].object) > 0:
                     editor.notebook.page[p].section[s].object.clear()
-                
+
                 # Remove section from model
                 editor.notebook.page[p].section.pop(s)
 
@@ -147,7 +147,7 @@ def delete_section(editor):
                                 build_object(editor, params)
                 else:
                     editor.section = -1
-                    
+
                 editor.autosaver.onChangeMade()
                 return
         editor.autosaver.onChangeMade()
