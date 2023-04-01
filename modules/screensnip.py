@@ -68,7 +68,7 @@ class SnippingWidget(QWidget):
 
         self.repaint()
         QApplication.processEvents()
-        img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+        img = ImageGrab.grab(bbox=(x1 + 10, y1 + 30, x2 + 10, y2 + 40))
 
         try:
             img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)

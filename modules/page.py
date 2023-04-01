@@ -1,6 +1,5 @@
 from models.notebook import *
 from modules.section import *
-from modules.undo import *
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -23,7 +22,7 @@ def add_page(editor):
         editor.section = -1
         add_section(editor)
         editor.autosaver.onChangeMade()
-        
+
 # Create page widget in sidebar when
 # Case 1: When Notebook is loaded
 # Case 2: When new Page is created by user

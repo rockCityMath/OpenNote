@@ -1,9 +1,10 @@
 from models.notebook import *
 from models.object import *
-# from modules.undo import *
 from PySide6.QtWidgets import *
 import random
-
+import cv2
+import os
+from datetime import datetime
 
 # When a user creates a new Object (TextBox, ImageObj, etc.)
 # 1 Create a Widget of (type)
@@ -14,50 +15,72 @@ def add_object(editor, event, type):
     # Defaults for object
     x = event.pos().x() + 250
     y = event.pos().y() + 130
-    w = 100
-    h = 100
     t = '...'
 
     if type == 'text':
-        text = TextBox(editor, x, y, w, h, t)
+
+        # Name for undo
         random_number = random.randint(100, 999)
         name = 'textbox-'+str(random_number)
+
+        # Create textbox and add to notebook
+        text = TextBox(editor, x, y, 100, 100, t) # w, h needs to come from whats stored on object when they're resizable (same below)
+        editor.notebook.page[editor.page].section[editor.section].object.append(Text(name,x, y, 100, 100, t))
+        editor.object.append(text)
+
+        # Undo related
         text.setObjectName(name)
-        editor.notebook.page[editor.page].section[editor.section].object.append(Text(name,x, y, w, h, t))
-        editor.object.append(text)  
         cmd = {'type':'object','name':name, 'action':'create'}
         editor.undo_stack.append(cmd)
+
     if type == 'image':
-        path, _ = QFileDialog.getOpenFileName(
-            editor,
-            'Add Image',
-        )
+
+        # Get path from user
+        path, _ = QFileDialog.getOpenFileName(editor, 'Add Image')
+        if path == "": return
+
+        # Name for undo
         random_number = random.randint(100, 999)
         name = 'imagebox-'+str(random_number)
-        text.setObjectName(name)
-        if path == "":
-            return
-        image = ImageObj(editor, x, y, w+100, h+100, path)
-        editor.notebook.page[editor.page].section[editor.section].object.append(Image(name,x, y, w, h, t))
+
+        # Get image size
+        image_blob = cv2.imread(path)
+        h, w, _ = image_blob.shape
+
+        # Create image and add to notebook
+        image = ImageObj(editor, x, y, w, h, path)
+        editor.notebook.page[editor.page].section[editor.section].object.append(Image(name,x, y, w, h, path))
         editor.object.append(image)
+
+        # Undo related
+        image.setObjectName(name)
         cmd = {'type':'object','name':name, 'action':'create'}
         editor.undo_stack.append(cmd)
+
     editor.autosaver.onChangeMade()
 
-def add_snip(editor, event_pos, path):
-
-    # Defaults for object
+def add_snip(editor, event_pos, image_blob):
     x = event_pos['x'] + 250
     y = event_pos['y'] + 130
-    w = 100
-    h = 100
-    t = "..."
 
-    image = ImageObj(editor, x, y, w+100, h+100, path)
-    editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
+    # Name for undo
+    random_number = random.randint(100, 999)
+    name = 'imagebox-'+str(random_number)
+
+    # Use datetime to generate ss image filename, save to local directory
+    currentDatetime = datetime.now()
+    fileName = currentDatetime.strftime("%d-%m-%Y_%H-%M-%S") + ".png"
+    if (not os.path.exists(os.getcwd() + "/screenshots")):
+        os.makedirs(os.getcwd() + "/screenshots")
+
+    path = os.getcwd() + "/screenshots/" + fileName
+    cv2.imwrite(path, image_blob)
+
+    # Create image and add to notebook
+    h, w, _ = image_blob.shape
+    image = ImageObj(editor, x, y, w, h, path)
+    editor.notebook.page[editor.page].section[editor.section].object.append(Image(name, x, y, w, h, path))
     editor.object.append(image)
-    cmd = Undo({'type':'image', 'action':'create'})
-    editor.undo_stack.append(cmd)
 
     editor.autosaver.onChangeMade()
 
@@ -68,13 +91,20 @@ def paste_object(editor, event):
         w = editor.clipboard_object.width
         h = editor.clipboard_object.height
         t = editor.clipboard_object.html
+        n = editor.clipboard_object.undo_name
 
-        text = TextBox(editor, x, y, w, h, t)
-        editor.object.append(text)
-        editor.notebook.page[editor.page].section[editor.section].object.append(Text(x, y, w, h, t))
+        if editor.clipboard_object.type == 'image':
+            image = ImageObj(editor, x, y, w, h, t)
+            editor.object.append(image)
+            editor.notebook.page[editor.page].section[editor.section].object.append(Image(n, x, y, w, h, t))
 
-        cmd = Undo({'type':'clipboard', 'action':'paste'})
-        editor.undo_stack.append(cmd)
+        else:
+            text = TextBox(editor, x, y, w, h, t)
+            editor.object.append(text)
+            editor.notebook.page[editor.page].section[editor.section].object.append(Text(n, x, y, w, h, t))
+
+        #cmd = Undo({'type':'clipboard', 'action':'paste'}) # This was throwing errors
+        #editor.undo_stack.append(cmd)
         editor.autosaver.onChangeMade()
 
     elif editor.clipboard_object == None:
