@@ -56,11 +56,6 @@ class Editor(QMainWindow):
         self.undo_stack += self.temp_buffer[:1]
         self.temp_buffer = []
         
-        # debugginh
-        print(self.undo_stack[-1])
-        print('--')
-        for i in self.undo_stack:
-            print(i)
       
       
   
