@@ -23,7 +23,6 @@ class Editor(QMainWindow):
         self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
         self.shortcut.setContext(Qt.ApplicationShortcut)
         self.shortcut.activated.connect(self.undo_event)
-        
         build_ui(self)
         self.setFocus()
         self.temp_buffer=[]

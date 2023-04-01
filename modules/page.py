@@ -1,6 +1,5 @@
 from models.notebook import *
 from modules.section import *
-from modules.undo import *
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
