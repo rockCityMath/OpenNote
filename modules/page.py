@@ -24,8 +24,6 @@ def add_page(editor):
         add_section(editor)
         editor.autosaver.onChangeMade()
         
-        # cmd = Undo({'type':'page','name':title, 'action':'create'})
-        # editor.undo_stack.append(cmd)
 # Create page widget in sidebar when
 # Case 1: When Notebook is loaded
 # Case 2: When new Page is created by user
