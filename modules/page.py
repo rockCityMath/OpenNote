@@ -24,8 +24,6 @@ def add_page(editor):
         add_section(editor)
         editor.autosaver.onChangeMade()
         
-        cmd = Undo({'type':'page','name':title, 'action':'create'})
-        editor.undo_stack.append(cmd)
 # Create page widget in sidebar when
 # Case 1: When Notebook is loaded
 # Case 2: When new Page is created by user
@@ -143,8 +141,8 @@ def rename_page(editor):
         editor.focusWidget().setObjectName(title)
         editor.focusWidget().setText(title)
         editor.autosaver.onChangeMade()
-        cmd = Undo({'object_name': editor.focusWidget().objectName(),'type':'page','name':title, 'action':'rename_page'})
-        editor.undo_stack.append(cmd)
+        # cmd = Undo({'object_name': editor.focusWidget().objectName(),'type':'page','name':title, 'action':'rename_page'})
+        # editor.undo_stack.append(cmd)
 
 def delete_page(editor):
     accept = QMessageBox.question(editor, 'Delete Page', 'Deleting this page will delete all sections and objects inside it. Are you sure you want to delete it?')
