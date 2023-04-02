@@ -4,6 +4,7 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from enum import Enum
 
+
 # Draggable object modes
 class Mode(Enum):
     NONE = 0,
@@ -41,7 +42,7 @@ class DraggableObject(QWidget):
     newGeometry = Signal(QRect)
 
     # Parent should be called editor, its always the editor
-    def __init__(self, parent, p, cWidget):
+    def __init__(self, parent, p, cWidget,type):
         super().__init__(parent=parent)
 
         self.menu = get_object_menu(parent)
@@ -56,7 +57,7 @@ class DraggableObject(QWidget):
         self.vLayout = QVBoxLayout(self)
         self.setChildWidget(cWidget)
         self.childWidget = cWidget # Probably better to findChildren()...
-
+        self.type=type
         self.m_infocus = True
         self.m_showMenu = False
         self.m_isEditing = True

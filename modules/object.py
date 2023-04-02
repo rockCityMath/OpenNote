@@ -6,6 +6,7 @@ import cv2
 import os
 from datetime import datetime
 
+
 # When a user creates a new Object (TextBox, ImageObj, etc.)
 # 1 Create a Widget of (type)
 # 2 Create an Object of (type) and add it to models.Notebook.Page[x].Section[x]
@@ -27,8 +28,12 @@ def add_object(editor, event, type):
         text = TextBox(editor, x, y, default_width, default_height, default_text)
 
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(undo_name, x, y, default_width, default_height, default_text))
-        drag = DraggableObject(editor, QPoint(x, y), text)
-        editor.object.append(drag)
+        drag = DraggableObject(editor, QPoint(x, y), text, 'text')
+        editor.object.append(text)
+        # Undo related
+        text.setObjectName(undo_name)
+        cmd = {'type':'object','name':undo_name, 'action':'create'}
+        editor.undo_stack.append(cmd)
 
     if type == 'image':
 
@@ -107,7 +112,7 @@ def paste_object(editor, event):
             drag = DraggableObject(editor, QPoint(x, y), text)
             editor.object.append(drag)
 
-        cmd = {'type':'object','name':name, 'action':'create'}
+        cmd = {'type':'object','name':n, 'action':'create'}
         editor.undo_stack.append(cmd)
         editor.autosaver.onChangeMade()
 
