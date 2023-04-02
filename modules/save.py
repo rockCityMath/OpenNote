@@ -40,6 +40,7 @@ def saveAs(editor, notebook):
 # Autosave the program once every n seconds if a change has been made
 class Autosaver:
     saveInterval = 5 # Seconds
+    enabled = True # For testing/debugging
 
     def __init__(self, editor, notebook):
         self.timer = None
@@ -54,12 +55,13 @@ class Autosaver:
             self.timer.start()
 
     def onAutosave(self):
-        self.changeMade = False
+        if self.enabled:
+            self.changeMade = False
 
-        if (self.notebook.path == None or self.notebook.path.endswith(".ontemp")):
-            saveToTempFile(self.editor, self.notebook)
-        else:
-            save(self.editor, self.notebook)
+            if (self.notebook.path == None or self.notebook.path.endswith(".ontemp")):
+                saveToTempFile(self.editor, self.notebook)
+            else:
+                save(self.editor, self.notebook)
 
     # Dont pickle these objects
     def __getstate__(self):

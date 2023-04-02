@@ -1,5 +1,5 @@
 from models.notebook import *
-from modules.object import build_object
+from modules.object import build_object, DraggableObject
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -49,6 +49,8 @@ def change_section(editor, section):
         params = editor.notebook.page[editor.page].section[editor.section].object[o]
         build_object(editor, params)
 
+    editor.setFocus()
+
 # When a user changes sections (or changes pages, which will cause the section to change)
 # Store params from all Widgets into their respective Objects in models.notebook.Notebook
 def store_section(editor):
@@ -56,7 +58,7 @@ def store_section(editor):
         if(len(editor.notebook.page[editor.page].section[editor.section].object)) > 0:
             for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
                 if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'text':
-                    editor.notebook.page[editor.page].section[editor.section].object[o].text = editor.object[o].toHtml()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].text = editor.object[o].childWidget.toHtml()
                     editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
                     editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
                     editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
