@@ -55,6 +55,7 @@ class Editor(QMainWindow):
 
     # Drag object event
     def dragEnterEvent(self, event):
+
         event.acceptProposedAction()
         obj = self.focusWidget()
         self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()}) # This was thowring errors
@@ -94,6 +95,7 @@ class Editor(QMainWindow):
                     #TODO Hide old location
                     build_object(self,params)
                 elif pop_item['action'] == 'create':
+                    print('deleting')
                     self.object[index].deleteLater()
                     self.object.pop(index)
                     self.notebook.page[self.page].section[self.section].object.pop(index)
