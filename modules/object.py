@@ -11,27 +11,24 @@ from datetime import datetime
 # 2 Create an Object of (type) and add it to models.Notebook.Page[x].Section[x]
 # 3 Add Widget to editor.object list (List of widgets in Page[current], Section[current])
 def add_object(editor, event, type):
-
-    # Defaults for object
     x = event.pos().x() + 250
     y = event.pos().y() + 130
-    t = '...'
 
     if type == 'text':
+        default_text = '...'
+        default_height = 100
+        default_width = 100
 
         # Name for undo
         random_number = random.randint(100, 999)
-        name = 'textbox-'+str(random_number)
+        undo_name = 'textbox-'+str(random_number)
 
         # Create textbox and add to notebook
-        text = TextBox(editor, x, y, 100, 100, t) # w, h needs to come from whats stored on object when they're resizable (same below)
-        editor.notebook.page[editor.page].section[editor.section].object.append(Text(name,x, y, 100, 100, t))
-        editor.object.append(text)
+        text = TextBox(editor, x, y, default_width, default_height, default_text)
 
-        # Undo related
-        text.setObjectName(name)
-        cmd = {'type':'object','name':name, 'action':'create'}
-        editor.undo_stack.append(cmd)
+        editor.notebook.page[editor.page].section[editor.section].object.append(Text(undo_name, x, y, default_width, default_height, default_text))
+        drag = DraggableObject(editor, QPoint(x, y), text)
+        editor.object.append(drag)
 
     if type == 'image':
 
@@ -101,9 +98,14 @@ def paste_object(editor, event):
 
         else:
             text = TextBox(editor, x, y, w, h, t)
+
+            text.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
             text.setObjectName(n)
             editor.object.append(text)
             editor.notebook.page[editor.page].section[editor.section].object.append(Text(n, x, y, w, h, t))
+            drag = DraggableObject(editor, QPoint(x, y), text)
+            editor.object.append(drag)
 
         cmd = {'type':'object','name':name, 'action':'create'}
         editor.undo_stack.append(cmd)
@@ -120,8 +122,15 @@ def paste_object(editor, event):
 # Case 2: When a user selects a new Page or Section in the editor
 def build_object(editor, params):
     if params.type == 'text':
+
+        # Name for undo
+        random_number = random.randint(100, 999)
+        name = 'textbox-'+str(random_number)
+
+        # Create textbox and add to notebook
         text = TextBox(editor, params.x, params.y, params.w, params.h, params.text)
-        editor.object.append(text)
+        drag = DraggableObject(editor, QPoint(params.x, params.y), text)
+        editor.object.append(drag)
 
     if params.type == "image":
         image = ImageObj(editor, params.x, params.y, params.w, params.h, params.path)
@@ -142,4 +151,3 @@ def add_plugin_object(editor, event, name, c):
     inst = c(editor,x,y,w,h)
     editor.notebook.page[editor.page].section[editor.section].object.append(inst)
     editor.object.append(inst)
-

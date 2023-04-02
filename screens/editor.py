@@ -52,16 +52,14 @@ class Editor(QMainWindow):
         self.setWindowState(Qt.WindowMinimized)
         self.snippingWidget.start(event_pos)
 
-        #build_ui(self)
-        #self.setFocus()
-        #self.temp_buffer=[]
-
     # Drag object event
     def dragEnterEvent(self, event):
         event.acceptProposedAction()
         obj = self.focusWidget()
         #self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()}) # This was thowring errors
 
+    def focusInEvent(self, event):
+        self.repaint()
 
     # Drop object event
     def dropEvent(self, event):

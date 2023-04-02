@@ -21,7 +21,6 @@ def build_ui(editor):
     build_menubar(editor)
     build_toolbar(editor)
 
-
     container = QWidget()
     grid = QGridLayout()
     editor.setCentralWidget(container)
@@ -34,9 +33,7 @@ def build_ui(editor):
     sidebar_widget = QWidget()
     sidebar_widget.setFixedWidth(250)
     sidebar_widget.setLayout(sidebar)
-    #sidebar.setContentsMargins(0, 0, 0, 0)
     workspace = QVBoxLayout()
-    #grid.addLayout(sidebar, 0, 0, -1, 1)
     grid.addWidget(sidebar_widget)
     grid.addLayout(workspace, 0, 1, -1, 1)
     grid.setColumnStretch(0, 1)
@@ -63,13 +60,10 @@ def build_ui(editor):
     sidebar.addWidget(addPage)
 
     # workspace widgets
-
-
     sections = QHBoxLayout()
     sections_widget = QWidget()
     sections_widget.setFixedHeight(40)
     sections_widget.setLayout(sections)
-
 
     editor.sections = QHBoxLayout()
     editor.sections_frame = QFrame()
@@ -98,17 +92,14 @@ def build_ui(editor):
     addPage.setObjectName("addPage")
     editor.pages_title.setText("Pages")
 
-
-
 def build_window(editor):
-    editor.setWindowTitle("ON - DEV")
+    editor.setWindowTitle("OpenNote")
     editor.screen_width, editor.screen_height = editor.geometry().width(), editor.geometry().height()
     editor.resize(editor.screen_width * 2, editor.screen_height * 2)
     editor.setAcceptDrops(True)
     editor.setAcceptDrops(True)
     with open('styles/styles.qss',"r") as fh:
         editor.setStyleSheet(fh.read())
-
 
 def build_menubar(editor):
     file = editor.menuBar().addMenu('&File')
@@ -133,7 +124,6 @@ def build_menubar(editor):
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
 
-
 def build_toolbar(editor):
     toolbar = QToolBar()
     toolbar.setIconSize(QSize(25, 25))
@@ -156,12 +146,9 @@ def build_toolbar(editor):
     underline = build_action(toolbar, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
     underline.toggled.connect(lambda x: editor.selected.setFontUnderline(True if x else False))
 
-
-
     toolbar.addWidget(font)
     toolbar.addWidget(size)
     toolbar.addActions([bold, italic, underline])
-
 
 def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action = QAction(QIcon(icon_path), action_name, parent)
@@ -170,14 +157,19 @@ def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     return action
 
 def frame_menu(editor, event):
+
+    if event.buttons() == Qt.LeftButton:
+        editor.setFocus()
+
     # Open Context Menu
     if event.buttons() == Qt.RightButton:
+        editor.setFocus()
         if editor.section > -1:
             frame_menu = QMenu(editor)
 
-            add_textbox = QAction("Add Text", editor)
-            add_textbox.triggered.connect(lambda: add_object(editor, event, 'text'))
-            frame_menu.addAction(add_textbox)
+            add_text = QAction("Add Text", editor)
+            add_text.triggered.connect(lambda: add_object(editor, event, 'text'))
+            frame_menu.addAction(add_text)
 
             add_image = QAction("Add Image", editor)
             add_image.triggered.connect(lambda: add_object(editor, event, 'image'))
