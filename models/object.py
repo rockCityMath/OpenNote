@@ -24,11 +24,11 @@ class TextBoxStyles(Enum):
 
 # Holds clipboard object info, QT things can't be copied by value :(
 class ClipboardObject:
-    def __init__(self,name, width, height, html, type):
+    def __init__(self, width, height, html, undo_name, type):
         self.width = width
         self.height = height
         self.html = html
-        self.name = name
+        self.undo_name = undo_name
         self.type = type
 
 # Based off https://wiki.qt.io/Widget-moveable-and-resizeable <3
@@ -382,13 +382,10 @@ def copy_object(editor):
 
             # Store the object that was clicked on in the editor's clipboard
             ob = editor.object[o]
-
-            name = ob.objectName()+'(1)'
-            if ob.type == 'image':
-                editor.clipboard_object = ClipboardObject(name,ob.frameGeometry().width(), ob.frameGeometry().height(), ob.path, ob.type)
+            if ob.childWidget.type == 'image':
+                editor.clipboard_object = ClipboardObject(ob.frameGeometry().width(), ob.frameGeometry().height(), ob.path, 1234, ob.type)
             else:
-                editor.clipboard_object = ClipboardObject(name,ob.frameGeometry().width(), ob.frameGeometry().height(), ob.toHtml(), ob.type)
-
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), 1234, ob.childWidget.type)
 
 
 def cut_object(editor):
