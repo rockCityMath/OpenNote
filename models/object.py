@@ -4,6 +4,7 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from enum import Enum
 
+
 # Draggable object modes
 class Mode(Enum):
     NONE = 0,
@@ -19,16 +20,16 @@ class Mode(Enum):
 
 # Styles for different states of the textbox
 class TextBoxStyles(Enum):
-    INFOCUS = "border: 0.5px dotted rgba(0, 0, 0, .5); background-color: rgba(0, 0, 0, 0)"
-    OUTFOCUS = "border: none; background-color: rgba(0, 0, 0, 0);"
+    INFOCUS = "border: 0.5px dotted rgba(0, 0, 0, .5); background-color: rgba(1, 1, 1, 1)"
+    OUTFOCUS = "border: none; background-color: rgba(1, 1, 1, 1);"
 
 # Holds clipboard object info, QT things can't be copied by value :(
 class ClipboardObject:
-    def __init__(self, width, height, html, undo_name, type):
+    def __init__(self, name, width, height, html, type):
         self.width = width
         self.height = height
         self.html = html
-        self.undo_name = undo_name
+        self.name = name
         self.type = type
 
 # Based off https://wiki.qt.io/Widget-moveable-and-resizeable <3
@@ -41,7 +42,7 @@ class DraggableObject(QWidget):
     newGeometry = Signal(QRect)
 
     # Parent should be called editor, its always the editor
-    def __init__(self, parent, p, cWidget):
+    def __init__(self, parent, p, cWidget,type):
         super().__init__(parent=parent)
 
         self.menu = get_object_menu(parent)
@@ -56,7 +57,7 @@ class DraggableObject(QWidget):
         self.vLayout = QVBoxLayout(self)
         self.setChildWidget(cWidget)
         self.childWidget = cWidget # Probably better to findChildren()...
-
+        self.type=type
         self.m_infocus = True
         self.m_showMenu = False
         self.m_isEditing = True
@@ -215,6 +216,7 @@ class DraggableObject(QWidget):
             self.setCursorShape(p)
             return
 
+        
         self.parentWidget().autosaver.onChangeMade()
 
         if (self.mode == Mode.MOVE or self.mode == Mode.NONE) and e.buttons() and Qt.LeftButton:
@@ -382,10 +384,11 @@ def copy_object(editor):
 
             # Store the object that was clicked on in the editor's clipboard
             ob = editor.object[o]
+            name = ob.objectName()+'(1)'
             if ob.childWidget.type == 'image':
-                editor.clipboard_object = ClipboardObject(ob.frameGeometry().width(), ob.frameGeometry().height(), ob.path, 1234, ob.type)
+                editor.clipboard_object = ClipboardObject(name,ob.frameGeometry().width(), ob.frameGeometry().height(), ob.path,  ob.type)
             else:
-                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), 1234, ob.childWidget.type)
+                editor.clipboard_object = ClipboardObject(name,ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(),  ob.childWidget.type)
 
 
 def cut_object(editor):

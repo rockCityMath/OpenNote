@@ -30,6 +30,7 @@ class Editor(QMainWindow):
 
         self.autosaver = Autosaver(self, self.notebook)  # Object with method for indicating changes and determining if we should autosave
         self.undo_stack = [] #QUndoStack()
+        self.temp_buffer = []
         self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
         self.shortcut.setContext(Qt.ApplicationShortcut)
         self.shortcut.activated.connect(self.undo_event)
@@ -54,9 +55,10 @@ class Editor(QMainWindow):
 
     # Drag object event
     def dragEnterEvent(self, event):
+
         event.acceptProposedAction()
         obj = self.focusWidget()
-        #self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()}) # This was thowring errors
+        self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()}) # This was thowring errors
 
     def focusInEvent(self, event):
         self.repaint()
@@ -70,8 +72,8 @@ class Editor(QMainWindow):
         self.focusWidget().move(event.pos().x(), event.pos().y())
         event.acceptProposedAction()
         self.autosaver.onChangeMade()
-        #self.undo_stack += self.temp_buffer[:1] # This was throwing errors
-        #self.temp_buffer = []
+        self.undo_stack += self.temp_buffer[:1] # This was throwing errors
+        self.temp_buffer = []
 
     def undo_event(self):
         if len(self.undo_stack)>0:
@@ -93,6 +95,7 @@ class Editor(QMainWindow):
                     #TODO Hide old location
                     build_object(self,params)
                 elif pop_item['action'] == 'create':
+                    print('deleting')
                     self.object[index].deleteLater()
                     self.object.pop(index)
                     self.notebook.page[self.page].section[self.section].object.pop(index)

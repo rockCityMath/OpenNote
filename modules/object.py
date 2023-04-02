@@ -27,9 +27,12 @@ def add_object(editor, event, type):
         text = TextBox(editor, x, y, default_width, default_height, default_text)
 
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(undo_name, x, y, default_width, default_height, default_text))
-        drag = DraggableObject(editor, QPoint(x, y), text)
+        drag = DraggableObject(editor, QPoint(x, y), text,'text')
         editor.object.append(drag)
-
+        # Undo related
+        text.setObjectName(undo_name)
+        cmd = {'type':'object','name':undo_name, 'action':'create'}
+        editor.undo_stack.append(cmd)
     if type == 'image':
 
         # Get path from user
@@ -88,7 +91,7 @@ def paste_object(editor, event):
         w = editor.clipboard_object.width
         h = editor.clipboard_object.height
         t = editor.clipboard_object.html
-        n = editor.clipboard_object.undo_name
+        n = editor.clipboard_object.name
 
         if editor.clipboard_object.type == 'image':
             image = ImageObj(editor, x, y, w, h, t)
@@ -99,11 +102,13 @@ def paste_object(editor, event):
             text = TextBox(editor, x, y, w, h, t)
             text.setStyleSheet(TextBoxStyles.INFOCUS.value)
             editor.notebook.page[editor.page].section[editor.section].object.append(Text(n, x, y, w, h, t))
-            drag = DraggableObject(editor, QPoint(x, y), text)
+            drag = DraggableObject(editor, QPoint(x, y), text, 'text')
             editor.object.append(drag)
 
-        #cmd = Undo({'type':'clipboard', 'action':'paste'}) # This was throwing errors
-        #editor.undo_stack.append(cmd)
+        # Undo related
+        text.setObjectName(n)
+        cmd = {'type':'object','name':n, 'action':'create'}
+        editor.undo_stack.append(cmd)
         editor.autosaver.onChangeMade()
 
     elif editor.clipboard_object == None:
@@ -124,7 +129,7 @@ def build_object(editor, params):
 
         # Create textbox and add to notebook
         text = TextBox(editor, params.x, params.y, params.w, params.h, params.text)
-        drag = DraggableObject(editor, QPoint(params.x, params.y), text)
+        drag = DraggableObject(editor, QPoint(params.x, params.y), text,'text')
         editor.object.append(drag)
 
     if params.type == "image":
