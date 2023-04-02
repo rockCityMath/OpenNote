@@ -4,7 +4,6 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from enum import Enum
 
-
 # Draggable object modes
 class Mode(Enum):
     NONE = 0,
@@ -20,16 +19,16 @@ class Mode(Enum):
 
 # Styles for different states of the textbox
 class TextBoxStyles(Enum):
-    INFOCUS = "border: 0.5px dotted rgba(0, 0, 0, .5); background-color: rgba(1, 1, 1, 1)"
-    OUTFOCUS = "border: none; background-color: rgba(1, 1, 1, 1);"
+    INFOCUS = "border: 0.5px dotted rgba(0, 0, 0, .5); background-color: rgba(0, 0, 0, 0)"
+    OUTFOCUS = "border: none; background-color: rgba(0, 0, 0, 0);"
 
 # Holds clipboard object info, QT things can't be copied by value :(
 class ClipboardObject:
-    def __init__(self, name, width, height, html, type):
+    def __init__(self, width, height, html, type, undo_name):
         self.width = width
         self.height = height
         self.html = html
-        self.name = name
+        self.undo_name = undo_name
         self.type = type
 
 # Based off https://wiki.qt.io/Widget-moveable-and-resizeable <3
@@ -42,7 +41,7 @@ class DraggableObject(QWidget):
     newGeometry = Signal(QRect)
 
     # Parent should be called editor, its always the editor
-    def __init__(self, parent, p, cWidget,type):
+    def __init__(self, parent, p, cWidget):
         super().__init__(parent=parent)
 
         self.menu = get_object_menu(parent)
@@ -57,12 +56,14 @@ class DraggableObject(QWidget):
         self.vLayout = QVBoxLayout(self)
         self.setChildWidget(cWidget)
         self.childWidget = cWidget # Probably better to findChildren()...
-        self.type=type
         self.m_infocus = True
         self.m_showMenu = False
         self.m_isEditing = True
         self.installEventFilter(parent)
         self.setGeometry(cWidget.geometry())
+
+        if isinstance(cWidget, ImageObj): self.object_type = 'image' # cleaner to do this here
+        else: self.object_type = 'text' # these should probably be an enum everywhere
 
     def setChildWidget(self, cWidget):
         if cWidget:
@@ -146,6 +147,12 @@ class DraggableObject(QWidget):
     def setCursorShape(self, e_pos: QPoint):
         diff = 10 # Amount of padding from the edge where resize cursors will show
 
+        # Not allowing resizable images for now
+        if self.object_type == 'image':
+            self.setCursor(QCursor(Qt. ArrowCursor))
+            self.mode = Mode.MOVE
+            return
+
         # Left - Bottom
         if (((e_pos.y() > self.y() + self.height() - diff) and # Bottom
             (e_pos.x() < self.x() + diff)) or # Left
@@ -202,6 +209,7 @@ class DraggableObject(QWidget):
             self.mode = Mode.MOVE
 
     def mouseReleaseEvent(self, e: QMouseEvent):
+        self.parentWidget().autosaver.onChangeMade()
         QWidget.mouseReleaseEvent(self, e)
 
     # Determine how to handle the mouse being moved inside the box
@@ -215,9 +223,6 @@ class DraggableObject(QWidget):
             p = QPoint(e.x() + self.geometry().x(), e.y() + self.geometry().y())
             self.setCursorShape(p)
             return
-
-        
-        self.parentWidget().autosaver.onChangeMade()
 
         if (self.mode == Mode.MOVE or self.mode == Mode.NONE) and e.buttons() and Qt.LeftButton:
             toMove = e.globalPos() - self.position
@@ -238,6 +243,10 @@ class DraggableObject(QWidget):
             self.parentWidget().repaint()
             return
         if (self.mode != Mode.MOVE) and e.buttons() and Qt.LeftButton:
+
+            # Not allowing resizable images for now
+            if self.object_type == 'image':
+                return
             if self.mode == Mode.RESIZETL: # Left - Top
                 newwidth = e.globalX() - self.position.x() - self.geometry().x()
                 newheight = e.globalY() - self.position.y() - self.geometry().y()
@@ -299,9 +308,9 @@ class ImageObj(QTextEdit):
         self.setGeometry(x, y, w, h)
         fragment = QTextDocumentFragment.fromHtml(f"<img src={path} height='%1' width='%2'>")
         self.textCursor().insertFragment(fragment)
-        self.mouseDoubleClickEvent = lambda event: drag(editor, event)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
+#        self.mouseDoubleClickEvent = lambda event: drag(editor, event)
+#        self.setContextMenuPolicy(Qt.CustomContextMenu)
+#        self.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
         self.show()
 
 # Select TextBox for font styling
@@ -384,11 +393,11 @@ def copy_object(editor):
 
             # Store the object that was clicked on in the editor's clipboard
             ob = editor.object[o]
-            name = ob.objectName()+'(1)'
-            if ob.childWidget.type == 'image':
-                editor.clipboard_object = ClipboardObject(name,ob.frameGeometry().width(), ob.frameGeometry().height(), ob.path,  ob.type)
+            undo_name = ob.objectName()+'(1)'
+            if ob.object_type == 'image':
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.path, ob.object_type, undo_name) # TODO: move name
             else:
-                editor.clipboard_object = ClipboardObject(name,ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(),  ob.childWidget.type)
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.type, undo_name)
 
 
 def cut_object(editor):

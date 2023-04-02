@@ -55,10 +55,9 @@ class Editor(QMainWindow):
 
     # Drag object event
     def dragEnterEvent(self, event):
-
         event.acceptProposedAction()
         obj = self.focusWidget()
-        self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()}) # This was thowring errors
+        self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()})
 
     def focusInEvent(self, event):
         self.repaint()
@@ -72,7 +71,7 @@ class Editor(QMainWindow):
         self.focusWidget().move(event.pos().x(), event.pos().y())
         event.acceptProposedAction()
         self.autosaver.onChangeMade()
-        self.undo_stack += self.temp_buffer[:1] # This was throwing errors
+        self.undo_stack += self.temp_buffer[:1]
         self.temp_buffer = []
 
     def undo_event(self):
@@ -95,7 +94,6 @@ class Editor(QMainWindow):
                     #TODO Hide old location
                     build_object(self,params)
                 elif pop_item['action'] == 'create':
-                    print('deleting')
                     self.object[index].deleteLater()
                     self.object.pop(index)
                     self.notebook.page[self.page].section[self.section].object.pop(index)
