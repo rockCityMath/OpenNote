@@ -63,6 +63,9 @@ class DraggableObject(QWidget):
         self.installEventFilter(parent)
         self.setGeometry(cWidget.geometry())
 
+        if isinstance(cWidget, ImageObj): self.object_type = 'image'
+        else: self.object_type = 'text' # these should probably be an enum everywhere
+
     def setChildWidget(self, cWidget):
         if cWidget:
             self.childWidget = cWidget
@@ -144,6 +147,12 @@ class DraggableObject(QWidget):
     # Determine which cursor to show and which mode to be in when user is interacting with the box
     def setCursorShape(self, e_pos: QPoint):
         diff = 10 # Amount of padding from the edge where resize cursors will show
+
+        # Not allowing resizable images for now
+        if self.object_type == 'image':
+            self.setCursor(QCursor(Qt. ArrowCursor))
+            self.mode = Mode.MOVE
+            return
 
         # Left - Bottom
         if (((e_pos.y() > self.y() + self.height() - diff) and # Bottom
@@ -236,6 +245,10 @@ class DraggableObject(QWidget):
             self.parentWidget().repaint()
             return
         if (self.mode != Mode.MOVE) and e.buttons() and Qt.LeftButton:
+
+            # Not allowing resizable images for now
+            if self.object_type == 'image':
+                return
             if self.mode == Mode.RESIZETL: # Left - Top
                 newwidth = e.globalX() - self.position.x() - self.geometry().x()
                 newheight = e.globalY() - self.position.y() - self.geometry().y()
@@ -297,9 +310,9 @@ class ImageObj(QTextEdit):
         self.setGeometry(x, y, w, h)
         fragment = QTextDocumentFragment.fromHtml(f"<img src={path} height='%1' width='%2'>")
         self.textCursor().insertFragment(fragment)
-        self.mouseDoubleClickEvent = lambda event: drag(editor, event)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
+#        self.mouseDoubleClickEvent = lambda event: drag(editor, event)
+#        self.setContextMenuPolicy(Qt.CustomContextMenu)
+#        self.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
         self.show()
 
 # Select TextBox for font styling
@@ -382,10 +395,10 @@ def copy_object(editor):
 
             # Store the object that was clicked on in the editor's clipboard
             ob = editor.object[o]
-            if ob.childWidget.type == 'image':
-                editor.clipboard_object = ClipboardObject(ob.frameGeometry().width(), ob.frameGeometry().height(), ob.path, 1234, ob.type)
+            if ob.object_type == 'image':
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.path, 1234, ob.object_type)
             else:
-                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), 1234, ob.childWidget.type)
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), 1234, ob.object_type)
 
 
 def cut_object(editor):
