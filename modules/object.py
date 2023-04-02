@@ -29,7 +29,11 @@ def add_object(editor, event, type):
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(undo_name, x, y, default_width, default_height, default_text))
         drag = DraggableObject(editor, QPoint(x, y), text)
         editor.object.append(drag)
-
+        
+        # Undo related
+        text.setObjectName(undo_name)
+        cmd = {'type':'object','name':undo_name, 'action':'create'}
+        editor.undo_stack.append(cmd)
     if type == 'image':
 
         # Get path from user
@@ -99,6 +103,7 @@ def paste_object(editor, event):
             editor.notebook.page[editor.page].section[editor.section].object.append(Image(n, x, y, w, h, t))
             drag = DraggableObject(editor, QPoint(x, y), image)
             editor.object.append(drag)
+            image.setObjectName(n)
 
         else:
             text = TextBox(editor, x, y, w, h, t)
@@ -106,9 +111,11 @@ def paste_object(editor, event):
             editor.notebook.page[editor.page].section[editor.section].object.append(Text(n, x, y, w, h, t))
             drag = DraggableObject(editor, QPoint(x, y), text)
             editor.object.append(drag)
+            text.setObjectName(n)
 
-        #cmd = Undo({'type':'clipboard', 'action':'paste'}) # This was throwing errors
-        #editor.undo_stack.append(cmd)
+        # Undo related
+        cmd = {'type':'object','name':n, 'action':'create'}
+        editor.undo_stack.append(cmd)
         editor.autosaver.onChangeMade()
 
     elif editor.clipboard_object == None:
