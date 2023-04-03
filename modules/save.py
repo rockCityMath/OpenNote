@@ -14,6 +14,7 @@ def save(editor, notebook):
         saveAs(editor, notebook)
 
     editor.notebook.title = editor.notebook_title.toPlainText()
+    editor.undo_stack = []
     store_section(editor)   # Add objects from user's current section to models.notebook.Notebook
     if notebook.path:       # If a file does not exist, call saveAs to create one
         file = open(notebook.path, "wb")

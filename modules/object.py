@@ -25,13 +25,14 @@ def add_object(editor, event, type):
 
         # Create textbox and add to notebook
         text = TextBox(editor, x, y, default_width, default_height, default_text)
-
+        text.setObjectName(undo_name)
         editor.notebook.page[editor.page].section[editor.section].object.append(Text(undo_name, x, y, default_width, default_height, default_text))
-        drag = DraggableObject(editor, QPoint(x, y), text)
+        drag = DraggableObject(editor, editor, QPoint(x, y), text)
+
         editor.object.append(drag)
         
         # Undo related
-        text.setObjectName(undo_name)
+
         cmd = {'type':'object','name':undo_name, 'action':'create'}
         editor.undo_stack.append(cmd)
     if type == 'image':
@@ -39,10 +40,6 @@ def add_object(editor, event, type):
         # Get path from user
         path, _ = QFileDialog.getOpenFileName(editor, 'Add Image')
         if path == "": return
-
-        # Name for undo
-        random_number = random.randint(100, 999)
-        name = 'imagebox-'+str(random_number)
 
         # Get image size
         image_blob = cv2.imread(path)
@@ -52,12 +49,12 @@ def add_object(editor, event, type):
         image = ImageObj(editor, x, y, w, h, path)
 
         editor.notebook.page[editor.page].section[editor.section].object.append(Image(undo_name, x, y, w, h, path))
-        drag = DraggableObject(editor, QPoint(x, y), image)
+        drag = DraggableObject(editor,editor, QPoint(x, y), image)
         editor.object.append(drag)
 
         # Undo related
-        image.setObjectName(name)
-        cmd = {'type':'object','name':name, 'action':'create'}
+        image.setObjectName(undo_name)
+        cmd = {'type':'object','name':undo_name, 'action':'create'}
         editor.undo_stack.append(cmd)
 
     editor.autosaver.onChangeMade()
@@ -84,7 +81,7 @@ def add_snip(editor, event_pos, image_blob):
     image = ImageObj(editor, x, y, w, h, path)
     image.setStyleSheet(TextBoxStyles.INFOCUS.value)
     editor.notebook.page[editor.page].section[editor.section].object.append(Image(undo_name, x, y, w, h, path))
-    drag = DraggableObject(editor, QPoint(x, y), image)
+    drag = DraggableObject(editor,editor, QPoint(x, y), image)
     editor.object.append(drag)
     editor.autosaver.onChangeMade()
 
@@ -101,7 +98,7 @@ def paste_object(editor, event):
             image = ImageObj(editor, x, y, w, h, t)
             image.setStyleSheet(TextBoxStyles.INFOCUS.value)
             editor.notebook.page[editor.page].section[editor.section].object.append(Image(n, x, y, w, h, t))
-            drag = DraggableObject(editor, QPoint(x, y), image)
+            drag = DraggableObject(editor,editor, QPoint(x, y), image)
             editor.object.append(drag)
             image.setObjectName(n)
 
@@ -109,7 +106,7 @@ def paste_object(editor, event):
             text = TextBox(editor, x, y, w, h, t)
             text.setStyleSheet(TextBoxStyles.INFOCUS.value)
             editor.notebook.page[editor.page].section[editor.section].object.append(Text(n, x, y, w, h, t))
-            drag = DraggableObject(editor, QPoint(x, y), text)
+            drag = DraggableObject(editor,editor, QPoint(x, y), text)
             editor.object.append(drag)
             text.setObjectName(n)
 
@@ -130,12 +127,12 @@ def paste_object(editor, event):
 def build_object(editor, params):
     if params.type == 'text':
         text = TextBox(editor, params.x, params.y, params.w, params.h, params.text)
-        drag = DraggableObject(editor, QPoint(params.x, params.y), text)
+        drag = DraggableObject(editor,editor, QPoint(params.x, params.y), text)
         editor.object.append(drag)
 
     if params.type == "image":
         image = ImageObj(editor, params.x, params.y, params.w, params.h, params.path)
-        drag = DraggableObject(editor, QPoint(params.x, params.y), image)
+        drag = DraggableObject(editor,editor, QPoint(params.x, params.y), image)
         editor.object.append(drag)
 
     if params.type == 'plugin':
