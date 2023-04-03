@@ -24,12 +24,14 @@ class TextBoxStyles(Enum):
 
 # Holds clipboard object info, QT things can't be copied by value :(
 class ClipboardObject:
-    def __init__(self, width, height, html, type, undo_name):
+    def __init__(self, width, height, html, type, undo_name, cols=0, rows = 0):
         self.width = width
         self.height = height
         self.html = html
         self.undo_name = undo_name
         self.type = type
+        self.rows = rows
+        self.cols = cols
 
 # Based off https://wiki.qt.io/Widget-moveable-and-resizeable <3
 class DraggableObject(QWidget):
@@ -43,8 +45,7 @@ class DraggableObject(QWidget):
     # Parent should be called editor, its always the editor
     def __init__(self, parent, editor, p, cWidget):
         super().__init__(parent=parent)
-
-        self.menu = get_object_menu(parent)
+        # self.menu = get_object_menu(parent)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setVisible(True)
         self.setAutoFillBackground(False)
@@ -66,8 +67,16 @@ class DraggableObject(QWidget):
         self.setGeometry(cWidget.geometry())
         self.old_state = {}
 
-        if isinstance(cWidget, ImageObj): self.object_type = 'image' # cleaner to do this here
-        else: self.object_type = 'text' # these should probably be an enum everywhere
+            
+        if isinstance(cWidget, ImageObj): 
+            self.object_type = 'image' # cleaner to do this here
+            self.menu = get_object_menu(parent)
+        elif isinstance(cWidget, TextBox):
+            self.object_type = 'text' # these should probably be an enum everywhere
+            self.menu = get_object_menu(parent)
+        else: 
+            self.object_type = 'table' # these should probably be an enum everywhere
+            self.menu = table_object_menu(parent)
 
     def setChildWidget(self, cWidget):
         if cWidget:
@@ -126,7 +135,6 @@ class DraggableObject(QWidget):
         self.old_x = e.globalX()
         self.old_y = e.globalY()
         self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
-        print(self.old_state)
         if not self.m_isEditing:
             return
         if not self.m_infocus:
@@ -140,12 +148,17 @@ class DraggableObject(QWidget):
 
     # On double click, send events to child and move cursor to end
     def mouseDoubleClickEvent(self, e: QMouseEvent):
-        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        self.childWidget.setFocus()
+        if self.object_type == 'table':
+            print(self.childWidget.type)
+            print(self.childWidget.rows,self.childWidget.rows)
+            self.childWidget.setEditTriggers(QTableWidget.DoubleClicked)
+        else:
+            self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+            self.childWidget.setFocus()
 
-        # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
-        self.childWidget.moveCursor(QTextCursor.End)
-        self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+            # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
+            self.childWidget.moveCursor(QTextCursor.End)
+            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
     def keyPressEvent(self, e: QKeyEvent):
         if not self.m_isEditing: return
@@ -218,7 +231,6 @@ class DraggableObject(QWidget):
 
     def mouseReleaseEvent(self, e: QMouseEvent):
         self.editor.undo_stack.append(self.old_state)
-        print(self.editor.undo_stack)
         self.parentWidget().autosaver.onChangeMade()
         QWidget.mouseReleaseEvent(self, e)
 
@@ -309,8 +321,21 @@ class TextBox(QTextEdit):
         self.textChanged.connect(lambda: editor.autosaver.onChangeMade())
         
 class TableObject(QTableWidget):
-    def __init__(self, editor, x, y):
-        pass
+    def __init__(self, editor, x, y,w,h, rows, cols):
+            super().__init__(rows, cols, editor)
+            self.setEditTriggers(QTableWidget.DoubleClicked)
+            self.rows=rows
+            self.cols=cols
+            self.editor = editor
+            self.type = 'table'
+            self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+            self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject
+            self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.show()
+            # self.cellChanged.connect(lambda: editor.autosaver.onChangeMade())   
+            # self.itemChanged.connect(lambda: editor.autosaver.onChangeMade())
+    
 
 class ImageObj(QTextEdit):
     def __init__(self, editor, x, y, w, h, path):
@@ -433,7 +458,6 @@ def delete_object(editor):
                 
                 item = editor.notebook.page[editor.page].section[editor.section].object.pop(o)
                 editor.undo_stack[-1]['data']=item
-                print('in deletion'+str(editor.undo_stack))
                 editor.autosaver.onChangeMade()
                 return
     except:
@@ -448,9 +472,12 @@ def copy_object(editor):
             undo_name = ob.objectName()+'(1)'
             if ob.object_type == 'image':
                 editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.path, ob.object_type, undo_name) # TODO: move name
-            else:
+            elif ob.object_type == 'text':
                 editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name)
-
+            else:
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name, editor.object[o].cols, editor.object[o].rows)
+            
+                
 
 def add_r(editor):
     pass

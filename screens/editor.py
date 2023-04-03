@@ -87,12 +87,8 @@ class Editor(QMainWindow):
                 #TODO instead of object[0] i need to find object by name
                 if pop_item['action'] == 'move':
                     params = self.notebook.page[self.page].section[self.section].object[index]
-                    print('new loc')
-                    print(params.x,params.y)
                     params.x = pop_item['x']
-                    params.y = pop_item['y']
-                    print('old loc')
-                    print(params.x,params.y)           
+                    params.y = pop_item['y']         
                     self.notebook.page[self.page].section[self.section].object[index] = params
                     
                     self.object[index].deleteLater()

@@ -6,6 +6,32 @@ import cv2
 import os
 from datetime import datetime
 
+#needed to create a dialogue for user to write number of cols and rows for a user
+class CreateTableDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.rowsLineEdit = QLineEdit()
+        self.colsLineEdit = QLineEdit()
+
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("Rows:"))
+        layout.addWidget(self.rowsLineEdit)
+        layout.addWidget(QLabel("Columns:"))
+        layout.addWidget(self.colsLineEdit)
+        layout.addWidget(self.buttonBox)
+
+        self.setLayout(layout)
+    
+    def getTableSize(self):
+        rows = int(self.rowsLineEdit.text())
+        cols = int(self.colsLineEdit.text())
+        return rows, cols 
+       
 # When a user creates a new Object (TextBox, ImageObj, etc.)
 # 1 Create a Widget of (type)
 # 2 Create an Object of (type) and add it to models.Notebook.Page[x].Section[x]
@@ -56,8 +82,24 @@ def add_object(editor, event, type):
         image.setObjectName(undo_name)
         cmd = {'type':'object','name':undo_name, 'action':'create'}
         editor.undo_stack.append(cmd)
+    if type == 'table':
+        default_height = 200
+        default_width = 200
+        dialog = CreateTableDialog()
+        if dialog.exec_() == QDialog.Accepted:
+            rows, cols = dialog.getTableSize()
+            table = TableObject(editor, x,y,default_width,default_height,rows,cols)
+            table.setObjectName(undo_name)
+            editor.notebook.page[editor.page].section[editor.section].object.append(Table(editor, x,y,default_width,default_height,rows,cols))
+            drag = DraggableObject(editor, editor, QPoint(x, y), table)
 
-    editor.autosaver.onChangeMade()
+            editor.object.append(drag)
+            # Undo related
+            cmd = {'type':'object','name':undo_name, 'action':'create'}
+            editor.undo_stack.append(cmd)      
+
+            
+        editor.autosaver.onChangeMade()
 
 def add_snip(editor, event_pos, image_blob):
     x = event_pos['x'] + 250
@@ -93,20 +135,30 @@ def paste_object(editor, event):
         h = editor.clipboard_object.height
         t = editor.clipboard_object.html
         n = editor.clipboard_object.undo_name
-
+        cols = editor.clipboard_object.cols
+        rows = editor.clipboard_object.rows
         if editor.clipboard_object.type == 'image':
             image = ImageObj(editor, x, y, w, h, t)
             image.setStyleSheet(TextBoxStyles.INFOCUS.value)
+            image.setObjectName(n)
             editor.notebook.page[editor.page].section[editor.section].object.append(Image(n, x, y, w, h, t))
             drag = DraggableObject(editor,editor, QPoint(x, y), image)
             editor.object.append(drag)
-            image.setObjectName(n)
 
-        else:
+
+        elif editor.clipboard_object.type == 'text':
             text = TextBox(editor, x, y, w, h, t)
             text.setStyleSheet(TextBoxStyles.INFOCUS.value)
+            text.setObjectName(n)
             editor.notebook.page[editor.page].section[editor.section].object.append(Text(n, x, y, w, h, t))
             drag = DraggableObject(editor,editor, QPoint(x, y), text)
+            editor.object.append(drag)
+
+        else:
+            table = TableObject(editor, x,y,w,h,rows,cols)
+            table.setObjectName(n)
+            editor.notebook.page[editor.page].section[editor.section].object.append(Table(editor, x,y,w,h,rows,cols))
+            drag = DraggableObject(editor, editor, QPoint(x, y), table)
             editor.object.append(drag)
             text.setObjectName(n)
 
@@ -134,7 +186,10 @@ def build_object(editor, params):
         image = ImageObj(editor, params.x, params.y, params.w, params.h, params.path)
         drag = DraggableObject(editor,editor, QPoint(params.x, params.y), image)
         editor.object.append(drag)
-
+    if params.type == 'table':
+        table = TableObject(editor, params.x, params.y, params.w, params.h,params.rows,params.cols)
+        drag = DraggableObject(editor, editor, QPoint(params.x, params.y), table)
+        editor.object.append(drag)
     if params.type == 'plugin':
         params.show()
         editor.object.append(params)

@@ -31,7 +31,16 @@ class Text:
         self.h = h
         self.text = text    # Stores html of models.object.TextBox widget
         self.type = 'text'  # Type for modules.object.build_object
-
+class Table:
+    def __init__(self,name, x, y, w, h, rows, cols):
+        self.name=name
+        self.x = x          # Stores geometry of models.object.TextBox widget
+        self.y = y
+        self.w = w
+        self.h = h
+        self.type = 'table'  # Type for modules.object.build_object 
+        self.rows = rows
+        self.cols = cols
 class Image:
     def __init__(self,name, x, y, w, h, path):
         self.name = name
