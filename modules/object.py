@@ -50,9 +50,9 @@ def add_object(editor, event, type):
         default_width = 100
 
         # Create textbox and add to notebook
-        text = TextBox(editor, x, y, default_width, default_height, default_text)
+        text = TextBox(editor, x, y, default_width, default_height, '')
         text.setObjectName(undo_name)
-        editor.notebook.page[editor.page].section[editor.section].object.append(Text(undo_name, x, y, default_width, default_height, default_text))
+        editor.notebook.page[editor.page].section[editor.section].object.append(Text(undo_name, x, y, default_width, default_height, ''))
         drag = DraggableObject(editor, editor, QPoint(x, y), text)
 
         editor.object.append(drag)

@@ -157,9 +157,7 @@ def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     return action
 
 def frame_menu(editor, event):
-
     if event.buttons() == Qt.LeftButton:
-        editor.setFocus()
         o = len(editor.object) - 1
         if len(editor.object) > 0:
             if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'text':
@@ -169,7 +167,7 @@ def frame_menu(editor, event):
                     editor.notebook.page[editor.page].section[editor.section].object.pop(o)
                     editor.autosaver.onChangeMade()
         add_object(editor, event, 'text')
-        editor.object[o].childWidget.setFocus()
+        editor.object[len(editor.object) - 1].childWidget.setFocus()
 
     # Open Context Menu
     if event.buttons() == Qt.RightButton:

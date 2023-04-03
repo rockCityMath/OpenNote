@@ -19,8 +19,8 @@ class Mode(Enum):
 
 # Styles for different states of the textbox
 class TextBoxStyles(Enum):
-    INFOCUS = "border: 0.5px dotted rgba(0, 0, 0, .5); background-color: rgba(1, 1, 1, 1)"
-    OUTFOCUS = "border: none; background-color: rgba(1, 1, 1, 1);"
+    INFOCUS = "border: 0.5px dotted rgba(0, 0, 0, .5); background-color: rgba(0, 0, 0, 0)"
+    OUTFOCUS = "border: none; background-color: rgba(0, 0, 0, 0);"
 
 # Holds clipboard object info, QT things can't be copied by value :(
 class ClipboardObject:
