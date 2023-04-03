@@ -72,14 +72,12 @@ class Autosaver:
 
 # Autosave saves to temp file if notebook hasn't been given a real name or path
 def saveToTempFile(editor, notebook):
-
     # Build and set file and path name
     if notebook.path == None:
         currentDatetime = datetime.now()
         tempFileName = currentDatetime.strftime("%d-%m-%Y_%H-%M-%S")
         editor.notebook.title = tempFileName
         editor.notebook.path = os.getcwd() + "\\" + tempFileName + ".ontemp"
-
     # Save
     store_section(editor)
     file = open(notebook.path, "wb")
