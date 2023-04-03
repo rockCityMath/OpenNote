@@ -1,5 +1,3 @@
-
-from models.object import *
 from models.notebook import *
 from modules.build_ui import *
 from modules.load import new
@@ -90,20 +88,16 @@ class Editor(QMainWindow):
                     params.x = pop_item['x']
                     params.y = pop_item['y']         
                     self.notebook.page[self.page].section[self.section].object[index] = params
-                    
-                    self.object[index].deleteLater()
-
-                    self.object.pop(index)             
                     #deleting in old position
+                    self.object[index].deleteLater()
+                    self.object.pop(index)
+                    #TODO Hide old location
                     build_object(self,params)
-                    self.autosaver.onChangeMade()
                 elif pop_item['action'] == 'create':
                     self.object[index].deleteLater()
                     self.object.pop(index)
                     self.notebook.page[self.page].section[self.section].object.pop(index)
-                    self.autosaver.onChangeMade()
                 else:
-                    # self.object.append(pop_item['data'])
-                    self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])         
+                    self.object.append(pop_item['data'])
+                    self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])
                     build_object(self,pop_item['data'])
-                    self.autosaver.onChangeMade()

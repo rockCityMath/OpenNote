@@ -43,7 +43,7 @@ class DraggableObject(QWidget):
     newGeometry = Signal(QRect)
 
     # Parent should be called editor, its always the editor
-    def __init__(self, parent, editor, p, cWidget):
+    def __init__(self, parent, p, cWidget):
         super().__init__(parent=parent)
         # self.menu = get_object_menu(parent)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
@@ -53,10 +53,7 @@ class DraggableObject(QWidget):
         self.setFocusPolicy(Qt.ClickFocus)
         self.setFocus()
         self.move(p)
-        self.old_x = 0
-        self.old_y = 0
-        self.name = cWidget.objectName()
-        self.editor = editor
+
         self.vLayout = QVBoxLayout(self)
         self.setChildWidget(cWidget)
         self.childWidget = cWidget # Probably better to findChildren()...
@@ -65,7 +62,6 @@ class DraggableObject(QWidget):
         self.m_isEditing = True
         self.installEventFilter(parent)
         self.setGeometry(cWidget.geometry())
-        self.old_state = {}
 
             
         if isinstance(cWidget, ImageObj): 
@@ -130,7 +126,6 @@ class DraggableObject(QWidget):
 #            painter.drawRect(rect)
 
     def mousePressEvent(self, e: QMouseEvent):
-
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
         self.old_x = e.globalX()
         self.old_y = e.globalY()
@@ -363,42 +358,6 @@ def drag(editor, event):
         drag.setMimeData(mimeData)
         drag.exec(Qt.MoveAction)
 
-def table_object_menu(editor):
-    object_menu = QMenu(editor)
-
-    # Delete
-    delete = QAction("Delete", editor)
-    delete.triggered.connect(lambda: delete_object(editor))
-    object_menu.addAction(delete)
-
-    # Copy
-    copy = QAction("Copy", editor)
-    copy.triggered.connect(lambda: copy_object(editor))
-    object_menu.addAction(copy)
-
-    # Cut
-    cut = QAction("Cut", editor)
-    cut.triggered.connect(lambda: cut_object(editor))
-    object_menu.addAction(cut)
-    
-    add_row = QAction("Add Row", editor)
-    add_row.triggered.connect(lambda: add_r(editor))
-    object_menu.addAction(add_row)
-    
-    add_col = QAction("Add Col", editor)
-    add_col.triggered.connect(lambda: add_c(editor))
-    object_menu.addAction(add_col)
-    
-    del_row = QAction("Del Row", editor)
-    del_row.triggered.connect(lambda: del_r(editor))
-    object_menu.addAction(del_row)
-    
-    del_col = QAction("Del Col", editor)
-    del_col.triggered.connect(lambda: del_c(editor))
-    object_menu.addAction(del_col)
-    
-    
-    return object_menu    
 # Returns the menu to be put on the DraggableObject
 def get_object_menu(editor):
     object_menu = QMenu(editor)
@@ -445,17 +404,16 @@ def delete_object(editor):
     try:
         for o in range(len(editor.object)):
             if (editor.object[o] == editor.focusWidget()):
-                
                 editor.undo_stack.append(
                     {'type':'object',
-                     'name':editor.notebook.page[editor.page].section[editor.section].object[o].name,
+                     'name':editor.object[o].objectName(),
                      'action':'delete'
                      })
-
                 # Remove Widget from editor
                 editor.object[o].deleteLater()
-                editor.object.pop(o)       
-                
+                editor.object.pop(o)
+
+                #Remove object from model
                 item = editor.notebook.page[editor.page].section[editor.section].object.pop(o)
                 editor.undo_stack[-1]['data']=item
                 editor.autosaver.onChangeMade()
@@ -472,21 +430,8 @@ def copy_object(editor):
             undo_name = ob.objectName()+'(1)'
             if ob.object_type == 'image':
                 editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.path, ob.object_type, undo_name) # TODO: move name
-            elif ob.object_type == 'text':
-                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name)
             else:
-                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name, editor.object[o].cols, editor.object[o].rows)
-            
-                
-
-def add_r(editor):
-    pass
-def add_c(editor):
-    pass
-def del_r(editor):
-    pass
-def del_c(editor):
-    pass
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.type, undo_name)
 
 
 def cut_object(editor):
