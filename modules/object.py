@@ -90,7 +90,7 @@ def add_object(editor, event, type):
             rows, cols = dialog.getTableSize()
             table = TableObject(editor, x,y,default_width,default_height,rows,cols)
             table.setObjectName(undo_name)
-            editor.notebook.page[editor.page].section[editor.section].object.append(Table(editor, x,y,default_width,default_height,rows,cols))
+            editor.notebook.page[editor.page].section[editor.section].object.append(Table(undo_name, x,y,default_width,default_height,rows,cols))
             drag = DraggableObject(editor, editor, QPoint(x, y), table)
 
             editor.object.append(drag)
@@ -157,7 +157,7 @@ def paste_object(editor, event):
         else:
             table = TableObject(editor, x,y,w,h,rows,cols)
             table.setObjectName(n)
-            editor.notebook.page[editor.page].section[editor.section].object.append(Table(editor, x,y,w,h,rows,cols))
+            editor.notebook.page[editor.page].section[editor.section].object.append(Table(n, x,y,w,h,rows,cols))
             drag = DraggableObject(editor, editor, QPoint(x, y), table)
             editor.object.append(drag)
             text.setObjectName(n)

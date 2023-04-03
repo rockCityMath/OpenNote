@@ -66,6 +66,7 @@ class DraggableObject(QWidget):
         self.installEventFilter(parent)
         self.setGeometry(cWidget.geometry())
         self.old_state = {}
+        
 
             
         if isinstance(cWidget, ImageObj): 
@@ -77,6 +78,10 @@ class DraggableObject(QWidget):
         else: 
             self.object_type = 'table' # these should probably be an enum everywhere
             self.menu = table_object_menu(parent)
+                    # Set the edit triggers for the table widget
+            self.childWidget.setEditTriggers(QTableWidget.DoubleClicked)
+            # # Connect the itemDoubleClicked signal of the table widget to the mouseDoubleClickEvent slot
+            # self.childWidget.itemDoubleClicked.connect(self.mouseDoubleClickEvent)
 
     def setChildWidget(self, cWidget):
         if cWidget:
@@ -323,7 +328,7 @@ class TextBox(QTextEdit):
 class TableObject(QTableWidget):
     def __init__(self, editor, x, y,w,h, rows, cols):
             super().__init__(rows, cols, editor)
-            self.setEditTriggers(QTableWidget.DoubleClicked)
+            # self.setEditTriggers(QTableWidget.DoubleClicked)
             self.rows=rows
             self.cols=cols
             self.editor = editor

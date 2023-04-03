@@ -41,6 +41,7 @@ class Table:
         self.type = 'table'  # Type for modules.object.build_object 
         self.rows = rows
         self.cols = cols
+        
 class Image:
     def __init__(self,name, x, y, w, h, path):
         self.name = name
