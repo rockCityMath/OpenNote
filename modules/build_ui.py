@@ -184,6 +184,10 @@ def frame_menu(editor, event):
             add_image = QAction("Add Image", editor)
             add_image.triggered.connect(lambda: add_object(editor, event, 'image'))
             frame_menu.addAction(add_image)
+            
+            add_table = QAction("Add Table", editor)
+            add_table.triggered.connect(lambda: add_object(editor, event, 'table'))
+            frame_menu.addAction(add_table)
 
             paste = QAction("Paste", editor)
             paste.triggered.connect(lambda: paste_object(editor, event))
