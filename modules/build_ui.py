@@ -160,6 +160,16 @@ def frame_menu(editor, event):
 
     if event.buttons() == Qt.LeftButton:
         editor.setFocus()
+        o = len(editor.object) - 1
+        if len(editor.object) > 0:
+            if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'text':
+                if editor.object[o].childWidget.toPlainText() == '':
+                    editor.object[o].deleteLater()
+                    editor.object.pop(o)
+                    editor.notebook.page[editor.page].section[editor.section].object.pop(o)
+                    editor.autosaver.onChangeMade()
+        add_object(editor, event, 'text')
+        editor.object[o].childWidget.setFocus()
 
     # Open Context Menu
     if event.buttons() == Qt.RightButton:
@@ -167,9 +177,9 @@ def frame_menu(editor, event):
         if editor.section > -1:
             frame_menu = QMenu(editor)
 
-            add_text = QAction("Add Text", editor)
-            add_text.triggered.connect(lambda: add_object(editor, event, 'text'))
-            frame_menu.addAction(add_text)
+            # add_text = QAction("Add Text", editor)
+            # add_text.triggered.connect(lambda: add_object(editor, event, 'text'))
+            # frame_menu.addAction(add_text)
 
             add_image = QAction("Add Image", editor)
             add_image.triggered.connect(lambda: add_object(editor, event, 'image'))

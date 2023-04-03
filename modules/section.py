@@ -58,11 +58,12 @@ def store_section(editor):
         if(len(editor.notebook.page[editor.page].section[editor.section].object)) > 0:
             for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
                 if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'text':
-                    editor.notebook.page[editor.page].section[editor.section].object[o].text = editor.object[o].childWidget.toHtml()
-                    editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
-                    editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
-                    editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
-                    editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
+                    if editor.object[o].childWidget.toPlainText() != '':
+                        editor.notebook.page[editor.page].section[editor.section].object[o].text = editor.object[o].childWidget.toHtml()
+                        editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
+                        editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
+                        editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
+                        editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
                 if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'image':
                     editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
                     editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()

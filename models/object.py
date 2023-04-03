@@ -283,14 +283,14 @@ class DraggableObject(QWidget):
         self.newGeometry.emit(self.geometry())
 
 class TextBox(QTextEdit):
-    def __init__(self, editor, x, y, w, h, text):
+    def __init__(self, editor, x, y, w, h, t):
         super().__init__(editor)
 
         self.editor = editor
         self.type = 'text'
         self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
         self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject
-        self.setText(text)
+        self.setText(t)
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
