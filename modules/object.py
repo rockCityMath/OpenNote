@@ -46,8 +46,8 @@ def add_object(editor, event, type):
 
     if type == 'text':
         #default_text = '...'
-        default_height = 100
-        default_width = 100
+        default_height = 35
+        default_width = 10
 
         # Create textbox and add to notebook
         text = TextBox(editor, x, y, default_width, default_height, '')

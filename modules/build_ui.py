@@ -135,7 +135,7 @@ def build_toolbar(editor):
 
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
-    size.currentIndexChanged.connect(lambda x: editor.selected.setFontPointSize(float(x + 10) if x else editor.selected.fontPointSize()))
+    size.currentIndexChanged.connect(lambda x: editor.selected.setFontPointSize(int(size.currentText()) if x else editor.selected.fontPointSize()))
 
     bold = build_action(toolbar, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
     bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
@@ -157,6 +157,11 @@ def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     return action
 
 def frame_menu(editor, event):
+    # if editor.selected != None:
+    #     if editor.selected.type == 'text':
+    #         textCursor = editor.selected.textCursor()
+    #         textCursor.clearSelection()
+    #         editor.selected.setTextCursor(textCursor)
     if event.buttons() == Qt.LeftButton:
         o = len(editor.object) - 1
         if len(editor.object) > 0:
