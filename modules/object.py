@@ -45,14 +45,14 @@ def add_object(editor, event, type):
     undo_name = 'textbox-'+str(random_number)
 
     if type == 'text':
-        default_text = '...'
-        default_height = 100
-        default_width = 100
+        #default_text = '...'
+        default_height = 35
+        default_width = 10
 
         # Create textbox and add to notebook
-        text = TextBox(editor, x, y, default_width, default_height, default_text)
+        text = TextBox(editor, x, y, default_width, default_height, '')
         text.setObjectName(undo_name)
-        editor.notebook.page[editor.page].section[editor.section].object.append(Text(undo_name, x, y, default_width, default_height, default_text))
+        editor.notebook.page[editor.page].section[editor.section].object.append(Text(undo_name, x, y, default_width, default_height, ''))
         drag = DraggableObject(editor, editor, QPoint(x, y), text)
 
         editor.object.append(drag)
