@@ -339,7 +339,6 @@ class TextBox(QTextEdit):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.show()
 
-<<<<<<< HEAD
         self.textChanged.connect(lambda: textChanged())
         self.focusOutEvent = lambda x: focusOut()
         self.keyPressEvent = lambda y: keyPress(y)
@@ -419,10 +418,6 @@ class TextBox(QTextEdit):
                     self.setStyleSheet(TextBoxStyles.INFOCUS.value)
             else:
                 QTextEdit.keyPressEvent(self, event)
-=======
-        self.textChanged.connect(lambda: editor.autosaver.onChangeMade())
-        
->>>>>>> c281368db648747cdd3b9ff1bfc5d2cd98b70b90
 class TableObject(QTableWidget):
     def __init__(self, editor, x, y,w,h, rows, cols):
             super().__init__(rows, cols, editor)
