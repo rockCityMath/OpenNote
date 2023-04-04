@@ -19,8 +19,8 @@ class Mode(Enum):
 
 # Styles for different states of the textbox
 class TextBoxStyles(Enum):
-    INFOCUS = "border: 0.5px dotted rgba(0, 0, 0, .5); background-color: rgba(1, 1, 1, 1)"
-    OUTFOCUS = "border: none; background-color: rgba(1, 1, 1, 1);"
+    INFOCUS = "border: 0.5px dotted rgba(0, 0, 0, .5); background-color: rgba(0, 0, 0, 0)"
+    OUTFOCUS = "border: none; background-color: rgba(0, 0, 0, 0);"
 
 # Holds clipboard object info, QT things can't be copied by value :(
 class ClipboardObject:
@@ -137,8 +137,8 @@ class DraggableObject(QWidget):
     def mousePressEvent(self, e: QMouseEvent):
 
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
-        self.old_x = e.globalX()
-        self.old_y = e.globalY()
+        self.old_x = self.geometry().x()
+        self.old_y = self.geometry().y()
         self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
         if not self.m_isEditing:
             return
