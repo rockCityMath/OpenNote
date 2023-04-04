@@ -553,7 +553,7 @@ def object_menu(editor, event):
 def delete_object(editor):
     try:
         for o in range(len(editor.object)):
-            if (editor.object[o] == editor.focusWidget()):
+            if (editor.object[o].childWidget == editor.focusWidget()):
                 
                 editor.undo_stack.append(
                     {'type':'object',
@@ -563,6 +563,7 @@ def delete_object(editor):
 
                 # Remove Widget from editor
                 editor.object[o].deleteLater()
+                editor.object[o].childWidget.deleteLater()
                 editor.object.pop(o)       
                 
                 item = editor.notebook.page[editor.page].section[editor.section].object.pop(o)
@@ -574,7 +575,7 @@ def delete_object(editor):
 
 def copy_object(editor):
     for o in range(len(editor.object)):
-        if (editor.object[o] == editor.focusWidget()):
+        if (editor.object[o].childWidget == editor.focusWidget()):
 
             # Store the object that was clicked on in the editor's clipboard
             ob = editor.object[o]
