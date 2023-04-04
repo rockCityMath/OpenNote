@@ -112,19 +112,12 @@ class DraggableObject(QWidget):
 
         self.setCursor(QCursor(Qt.ArrowCursor)) # This could be a open hand or other cursor also
         self.mode = Mode.MOVE # Not 100% sure this is correct
-<<<<<<< HEAD
         self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-=======
 
->>>>>>> c281368db648747cdd3b9ff1bfc5d2cd98b70b90
         if not self.m_isEditing:
             return
         if self.m_showMenu:
             return
-<<<<<<< HEAD
-=======
-        self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
->>>>>>> c281368db648747cdd3b9ff1bfc5d2cd98b70b90
         self.outFocus.emit(False)
         self.m_infocus = False
 
