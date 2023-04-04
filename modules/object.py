@@ -129,15 +129,6 @@ def add_snip(editor, event_pos, image_blob):
     random_number = random.randint(100, 999)
     undo_name = 'imagebox-'+str(random_number)
 
-    # Use datetime to generate ss image filename, save to local directory
-    currentDatetime = datetime.now()
-    fileName = currentDatetime.strftime("%d-%m-%Y_%H-%M-%S") + ".png"
-    if (not os.path.exists(os.getcwd() + "/screenshots")):
-        os.makedirs(os.getcwd() + "/screenshots")
-
-    path = os.getcwd() + "/screenshots/" + fileName
-    cv2.imwrite(path, image_blob)
-
     # Create image and add to notebook
     h, w, _ = image_blob.shape
     bytes_per_line = 3 * w

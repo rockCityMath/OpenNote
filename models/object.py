@@ -122,7 +122,7 @@ class DraggableObject(QWidget):
             return
         if self.m_showMenu:
             return
-        self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value) # debt: Needs some kind of state manager or something
         self.outFocus.emit(False)
         self.m_infocus = False
 
@@ -160,16 +160,22 @@ class DraggableObject(QWidget):
 
     # On double click, send events to child and move cursor to end
     def mouseDoubleClickEvent(self, e: QMouseEvent):
-        if self.childWidget.toPlainText() == '': # ???
+        if self.object_type == "text" and self.childWidget.toPlainText() == '': # debt: What does this do
             self.editor.setFocus()
         else:
             self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
             self.childWidget.setFocus()
-            self.childWidget.mousePressEvent(e)
+
+            # Tables need doubleclick, text needs single? Not sure if thats how it works though
+            if self.object_type == "text":
+                self.childWidget.mousePressEvent(e)
+            elif self.object_type == "table":
+                self.childWidget.mouseDoubleClickEvent(e)
 
             # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
-            self.childWidget.moveCursor(QTextCursor.End)
-            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+            if self.object_type == 'text':
+                self.childWidget.moveCursor(QTextCursor.End)
+                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
     def keyPressEvent(self, e: QKeyEvent):
         if not self.m_isEditing: return
@@ -185,7 +191,8 @@ class DraggableObject(QWidget):
             self.mode = Mode.MOVE
             return
 
-        if self.childWidget.toPlainText() != '':
+        # Dont set cursor shapes on empty textbox
+        if self.object_type != "text" or self.childWidget.toPlainText() != '':
             # Left - Bottom
             if (((e_pos.y() > self.y() + self.height() - diff) and # Bottom
                 (e_pos.x() < self.x() + diff)) or # Left
@@ -248,14 +255,17 @@ class DraggableObject(QWidget):
 
     def leaveEvent(self, e: QMouseEvent):
         QWidget.leaveEvent(self, e)
-        if self.parentWidget().focusWidget() != self.childWidget:
+
+        # debt: Comparison after the "and" is an attempt to keep the border when the focus is on a tables qlineedit cell
+        if self.parentWidget().focusWidget() != self.childWidget and (type(self.parentWidget().focusWidget()) != QLineEdit):
             self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
 
     # Determine how to handle the mouse being moved inside the box
     def mouseMoveEvent(self, e: QMouseEvent):
         QWidget.mouseMoveEvent(self, e)
 
-        if self.object_type == 'text':
+        # Show textbox and table border hover
+        if self.object_type != 'image_object':
             self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
         if not self.m_isEditing:
@@ -355,7 +365,7 @@ class TextBox(QTextEdit):
 class TableObject(QTableWidget):
     def __init__(self, editor, x, y,w,h, rows, cols):
             super().__init__(rows, cols, editor)
-            # self.setEditTriggers(QTableWidget.DoubleClicked)
+            #self.setEditTriggers(QTableWidget.DoubleClicked) # debt: What is this
             self.rows=rows
             self.cols=cols
             self.editor = editor
@@ -365,6 +375,15 @@ class TableObject(QTableWidget):
             self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.show()
+
+    # Clicking into the cells is offset for some reason, correcting it
+    def mouseDoubleClickEvent(self, e):
+        corrected_pos = QPoint(e.pos().x()-25, e.pos().y()-35)
+        new_event = QMouseEvent(QEvent.MouseButtonDblClick, corrected_pos, e.button(), e.buttons(), e.modifiers())
+        self.setFocus()
+        self.setStyleSheet(TextBoxStyles.INFOCUS.value) # Not ideal
+        QTableWidget.mouseDoubleClickEvent(self, new_event)
+
 
 class ImageObj(QTextEdit):
     def __init__(self, editor, x, y, w, h, path):

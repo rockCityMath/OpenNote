@@ -31,6 +31,7 @@ class Text:
         self.h = h
         self.text = t    # Stores html of models.object.TextBox widget
         self.type = 'text'  # Type for modules.object.build_object
+
 class Table:
     def __init__(self,name, x, y, w, h, rows, cols):
         self.name=name
