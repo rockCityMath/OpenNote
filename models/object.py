@@ -125,13 +125,12 @@ class DraggableObject(QWidget):
     def focusOutEvent(self, a0: QFocusEvent):
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True) # Events start going to parent when user focuses elsewhere
         self.setCursor(QCursor(Qt.ArrowCursor)) # This could be a open hand or other cursor also
-        #self.mode = Mode.MOVE # Not 100% sure this is correct
+        self.mode = Mode.MOVE # Not 100% sure this is correct
         self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
         if not self.m_isEditing:
             return
         if self.m_showMenu:
             return
-        #self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
         self.outFocus.emit(False)
         self.m_infocus = False
 
@@ -154,11 +153,13 @@ class DraggableObject(QWidget):
         self.old_y = e.globalY()
         self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
         self.editor.selected = self.childWidget
-        self.childWidget.moveCursor(QTextCursor.End)
-        self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+        #self.childWidget.moveCursor(QTextCursor.End)
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        self.childWidget.mousePressEvent(e)
+        #self.childWidget.mousePressEvent(e)
         self.childWidget.setFocus()
+        self.childWidget.setReadOnly(True)
+        self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+        #self.setFocus()
         if not self.m_isEditing:
             return
         if not self.m_infocus:
@@ -167,6 +168,8 @@ class DraggableObject(QWidget):
             self.setCursorShape(e.pos())
             return
         if e.button() == Qt.RightButton:
+            self.childWidget.setFocus()
+            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
             self.popupShow(e.pos())
             e.accept()
 
@@ -181,9 +184,11 @@ class DraggableObject(QWidget):
                 self.editor.setFocus()
             else:
                 self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-                #self.setAttribute(Qt.TextEditorInteraction, True)
                 self.childWidget.setFocus()
                 self.childWidget.mousePressEvent(e)
+                self.childWidget.setReadOnly(False)
+                self.mode = Mode.NONE
+                self.parentWidget().selected = self.childWidget
                 # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
                 self.childWidget.moveCursor(QTextCursor.End)
                 self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
@@ -364,7 +369,7 @@ class TextBox(QTextEdit):
                 #  editor.object[len(editor.object) - 1].childWidget.setFocus()
              else:
                  self.setStyleSheet(TextBoxStyles.INFOCUS.value)
-        
+
         def mousePress(event):
             self.first = False
             focusIn()
@@ -462,15 +467,15 @@ class ImageObj(QTextEdit):
         self.show()
 
 # Select TextBox for font styling
-def select(editor, event):
-    editor.selected = editor.focusWidget()
+# def select(editor, event):
+#     editor.selected = editor.focusWidget()
 
-def drag(editor, event):
-    if (event.buttons() == Qt.LeftButton):
-        drag = QDrag(editor)
-        mimeData = QMimeData()
-        drag.setMimeData(mimeData)
-        drag.exec(Qt.MoveAction)
+# def drag(editor, event):
+#     if (event.buttons() == Qt.LeftButton):
+#         drag = QDrag(editor)
+#         mimeData = QMimeData()
+#         drag.setMimeData(mimeData)
+#         drag.exec(Qt.MoveAction)
 
 def table_object_menu(editor):
     object_menu = QMenu(editor)
