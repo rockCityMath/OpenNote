@@ -127,4 +127,4 @@ def destroy(editor):
             if(len(editor.notebook.page[editor.page].section[editor.section].object)) > 0:
                 # Destory all Objects
                 for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
-                    editor.object[o].childWidget.deleteLater()
+                    editor.object[o].deleteLater()
