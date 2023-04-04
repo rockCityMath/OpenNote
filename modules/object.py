@@ -150,7 +150,7 @@ def add_snip(editor, event_pos, image_blob):
     editor.autosaver.onChangeMade()
 
 def paste_object(editor, event):
-    if isinstance(editor.clipboard_object, ClipboardObject):
+    if hasattr(editor, 'clipboard_object'): # debt: Should be init to None on editor init
         x = event.pos().x() + 250
         y = event.pos().y() + 130
         w = editor.clipboard_object.width
@@ -159,6 +159,7 @@ def paste_object(editor, event):
         n = editor.clipboard_object.undo_name
         cols = editor.clipboard_object.cols
         rows = editor.clipboard_object.rows
+
         if editor.clipboard_object.type == 'image':
             image = ImageObj(editor, x, y, w, h, t)
             image.setStyleSheet(TextBoxStyles.INFOCUS.value)
@@ -167,6 +168,9 @@ def paste_object(editor, event):
             drag = DraggableObject(editor,editor, QPoint(x, y), image)
             editor.object.append(drag)
 
+        elif editor.clipboard_object.type == 'image_object':
+            print("Pasting new images is unsupported...")
+            return
 
         elif editor.clipboard_object.type == 'text':
             text = TextBox(editor, x, y, w, h, t)
@@ -189,10 +193,8 @@ def paste_object(editor, event):
         editor.undo_stack.append(cmd)
         editor.autosaver.onChangeMade()
 
-    elif editor.clipboard_object == None:
-        return
-    else: # Because anything thats not a QTextEdit prob wont work like this
-        print("ERROR: Pasting unsupported object.")
+    else:
+        print("No object on clipboard...")
 
 # Create Widget of (type) with (params) from models.Notebook.Page[x].Section[x]
 # Case 1: When a Notebook is loaded, function is called for every

@@ -85,17 +85,17 @@ class DraggableObject(QWidget):
             self.menu = table_object_menu(parent)
             self.childWidget.setEditTriggers(QTableWidget.DoubleClicked) # Connect the itemDoubleClicked signal of the table widget to the mouseDoubleClickEvent slot
 
-    def enterEvent(self, event): # debt: should check type
-        if self.object_type == 'text':
-            if self.childWidget.toPlainText() != '':
-                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-
-    def leaveEvent(self, event):
-        if self.object_type == 'text':
-            if self.childWidget != self.editor.selected:
-                self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-                if self == self.editor.selected:
-                    self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+#    def enterEvent(self, event):
+#        if self.object_type == 'text':
+#            if self.childWidget.toPlainText() != '':
+#                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+#
+#    def leaveEvent(self, event):
+#        if self.object_type == 'text':
+#            if self.childWidget != self.editor.selected:
+#                self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+#                if self == self.editor.selected:
+#                    self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
     def setChildWidget(self, cWidget):
         if cWidget:
@@ -122,7 +122,7 @@ class DraggableObject(QWidget):
             if self.object_type == 'text':
                 self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
-            self.childWidget.setFocus()
+            #self.childWidget.setFocus()
         self.m_infocus = True
         p = self.parentWidget()
         p.installEventFilter(self)
@@ -131,15 +131,18 @@ class DraggableObject(QWidget):
 
     def focusOutEvent(self, a0: QFocusEvent):
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True) # Events start going to parent when user focuses elsewhere
+
         self.setCursor(QCursor(Qt.ArrowCursor)) # This could be a open hand or other cursor also
-        #self.mode = Mode.MOVE # Not 100% sure this is correct
-        if self.object_type == 'text':
-            self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        self.mode = Mode.MOVE # Not 100% sure this is correct
+
+        #if self.object_type == 'text':
+        #    self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+
         if not self.m_isEditing:
             return
         if self.m_showMenu:
             return
-        #self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
         self.outFocus.emit(False)
         self.m_infocus = False
 
@@ -158,18 +161,21 @@ class DraggableObject(QWidget):
 
     def mousePressEvent(self, e: QMouseEvent):
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
+
+        # Undo related
         self.old_x = e.globalX()
         self.old_y = e.globalY()
         self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
-        self.editor.selected = self.childWidget
 
-        if self.object_type == 'text':
-            self.childWidget.moveCursor(QTextCursor.End)
-            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+        #self.editor.selected = self.childWidget
 
-        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        self.childWidget.mousePressEvent(e)
-        self.childWidget.setFocus()
+        #if self.object_type == 'text':
+         #   self.childWidget.moveCursor(QTextCursor.End)
+         #   self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
+        #self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        #self.childWidget.mousePressEvent(e)
+        #self.childWidget.setFocus()
 
         if not self.m_isEditing:
             return
@@ -184,21 +190,19 @@ class DraggableObject(QWidget):
 
     # On double click, send events to child and move cursor to end
     def mouseDoubleClickEvent(self, e: QMouseEvent):
-        if self.object_type == 'table':
-            print(self.childWidget.type)
-            print(self.childWidget.rows,self.childWidget.rows)
-            # self.childWidget.setEditTriggers(QTableWidget.DoubleClicked)
+        if self.childWidget.toPlainText() == '': # ???
+            self.editor.setFocus()
         else:
-            if self.childWidget.toPlainText() == '':
-                self.editor.setFocus()
-            else:
-                self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-                #self.setAttribute(Qt.TextEditorInteraction, True)
-                self.childWidget.setFocus()
-                self.childWidget.mousePressEvent(e)
-                # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
-                self.childWidget.moveCursor(QTextCursor.End)
-                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+            self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+            #self.setAttribute(Qt.TextEditorInteraction, True)
+            self.childWidget.setFocus()
+            self.childWidget.mousePressEvent(e)
+
+            # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
+            self.childWidget.moveCursor(QTextCursor.End)
+            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
+            #self.childWidget.mousePressEvent(e)
 
     def keyPressEvent(self, e: QKeyEvent):
         if not self.m_isEditing: return
@@ -303,14 +307,13 @@ class DraggableObject(QWidget):
 
             self.move(toMove)
             self.newGeometry.emit(self.geometry())
-            #self.setFocus() # TODO: Is this needed? It's pretty heavy and makes things catch if they move around fast enough
             self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
             self.parentWidget().repaint()
             return
         if (self.mode != Mode.MOVE) and e.buttons() and Qt.LeftButton:
 
             # Not allowing resizable images for now
-            if self.object_type == 'image':
+            if self.object_type == 'image' or self.object_type == 'image_object':
                 return
             if self.mode == Mode.RESIZETL: # Left - Top
                 newwidth = e.globalX() - self.position.x() - self.geometry().x()
@@ -363,11 +366,12 @@ class TextBox(QTextEdit):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.show()
 
-        self.textChanged.connect(lambda: textChanged())
-        self.focusOutEvent = lambda x: focusOut()
-        self.keyPressEvent = lambda y: keyPress(y)
-        self.focusInEvent = lambda z: focusIn()
-        self.mousePressEvent = lambda a: mousePress(a)
+        # I think you might can name the class methods like textChangedEvent(self, e) or focusOutEvent() and it will overwrite them automatically instead of connecting here
+#        self.textChanged.connect(lambda: textChanged())
+#        self.focusOutEvent = lambda x: focusOut()
+#        self.keyPressEvent = lambda y: keyPress(y)
+#        self.focusInEvent = lambda z: focusIn()
+        #self.mousePressEvent = lambda a: mousePress(a)
 
         def textChanged():
              editor.autosaver.onChangeMade()
@@ -379,10 +383,12 @@ class TextBox(QTextEdit):
                  self.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
         def mousePress(event):
-            self.first = False
-            focusIn()
-            self.setReadOnly(False)
+            #self.first = False
+            #focusIn()
+            #self.setReadOnly(False)
+            self.editor.selected = self
             QTextEdit.mousePressEvent(self, event)
+
 
         def focusIn():
             if self.first == True:
@@ -423,25 +429,30 @@ class TextBox(QTextEdit):
             else:
                 return
 
-        def keyPress(event):
-            if len(self.toPlainText()) == 0:
-                self.setGeometry(x, y, 100, 100)
-                self.parentWidget().setGeometry(self.geometry())
-            if event.key() == Qt.Key_Escape:
-                if self.toPlainText() == '':
-                    editor.undo_stack.pop(-1)
-                    editor.setFocus()
-                    return
-                else:
-                    self.parentWidget().setFocus()
-                    #self.parentWidget().focusInEvent(QFocusEvent(QFocusEvent.FocusIn))
-                    textCursor = self.textCursor()
-                    textCursor.clearSelection()
-                    self.setTextCursor(textCursor)
-                    self.setReadOnly(True)
-                    self.setStyleSheet(TextBoxStyles.INFOCUS.value)
-            else:
-                QTextEdit.keyPressEvent(self, event)
+    # When user starts typing in new box, expand its size
+    def keyPressEvent(self, event):
+        if len(self.toPlainText()) == 0:
+            print("changing")
+            #self.setGeometry(self.x(), self.y(), 100, 100)
+            self.resize(100, 100)
+            self.parentWidget().resize(100, 100)
+            self.setStyleSheet(TextBoxStyles.INFOCUS.value)
+#            if event.key() == Qt.Key_Escape:
+#                if self.toPlainText() == '':
+#                    editor.undo_stack.pop(-1)
+#                    editor.setFocus()
+#                    return
+#                else:
+#                    self.parentWidget().setFocus()
+#                    #self.parentWidget().focusInEvent(QFocusEvent(QFocusEvent.FocusIn))
+#                    textCursor = self.textCursor()
+#                    textCursor.clearSelection()
+#                    self.setTextCursor(textCursor)
+#                    self.setReadOnly(True)
+#                    self.setStyleSheet(TextBoxStyles.INFOCUS.value)
+#            else:
+        QTextEdit.keyPressEvent(self, event)
+
 class TableObject(QTableWidget):
     def __init__(self, editor, x, y,w,h, rows, cols):
             super().__init__(rows, cols, editor)
@@ -602,12 +613,12 @@ def copy_object(editor):
             undo_name = ob.objectName()+'(1)'
             if ob.object_type == 'image':
                 editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.path, ob.object_type, undo_name) # TODO: move name
+            elif ob.object_type == 'image_object':
+                print("Copying new images is unsupported...")
             elif ob.object_type == 'text':
                 editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name)
             else:
                 editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name, editor.object[o].cols, editor.object[o].rows)
-
-
 
 def add_r(editor):
     pass

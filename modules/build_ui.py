@@ -185,9 +185,9 @@ def frame_menu(editor, event):
             # frame_menu.addAction(add_text)
 
             add_image = QAction("Add Image", editor)
-            add_image.triggered.connect(lambda: add_object(editor, event, 'image'))
+            add_image.triggered.connect(lambda: add_object(editor, event, 'image_object'))
             frame_menu.addAction(add_image)
-            
+
             add_table = QAction("Add Table", editor)
             add_table.triggered.connect(lambda: add_object(editor, event, 'table'))
             frame_menu.addAction(add_table)
