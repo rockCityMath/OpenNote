@@ -26,12 +26,12 @@ class CreateTableDialog(QDialog):
         layout.addWidget(self.buttonBox)
 
         self.setLayout(layout)
-    
+
     def getTableSize(self):
         rows = int(self.rowsLineEdit.text())
         cols = int(self.colsLineEdit.text())
-        return rows, cols 
-       
+        return rows, cols
+
 # When a user creates a new Object (TextBox, ImageObj, etc.)
 # 1 Create a Widget of (type)
 # 2 Create an Object of (type) and add it to models.Notebook.Page[x].Section[x]
@@ -44,7 +44,7 @@ def add_object(editor, event, type):
     random_number = random.randint(100, 999)
     undo_name = 'textbox-'+str(random_number)
 
-    if type == 'text':
+    if type == 'text': # debt: make these enum
         #default_text = '...'
         default_height = 35
         default_width = 10
@@ -56,11 +56,11 @@ def add_object(editor, event, type):
         drag = DraggableObject(editor, editor, QPoint(x, y), text)
 
         editor.object.append(drag)
-        
-        # Undo related
 
+        # Undo related
         cmd = {'type':'object','name':undo_name, 'action':'create'}
         editor.undo_stack.append(cmd)
+
     if type == 'image':
 
         # Get path from user
@@ -82,6 +82,27 @@ def add_object(editor, event, type):
         image.setObjectName(undo_name)
         cmd = {'type':'object','name':undo_name, 'action':'create'}
         editor.undo_stack.append(cmd)
+
+    if type == 'image_object':
+        # Get path from user
+        path, _ = QFileDialog.getOpenFileName(editor, 'Add Image')
+        if path == "": return
+
+        # Get image size
+        image_blob = cv2.imread(path)
+        h, w, _ = image_blob.shape
+
+        # Create image and add to notebook (debt: duplicated in add_snip, could be function)
+        h, w, _ = image_blob.shape
+        bytes_per_line = 3 * w
+        q_image = QImage(image_blob.data, w, h, bytes_per_line, QImage.Format_BGR888)
+        image = ImageObject(editor, x, y, w, h, q_image)
+
+        editor.notebook.page[editor.page].section[editor.section].object.append(Image(undo_name, x, y, w, h, path))
+        drag = DraggableObject(editor,editor, QPoint(x, y), image)
+        editor.object.append(drag)
+        editor.autosaver.onChangeMade()
+
     if type == 'table':
         default_height = 200
         default_width = 200
@@ -92,13 +113,12 @@ def add_object(editor, event, type):
             table.setObjectName(undo_name)
             editor.notebook.page[editor.page].section[editor.section].object.append(Table(undo_name, x,y,default_width,default_height,rows,cols))
             drag = DraggableObject(editor, editor, QPoint(x, y), table)
-
             editor.object.append(drag)
+
             # Undo related
             cmd = {'type':'object','name':undo_name, 'action':'create'}
-            editor.undo_stack.append(cmd)      
+            editor.undo_stack.append(cmd)
 
-            
         editor.autosaver.onChangeMade()
 
 def add_snip(editor, event_pos, image_blob):
@@ -120,9 +140,11 @@ def add_snip(editor, event_pos, image_blob):
 
     # Create image and add to notebook
     h, w, _ = image_blob.shape
-    image = ImageObj(editor, x, y, w, h, path)
-    image.setStyleSheet(TextBoxStyles.INFOCUS.value)
-    editor.notebook.page[editor.page].section[editor.section].object.append(Image(undo_name, x, y, w, h, path))
+    bytes_per_line = 3 * w
+    q_image = QImage(image_blob.data, w, h, bytes_per_line, QImage.Format_BGR888)
+    image = ImageObject(editor, x, y, w, h, q_image)
+
+    editor.notebook.page[editor.page].section[editor.section].object.append(Image2(undo_name, x, y, w, h, image_blob))
     drag = DraggableObject(editor,editor, QPoint(x, y), image)
     editor.object.append(drag)
     editor.autosaver.onChangeMade()
@@ -186,10 +208,20 @@ def build_object(editor, params):
         image = ImageObj(editor, params.x, params.y, params.w, params.h, params.path)
         drag = DraggableObject(editor,editor, QPoint(params.x, params.y), image)
         editor.object.append(drag)
+
     if params.type == 'table':
         table = TableObject(editor, params.x, params.y, params.w, params.h,params.rows,params.cols)
         drag = DraggableObject(editor, editor, QPoint(params.x, params.y), table)
         editor.object.append(drag)
+
+    if params.type == 'image_object':
+        # debt: make this a function, its used frequently
+        bytes_per_line = 3 * params.w # debt: params.* is verbose
+        q_image = QImage(params.image_matrix.data, params.w, params.h, bytes_per_line, QImage.Format_BGR888)
+        image = ImageObject(editor, params.x, params.y, params.w, params.h, q_image)
+        drag = DraggableObject(editor,editor, QPoint(params.x, params.y), image)
+        editor.object.append(drag)
+
     if params.type == 'plugin':
         params.show()
         editor.object.append(params)

@@ -3,6 +3,7 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from enum import Enum
+import os
 
 # Draggable object modes
 class Mode(Enum):
@@ -66,32 +67,35 @@ class DraggableObject(QWidget):
         self.installEventFilter(parent)
         self.setGeometry(cWidget.geometry())
         self.old_state = {}
-        
 
-            
-        if isinstance(cWidget, ImageObj): 
-            self.object_type = 'image' # cleaner to do this here
+        if isinstance(cWidget, ImageObj):
+            self.object_type = 'image'
             self.menu = get_object_menu(parent)
+
+        elif isinstance(cWidget, ImageObject):
+            self.object_type = 'image_object'
+            self.menu = get_object_menu(parent)
+
         elif isinstance(cWidget, TextBox):
-            self.object_type = 'text' # these should probably be an enum everywhere
+            self.object_type = 'text'
             self.menu = get_object_menu(parent)
-        else: 
+
+        else: # debt: there should be a better else
             self.object_type = 'table' # these should probably be an enum everywhere
             self.menu = table_object_menu(parent)
-                    # Set the edit triggers for the table widget
-            self.childWidget.setEditTriggers(QTableWidget.DoubleClicked)
-            # # Connect the itemDoubleClicked signal of the table widget to the mouseDoubleClickEvent slot
-            # self.childWidget.itemDoubleClicked.connect(self.mouseDoubleClickEvent)
+            self.childWidget.setEditTriggers(QTableWidget.DoubleClicked) # Connect the itemDoubleClicked signal of the table widget to the mouseDoubleClickEvent slot
 
-    def enterEvent(self, event):
-        if self.childWidget.toPlainText() != '':
-            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+    def enterEvent(self, event): # debt: should check type
+        if self.object_type == 'text':
+            if self.childWidget.toPlainText() != '':
+                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
     def leaveEvent(self, event):
-        if self.childWidget != self.editor.selected:
-            self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-            if self == self.editor.selected:
-                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+        if self.object_type == 'text':
+            if self.childWidget != self.editor.selected:
+                self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+                if self == self.editor.selected:
+                    self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
     def setChildWidget(self, cWidget):
         if cWidget:
@@ -109,12 +113,15 @@ class DraggableObject(QWidget):
         self.m_showMenu = False
 
     def focusInEvent(self, a0: QFocusEvent):
+
         if hasattr(self, 'childWidget'): # Widget not present on first focus
             # if self.childWidget == self.editor.selected:
             #     self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-            self.childWidget.setReadOnly(False)
+            #self.childWidget.setReadOnly(False) # TODO: What was this for??
             #self.setTextInteractionFlags(Qt.TextEditorInteraction)
-            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+            if self.object_type == 'text':
+                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
             self.childWidget.setFocus()
         self.m_infocus = True
         p = self.parentWidget()
@@ -126,7 +133,8 @@ class DraggableObject(QWidget):
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True) # Events start going to parent when user focuses elsewhere
         self.setCursor(QCursor(Qt.ArrowCursor)) # This could be a open hand or other cursor also
         #self.mode = Mode.MOVE # Not 100% sure this is correct
-        self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        if self.object_type == 'text':
+            self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
         if not self.m_isEditing:
             return
         if self.m_showMenu:
@@ -154,11 +162,15 @@ class DraggableObject(QWidget):
         self.old_y = e.globalY()
         self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
         self.editor.selected = self.childWidget
-        self.childWidget.moveCursor(QTextCursor.End)
-        self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
+        if self.object_type == 'text':
+            self.childWidget.moveCursor(QTextCursor.End)
+            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.childWidget.mousePressEvent(e)
         self.childWidget.setFocus()
+
         if not self.m_isEditing:
             return
         if not self.m_infocus:
@@ -197,10 +209,11 @@ class DraggableObject(QWidget):
         diff = 10 # Amount of padding from the edge where resize cursors will show
 
         # Not allowing resizable images for now
-        if self.object_type == 'image':
+        if self.object_type == 'image' or self.object_type == 'image_object': # debt: remove "image" references
             self.setCursor(QCursor(Qt. ArrowCursor))
             self.mode = Mode.MOVE
             return
+
         if self.childWidget.toPlainText() != '':
             # Left - Bottom
             if (((e_pos.y() > self.y() + self.height() - diff) and # Bottom
@@ -290,7 +303,7 @@ class DraggableObject(QWidget):
 
             self.move(toMove)
             self.newGeometry.emit(self.geometry())
-            self.setFocus()
+            #self.setFocus() # TODO: Is this needed? It's pretty heavy and makes things catch if they move around fast enough
             self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
             self.parentWidget().repaint()
             return
@@ -364,7 +377,7 @@ class TextBox(QTextEdit):
                 #  editor.object[len(editor.object) - 1].childWidget.setFocus()
              else:
                  self.setStyleSheet(TextBoxStyles.INFOCUS.value)
-        
+
         def mousePress(event):
             self.first = False
             focusIn()
@@ -376,7 +389,7 @@ class TextBox(QTextEdit):
                 self.first = False
                 return
             QTextEdit.focusInEvent(self, QFocusEvent(QFocusEvent.FocusIn))
-        
+
         def focusOut():
             if isinstance(editor.focusWidget(), DraggableObject):
                 if self.toPlainText() == '':
@@ -442,9 +455,9 @@ class TableObject(QTableWidget):
             self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.show()
-            # self.cellChanged.connect(lambda: editor.autosaver.onChangeMade())   
+            # self.cellChanged.connect(lambda: editor.autosaver.onChangeMade())
             # self.itemChanged.connect(lambda: editor.autosaver.onChangeMade())
-    
+
 
 class ImageObj(QTextEdit):
     def __init__(self, editor, x, y, w, h, path):
@@ -460,6 +473,14 @@ class ImageObj(QTextEdit):
 #        self.setContextMenuPolicy(Qt.CustomContextMenu)
 #        self.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
         self.show()
+
+class ImageObject(QLabel):
+    def __init__(self, editor, x, y, w, h, q_image):
+        super().__init__(editor)
+        self.type = "image_object"
+        self.setPixmap(QPixmap(q_image)) # Wierd, but seems to be the best way
+        self.setGeometry(x, y, w, h)
+
 
 # Select TextBox for font styling
 def select(editor, event):
@@ -489,25 +510,25 @@ def table_object_menu(editor):
     cut = QAction("Cut", editor)
     cut.triggered.connect(lambda: cut_object(editor))
     object_menu.addAction(cut)
-    
+
     add_row = QAction("Add Row", editor)
     add_row.triggered.connect(lambda: add_r(editor))
     object_menu.addAction(add_row)
-    
+
     add_col = QAction("Add Col", editor)
     add_col.triggered.connect(lambda: add_c(editor))
     object_menu.addAction(add_col)
-    
+
     del_row = QAction("Del Row", editor)
     del_row.triggered.connect(lambda: del_r(editor))
     object_menu.addAction(del_row)
-    
+
     del_col = QAction("Del Col", editor)
     del_col.triggered.connect(lambda: del_c(editor))
     object_menu.addAction(del_col)
-    
-    
-    return object_menu    
+
+
+    return object_menu
 # Returns the menu to be put on the DraggableObject
 def get_object_menu(editor):
     object_menu = QMenu(editor)
@@ -554,7 +575,7 @@ def delete_object(editor):
     try:
         for o in range(len(editor.object)):
             if (editor.object[o] == editor.focusWidget()):
-                
+
                 editor.undo_stack.append(
                     {'type':'object',
                      'name':editor.notebook.page[editor.page].section[editor.section].object[o].name,
@@ -563,8 +584,8 @@ def delete_object(editor):
 
                 # Remove Widget from editor
                 editor.object[o].deleteLater()
-                editor.object.pop(o)       
-                
+                editor.object.pop(o)
+
                 item = editor.notebook.page[editor.page].section[editor.section].object.pop(o)
                 editor.undo_stack[-1]['data']=item
                 editor.autosaver.onChangeMade()
@@ -585,8 +606,8 @@ def copy_object(editor):
                 editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name)
             else:
                 editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name, editor.object[o].cols, editor.object[o].rows)
-            
-                
+
+
 
 def add_r(editor):
     pass

@@ -69,6 +69,11 @@ def store_section(editor):
                     editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
                     editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
                     editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
+                if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'image_object':
+                    editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
+                    editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
 
 def section_menu(editor, section, event):
     section.setFocus()
