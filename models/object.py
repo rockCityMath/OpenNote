@@ -85,18 +85,6 @@ class DraggableObject(QWidget):
             self.menu = table_object_menu(parent)
             self.childWidget.setEditTriggers(QTableWidget.DoubleClicked) # Connect the itemDoubleClicked signal of the table widget to the mouseDoubleClickEvent slot
 
-#    def enterEvent(self, event):
-#        if self.object_type == 'text':
-#            if self.childWidget.toPlainText() != '':
-#                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-#
-#    def leaveEvent(self, event):
-#        if self.object_type == 'text':
-#            if self.childWidget != self.editor.selected:
-#                self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-#                if self == self.editor.selected:
-#                    self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-
     def setChildWidget(self, cWidget):
         if cWidget:
             self.childWidget = cWidget
@@ -115,14 +103,9 @@ class DraggableObject(QWidget):
     def focusInEvent(self, a0: QFocusEvent):
 
         if hasattr(self, 'childWidget'): # Widget not present on first focus
-            # if self.childWidget == self.editor.selected:
-            #     self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-            #self.childWidget.setReadOnly(False) # TODO: What was this for??
-            #self.setTextInteractionFlags(Qt.TextEditorInteraction)
             if self.object_type == 'text':
                 self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
-            #self.childWidget.setFocus()
         self.m_infocus = True
         p = self.parentWidget()
         p.installEventFilter(self)
@@ -134,9 +117,6 @@ class DraggableObject(QWidget):
 
         self.setCursor(QCursor(Qt.ArrowCursor)) # This could be a open hand or other cursor also
         self.mode = Mode.MOVE # Not 100% sure this is correct
-
-        #if self.object_type == 'text':
-        #    self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
 
         if not self.m_isEditing:
             return
@@ -167,16 +147,6 @@ class DraggableObject(QWidget):
         self.old_y = e.globalY()
         self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
 
-        #self.editor.selected = self.childWidget
-
-        #if self.object_type == 'text':
-         #   self.childWidget.moveCursor(QTextCursor.End)
-         #   self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-
-        #self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-        #self.childWidget.mousePressEvent(e)
-        #self.childWidget.setFocus()
-
         if not self.m_isEditing:
             return
         if not self.m_infocus:
@@ -194,15 +164,12 @@ class DraggableObject(QWidget):
             self.editor.setFocus()
         else:
             self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-            #self.setAttribute(Qt.TextEditorInteraction, True)
             self.childWidget.setFocus()
             self.childWidget.mousePressEvent(e)
 
             # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
             self.childWidget.moveCursor(QTextCursor.End)
             self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-
-            #self.childWidget.mousePressEvent(e)
 
     def keyPressEvent(self, e: QKeyEvent):
         if not self.m_isEditing: return
@@ -279,9 +246,18 @@ class DraggableObject(QWidget):
         self.parentWidget().autosaver.onChangeMade()
         QWidget.mouseReleaseEvent(self, e)
 
+    def leaveEvent(self, e: QMouseEvent):
+        QWidget.leaveEvent(self, e)
+        if self.parentWidget().focusWidget() != self.childWidget:
+            self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+
     # Determine how to handle the mouse being moved inside the box
     def mouseMoveEvent(self, e: QMouseEvent):
         QWidget.mouseMoveEvent(self, e)
+
+        if self.object_type == 'text':
+            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
         if not self.m_isEditing:
             return
         if not self.m_infocus:
@@ -356,101 +332,24 @@ class TextBox(QTextEdit):
 
         self.editor = editor
         self.type = 'text'
-        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value) # debt: this gets set everywhere
         self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject
         self.setText(t)
-        self.first = True   # fix for bug where hover over loaded textbox adds cursor on first time only
-        if self.toPlainText() == '':
-            self.first = False
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.show()
 
-        # I think you might can name the class methods like textChangedEvent(self, e) or focusOutEvent() and it will overwrite them automatically instead of connecting here
-#        self.textChanged.connect(lambda: textChanged())
-#        self.focusOutEvent = lambda x: focusOut()
-#        self.keyPressEvent = lambda y: keyPress(y)
-#        self.focusInEvent = lambda z: focusIn()
-        #self.mousePressEvent = lambda a: mousePress(a)
-
-        def textChanged():
-             editor.autosaver.onChangeMade()
-             if self.toPlainText() == '':
-                 self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-                #  object.add_object(editor, event, 'text')
-                #  editor.object[len(editor.object) - 1].childWidget.setFocus()
-             else:
-                 self.setStyleSheet(TextBoxStyles.INFOCUS.value)
-
-        def mousePress(event):
-            #self.first = False
-            #focusIn()
-            #self.setReadOnly(False)
-            self.editor.selected = self
-            QTextEdit.mousePressEvent(self, event)
-
-
-        def focusIn():
-            if self.first == True:
-                self.first = False
-                return
-            QTextEdit.focusInEvent(self, QFocusEvent(QFocusEvent.FocusIn))
-
-        def focusOut():
-            if isinstance(editor.focusWidget(), DraggableObject):
-                if self.toPlainText() == '':
-                    #editor.undo_stack.pop(-1)
-                    o = len(editor.object) - 1
-                    if len(editor.object) > 0:
-                        if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'text':
-                            if editor.object[o].childWidget.toPlainText() == '':
-                                editor.object[o].deleteLater()
-                                editor.object.pop(o)
-                                editor.notebook.page[editor.page].section[editor.section].object.pop(o)
-                                editor.autosaver.onChangeMade()
-                    return
-                textCursor = self.textCursor()
-                textCursor.clearSelection()
-                self.setTextCursor(textCursor)
-                self.setReadOnly(True)
-                self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-                super(QTextEdit, self).focusOutEvent(QFocusEvent(QFocusEvent.FocusOut))
-                self.parentWidget().focusOutEvent(self.parentWidget())
-                editor.selected = editor.focusWidget()
-            elif editor.focusWidget() == editor:
-                textCursor = self.textCursor()
-                textCursor.clearSelection()
-                self.setTextCursor(textCursor)
-                self.setReadOnly(True)
-                self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-                super(QTextEdit, self).focusOutEvent(QFocusEvent(QFocusEvent.FocusOut))
-                self.parentWidget().focusOutEvent(self.parentWidget())
-                editor.selected = None
-            else:
-                return
+    # Set the textbox as selected so that the editor can change font attributes
+    def mousePressEvent(self, event):
+        self.editor.selected = self
+        QTextEdit.mousePressEvent(self, event)
 
     # When user starts typing in new box, expand its size
     def keyPressEvent(self, event):
         if len(self.toPlainText()) == 0:
-            print("changing")
-            #self.setGeometry(self.x(), self.y(), 100, 100)
             self.resize(100, 100)
             self.parentWidget().resize(100, 100)
             self.setStyleSheet(TextBoxStyles.INFOCUS.value)
-#            if event.key() == Qt.Key_Escape:
-#                if self.toPlainText() == '':
-#                    editor.undo_stack.pop(-1)
-#                    editor.setFocus()
-#                    return
-#                else:
-#                    self.parentWidget().setFocus()
-#                    #self.parentWidget().focusInEvent(QFocusEvent(QFocusEvent.FocusIn))
-#                    textCursor = self.textCursor()
-#                    textCursor.clearSelection()
-#                    self.setTextCursor(textCursor)
-#                    self.setReadOnly(True)
-#                    self.setStyleSheet(TextBoxStyles.INFOCUS.value)
-#            else:
         QTextEdit.keyPressEvent(self, event)
 
 class TableObject(QTableWidget):
@@ -466,9 +365,6 @@ class TableObject(QTableWidget):
             self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.show()
-            # self.cellChanged.connect(lambda: editor.autosaver.onChangeMade())
-            # self.itemChanged.connect(lambda: editor.autosaver.onChangeMade())
-
 
 class ImageObj(QTextEdit):
     def __init__(self, editor, x, y, w, h, path):
@@ -480,9 +376,6 @@ class ImageObj(QTextEdit):
         self.setGeometry(x, y, w, h)
         fragment = QTextDocumentFragment.fromHtml(f"<img src={path} height='%1' width='%2'>")
         self.textCursor().insertFragment(fragment)
-#        self.mouseDoubleClickEvent = lambda event: drag(editor, event)
-#        self.setContextMenuPolicy(Qt.CustomContextMenu)
-#        self.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
         self.show()
 
 class ImageObject(QLabel):
@@ -491,18 +384,6 @@ class ImageObject(QLabel):
         self.type = "image_object"
         self.setPixmap(QPixmap(q_image)) # Wierd, but seems to be the best way
         self.setGeometry(x, y, w, h)
-
-
-# Select TextBox for font styling
-def select(editor, event):
-    editor.selected = editor.focusWidget()
-
-def drag(editor, event):
-    if (event.buttons() == Qt.LeftButton):
-        drag = QDrag(editor)
-        mimeData = QMimeData()
-        drag.setMimeData(mimeData)
-        drag.exec(Qt.MoveAction)
 
 def table_object_menu(editor):
     object_menu = QMenu(editor)
@@ -538,8 +419,8 @@ def table_object_menu(editor):
     del_col.triggered.connect(lambda: del_c(editor))
     object_menu.addAction(del_col)
 
-
     return object_menu
+
 # Returns the menu to be put on the DraggableObject
 def get_object_menu(editor):
     object_menu = QMenu(editor)
@@ -561,7 +442,7 @@ def get_object_menu(editor):
 
     return object_menu
 
-# Non DraggableObject things still use this
+# Non DraggableObject things still use this | debt: do we need?
 def object_menu(editor, event):
     object_menu = QMenu(editor)
 
@@ -620,7 +501,7 @@ def copy_object(editor):
             else:
                 editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name, editor.object[o].cols, editor.object[o].rows)
 
-def add_r(editor):
+def add_r(editor): # debt: what is this?
     pass
 def add_c(editor):
     pass
@@ -629,8 +510,9 @@ def del_r(editor):
 def del_c(editor):
     pass
 
-
 def cut_object(editor):
+    if editor.focusWidget().object_type == 'image_object':
+        print("Cutting new images is unsupported...")
+        return
     copy_object(editor)
     delete_object(editor)
-
