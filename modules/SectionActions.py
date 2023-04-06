@@ -1,8 +1,11 @@
-from models.notebook import *
-from modules.object import build_object, DraggableObject
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
+
+from Models.Notebook import *
+from Models.Section import Section
+from Modules.ObjectActions import build_object
+from Modules.Enums import WidgetType
 
 # Refer to page.(add, build, change)_page in Page.py for notes
 def add_section(editor):
@@ -57,7 +60,7 @@ def store_section(editor):
     if(len(editor.notebook.page) > 0 and len(editor.notebook.page[editor.page].section) > 0):
         if(len(editor.notebook.page[editor.page].section[editor.section].object)) > 0:
             for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
-                if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'text':
+                if editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.TEXT:
                     if editor.object[o].childWidget.toPlainText() != '':
                         editor.notebook.page[editor.page].section[editor.section].object[o].text = editor.object[o].childWidget.toHtml()
                         editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
@@ -65,20 +68,14 @@ def store_section(editor):
                         editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
                         editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
 
-                if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'image':
-                    editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
-                    editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
-                    editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
-                    editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
-
-                if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'image_object':
+                elif editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.IMAGE:
                     editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
                     editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
                     editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
                     editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
 
                 # debt: Add the logic for saving the table content here, only saves pos atm
-                if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'table':
+                elif editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.TABLE:
                     editor.notebook.page[editor.page].section[editor.section].object[o].x = editor.object[o].geometry().x()
                     editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
                     editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
@@ -120,8 +117,6 @@ def rename_section(editor):
         editor.focusWidget().setObjectName(title)
         editor.focusWidget().setText(title)
         editor.autosaver.onChangeMade()
-        # cmd = Undo({'object_name':editor.focusWidget().objectName(),'type':'section', 'action':'rename', 'old_name':old_name})
-        # editor.undo_stack.append(cmd)
 
 def delete_section(editor):
     accept = QMessageBox.question(editor, 'Delete Section', 'Deleting this section will delete all objects inside it. Are you sure you want to delete it?')

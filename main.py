@@ -1,7 +1,7 @@
 import sys
 
-from screens.editor import Editor
-from modules.load import load_most_recent_notebook
+from Models.Editor import Editor
+from Modules.Load import load_most_recent_notebook
 
 from PySide6.QtWidgets import *
 
@@ -10,6 +10,6 @@ if __name__ == "__main__":
 
     editor = Editor()
     load_most_recent_notebook(editor)
-    editor.show()
+    editor.showMaximized()
 
     sys.exit(app.exec())

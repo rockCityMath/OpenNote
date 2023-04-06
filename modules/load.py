@@ -1,18 +1,16 @@
 import pickle
+import os
 
-from models.notebook import *
-from models.object import TextBox
-from modules.page import build_page
-from modules.section import build_section
-from modules.object import build_object
-from modules.save import Autosaver
+from Modules.PageActions import build_page
+from Modules.SectionActions import build_section
+from Modules.ObjectActions import build_object
+from Modules.Save import Autosaver
 
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
-import os
-from pathlib import Path
+from Models.Notebook import Notebook
 
 # Creates a new notebook
 def new(editor):
@@ -47,13 +45,21 @@ def load(editor):
         return
     build(editor)
 
-# Try to find and open the most recent OneNote related file
+# Try to find and open the most recent OpenNote related file
 def load_most_recent_notebook(editor):
-    directory_files = reversed(sorted(filter(os.path.isfile, os.listdir(os.getcwd())), key = os.path.getmtime)) # damn
+
+    files = []
+    saves_directory = os.path.join(os.getcwd(), 'Saves')
+    for file in os.listdir(saves_directory):
+       file_path = os.path.join(saves_directory, file)
+       if os.path.isfile(file_path):
+          files.append(file_path)
+
+    directory_files = reversed(sorted(files, key = os.path.getmtime))
     for f in directory_files:
         if (f.endswith(".on") or f.endswith(".ontemp")):
             try:
-                file = open(os.path.join(os.getcwd(), f), 'rb')
+                file = open(os.path.join(os.getcwd() + "\\Saves", f), 'rb')
                 destroy(editor)
                 editor.notebook = pickle.load(file)
                 for page in editor.notebook.page:

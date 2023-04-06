@@ -1,6 +1,6 @@
 import pickle
 from threading import Timer
-from modules.section import store_section
+from Modules.SectionActions import store_section
 from PySide6.QtWidgets import QFileDialog
 from datetime import datetime
 from copy import copy
@@ -21,7 +21,7 @@ def save(editor, notebook):
     else:
         saveAs(editor, notebook)
 
-def saveAs(editor, notebook):
+def saveAs(editor, notebook): # debt: Make this open to the Saves folder
     path, accept = QFileDialog.getSaveFileName(
         editor,
         'Save notebook as',
@@ -77,7 +77,7 @@ def saveToTempFile(editor, notebook):
         currentDatetime = datetime.now()
         tempFileName = currentDatetime.strftime("%d-%m-%Y_%H-%M-%S")
         editor.notebook.title = tempFileName
-        editor.notebook.path = os.getcwd() + "\\" + tempFileName + ".ontemp"
+        editor.notebook.path = os.getcwd() + "\\Saves\\" + tempFileName + ".ontemp" # If this doesnt work on mac, use path.join()
     # Save
     store_section(editor)
     file = open(notebook.path, "wb")

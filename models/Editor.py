@@ -1,16 +1,13 @@
-
-from models.object import *
-from models.notebook import *
-from modules.build_ui import *
-from modules.load import new
-from modules.save import Autosaver
-from modules.screensnip import SnippingWidget
-from modules.object import add_snip
-
-from modules.object import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
+
+from Modules.BuildUI import *
+from Modules.Save import Autosaver
+from Modules.Screensnip import SnippingWidget
+from Modules.ObjectActions import *
+
+from Models.Notebook import Notebook
 
 # models.notebook.Notebook is where all Notebook and Object data is stored
 # models.object.* are models for Widgets used in the editor
@@ -23,7 +20,6 @@ class Editor(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # When the application is started, open a new, empty notebook
         self.notebook = Notebook('Untitled Notebook')    # Current notebook object
         self.object = []                        # List of Widgets on current Page/Section
         self.page = -1                          # Index of current Page (New notebook has no pages: set to -1)
@@ -43,13 +39,14 @@ class Editor(QMainWindow):
         build_ui(self)
 
     # If user takes a screensnip, save it to a file and put it on the page
-    def onSnippingCompleted(self, image_blob):
+    def onSnippingCompleted(self, image_matrix):
         self.setWindowState(Qt.WindowActive)
-        if image_blob is None:
+        self.showMaximized()
+        if image_matrix is None:
             return
 
         pos = self.snippingWidget.event_pos
-        add_snip(self, pos, image_blob)
+        add_snip(self, pos, image_matrix)
 
     def snipArea(self, event_pos):
         self.setWindowState(Qt.WindowMinimized)
@@ -63,18 +60,6 @@ class Editor(QMainWindow):
 
     def focusInEvent(self, event):
         self.repaint()
-
-    # Drop object event
-    def dropEvent(self, event):
-        #check if object is in workspace
-        if (not self.frame.geometry().contains(event.pos())
-            or event.pos().y() < 120):
-            return
-        self.focusWidget().move(event.pos().x(), event.pos().y())
-        event.acceptProposedAction()
-        self.autosaver.onChangeMade()
-        self.undo_stack += self.temp_buffer[:1]
-        self.temp_buffer = []
 
     def undo_event(self):
         if len(self.undo_stack)>0:

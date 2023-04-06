@@ -1,9 +1,9 @@
-from modules.save import save, saveAs
-from modules.load import new, load
-from modules.page import add_page
-from modules.section import add_section
-from modules.object import add_object, add_plugin_object, paste_object
-from modules.plugins import get_plugins
+from Modules.Enums import WidgetType
+from Modules.Save import save, saveAs
+from Modules.Load import new, load
+from Modules.PageActions import add_page
+from Modules.SectionActions import add_section
+from Modules.ObjectActions import add_object, paste_object
 
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -157,21 +157,16 @@ def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     return action
 
 def frame_menu(editor, event):
-    # if editor.selected != None:
-    #     if editor.selected.type == 'text':
-    #         textCursor = editor.selected.textCursor()
-    #         textCursor.clearSelection()
-    #         editor.selected.setTextCursor(textCursor)
     if event.buttons() == Qt.LeftButton:
         o = len(editor.object) - 1
         if len(editor.object) > 0:
-            if editor.notebook.page[editor.page].section[editor.section].object[o].type == 'text':
+            if editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.TEXT:
                 if editor.object[o].childWidget.toPlainText() == '':
                     editor.object[o].deleteLater()
                     editor.object.pop(o)
                     editor.notebook.page[editor.page].section[editor.section].object.pop(o)
                     editor.autosaver.onChangeMade()
-        add_object(editor, event, 'text')
+        add_object(editor, event, WidgetType.TEXT)
         editor.object[len(editor.object) - 1].childWidget.setFocus()
 
     # Open Context Menu
@@ -180,16 +175,12 @@ def frame_menu(editor, event):
         if editor.section > -1:
             frame_menu = QMenu(editor)
 
-            # add_text = QAction("Add Text", editor)
-            # add_text.triggered.connect(lambda: add_object(editor, event, 'text'))
-            # frame_menu.addAction(add_text)
-
             add_image = QAction("Add Image", editor)
-            add_image.triggered.connect(lambda: add_object(editor, event, 'image_object'))
+            add_image.triggered.connect(lambda: add_object(editor, event, WidgetType.IMAGE))
             frame_menu.addAction(add_image)
 
             add_table = QAction("Add Table", editor)
-            add_table.triggered.connect(lambda: add_object(editor, event, 'table'))
+            add_table.triggered.connect(lambda: add_object(editor, event, WidgetType.TABLE))
             frame_menu.addAction(add_table)
 
             paste = QAction("Paste", editor)

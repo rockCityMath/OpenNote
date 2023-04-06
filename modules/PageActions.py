@@ -1,8 +1,10 @@
-from models.notebook import *
-from modules.section import *
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
+
+from Models.Notebook import *
+from Models.Page import Page
+from Modules.SectionActions import *
 
 # When a user creates a new page
 # 1 Call page.build_page to build a Widget and add to the sidebar (Page list)
