@@ -33,7 +33,7 @@ class DraggableContainer(QWidget):
     newGeometry = Signal(QRect)
 
     def __init__(self, editor, p, cWidget):
-        super().__init__(parent=editor) # The editor is the parent of this container
+        super().__init__(parent=editor)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setVisible(True)
         self.setAutoFillBackground(False)
@@ -53,10 +53,12 @@ class DraggableContainer(QWidget):
         self.installEventFilter(editor)
         self.setGeometry(cWidget.geometry())
         self.old_state = {}
+        self.newGeometry.connect(self.newGeometryEvent)
 
-        # ***** Pls read ****
+        # ***** Pls read before adding anything here  ****
         # In the interest of plugins (especially) and further modularity the DraggableContainer probably shouldnt be concerned with what widget type exactly is in it's child
         # The container should have functionality "modes" eg: visual (images), editable (text, tables) | (or something similar)
+        # Or, the signals from this container get passed to the child widget, and it can do what it wants with them?
         # Meaning we probably shouldnt tie anymore widget-specific logic into here because it will have to merge into a "mode" or come out
         if isinstance(cWidget, ImageWidget):
             self.child_object_type = WidgetType.IMAGE
@@ -90,8 +92,14 @@ class DraggableContainer(QWidget):
         self.menu.exec(global_)
         self.m_showMenu = False
 
-    def focusInEvent(self, a0: QFocusEvent):
+    # This is probably sort of how we should let objects handle events (but without caring about child object type)
+    def newGeometryEvent(self, e):
+        if self.child_object_type == WidgetType.IMAGE:
+            self.childWidget.newGeometryEvent(e, self) # Give reference to this container to the child
 
+            
+
+    def focusInEvent(self, a0: QFocusEvent):
         if hasattr(self, 'childWidget'): # Widget not present on first focus
             if self.child_object_type == WidgetType.TEXT:
                 self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
@@ -175,15 +183,6 @@ class DraggableContainer(QWidget):
     def setCursorShape(self, e_pos: QPoint):
         diff = 10 # Amount of padding from the edge where resize cursors will show
 
-        # Not allowing resizable images for now
-        if self.child_object_type == WidgetType.IMAGE:
-            self.setCursor(QCursor(Qt. ArrowCursor))
-            self.mode = Mode.MOVE
-            return
-
-        # # Dont set cursor shapes on empty textbox
-        # if self.child_object_type == WidgetType.TEXT and self.childWidget.toPlainText() == '': return
-
         # Left - Bottom
         if (((e_pos.y() > self.y() + self.height() - diff) and # Bottom
             (e_pos.x() < self.x() + diff)) or # Left
@@ -247,7 +246,7 @@ class DraggableContainer(QWidget):
     def leaveEvent(self, e: QMouseEvent):
         QWidget.leaveEvent(self, e)
 
-        # debt: Comparison after the "and" is an attempt to keep the border when the focus is on a tables qlineedit cell
+        # debt: Comparison after the "and" is an attempt to keep the border when the focus is on a table's qlineedit cell
         if self.parentWidget().focusWidget() != self.childWidget and (type(self.parentWidget().focusWidget()) != QLineEdit):
             self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
 
@@ -291,11 +290,10 @@ class DraggableContainer(QWidget):
             self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
             self.parentWidget().repaint()
             return
+        
+        # debt: To make images resize better, ImageWidget should probaly implement this and setCursorShape 
+        # So that it can make the cursor move with the corners of pixmap and not corners of this container
         if (self.mode != Mode.MOVE) and e.buttons() and Qt.LeftButton:
-
-            # Not allowing resizable images for now
-            if self.child_object_type == WidgetType.IMAGE:
-                return
             if self.mode == Mode.RESIZETL: # Left - Top
                 newwidth = e.globalX() - self.position.x() - self.geometry().x()
                 newheight = e.globalY() - self.position.y() - self.geometry().y()

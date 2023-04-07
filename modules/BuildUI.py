@@ -135,7 +135,18 @@ def build_toolbar(editor):
 
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
-    size.currentIndexChanged.connect(lambda x: editor.selected.setFontPointSize(int(size.currentText()) if x else editor.selected.fontPointSize()))
+
+    # debt: The second lambda function is unclear and not good ux, it unselects the highlighted text after setting the font 
+    # size.currentIndexChanged.connect(lambda x: editor.selected.setFontPointSize(int(size.currentText()) if x else editor.selected.fontPointSize()))
+    size.currentIndexChanged.connect(lambda x: changeFontSize(x))
+
+    def changeFontSize(x):
+        editor.selected.setFontPointSize(int(size.currentText()) if x else editor.selected.fontPointSize())
+
+        cursor = editor.selected.textCursor()
+        cursor.clearSelection()
+        editor.selected.setTextCursor(cursor)
+
 
     bold = build_action(toolbar, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
     bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))

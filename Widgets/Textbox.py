@@ -9,8 +9,8 @@ class TextboxWidget(QTextEdit):
 
         self.editor = editor
         self.type = WidgetType.TEXT
-        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value) # debt: this gets set everywhere
-        self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject
+        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value) # debt: this gets set all over the place
+        self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject, I think
         self.setText(t)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -22,9 +22,6 @@ class TextboxWidget(QTextEdit):
         QTextEdit.mousePressEvent(self, event)
 
     def focusOutEvent(self, event):
-        cursor = self.textCursor()
-        cursor.clearSelection()
-        self.setTextCursor(cursor)
         QTextEdit.focusOutEvent(self, event)
 
     # When user starts typing in new box, expand its size
