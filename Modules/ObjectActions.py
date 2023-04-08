@@ -18,7 +18,7 @@ class CreateTableDialog(QDialog):
         self.colsLineEdit = QLineEdit()
 
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.accepted.connect(self.checkInputs)
         self.buttonBox.rejected.connect(self.reject)
 
         layout = QVBoxLayout()
@@ -34,6 +34,18 @@ class CreateTableDialog(QDialog):
         rows = int(self.rowsLineEdit.text())
         cols = int(self.colsLineEdit.text())
         return rows, cols
+
+    def checkInputs(self):
+        try:
+            rows = int(self.rowsLineEdit.text())
+            cols = int(self.colsLineEdit.text())
+            if rows <= 0 or cols <= 0 :
+                QMessageBox.critical(self, "Error", "Rows and columns must be positive integers.")
+            else:
+                self.accept()
+        except ValueError:
+            QMessageBox.critical(self, "Error", "Rows and columns must be positive integers.")
+
 
 # When a user creates a new Object (TextBox, ImageObj, etc.)
 # 1 Create a Widget of (type)
