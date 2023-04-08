@@ -124,6 +124,8 @@ def paste_object(editor, event):
         y = event.pos().y() + 130
         w = editor.clipboard_object.width
         h = editor.clipboard_object.height
+        rows  = editor.clipboard_object.row
+        cols = editor.clipboard_object.col
         data = editor.clipboard_object.data # debt: Not immediately clear what's gonna be in here
         undo_name = editor.clipboard_object.undo_name
 
@@ -143,7 +145,15 @@ def paste_object(editor, event):
             editor.object.append(drag)
 
         else:
-            print("Cannot paste this clipboard")
+            table = TableWidget(editor, x,y,w,h,rows,cols,data)
+            for i in range(rows):
+                for j in range(cols):
+                    table.setItem(i,j,QTableWidgetItem(data[i][j]))
+            
+            table.setObjectName(undo_name)
+            editor.notebook.page[editor.page].section[editor.section].object.append(TablePickleable(undo_name, x,y,w,h,rows,cols,data))
+            drag = DraggableContainer(editor, QPoint(x, y), table)
+            editor.object.append(drag)
 
         # Undo related
         cmd = {'type':'object','name':undo_name, 'action':'create'}
@@ -164,7 +174,11 @@ def build_object(editor, params):
         editor.object.append(drag)
 
     if params.type == WidgetType.TABLE:
-        table = TableWidget(editor, params.x, params.y, params.w, params.h,params.rows,params.cols)
+        table = TableWidget(editor, params.x, params.y, params.w, params.h,params.rows,params.cols, params.t)
+        for i in range(len(params.t)):
+            for j in range(len(params.t[0])):
+                table.setItem(i,j,QTableWidgetItem(params.t[i][j]))
+            
         drag = DraggableContainer(editor, QPoint(params.x, params.y), table)
         editor.object.append(drag)
 
