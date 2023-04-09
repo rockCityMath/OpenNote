@@ -81,7 +81,8 @@ def build_ui(editor):
 
     editor.frame = QFrame(editor)
     editor.frame.setStyleSheet("background-color: white;")
-    editor.frame.mousePressEvent = lambda event: frame_menu(editor, event)
+#    editor.frame.mousePressEvent = lambda event: frame_menu(editor, event)
+    editor.frame.installEventFilter(editor)
     workspace.addWidget(editor.frame)
 
     # stylesheet reference
@@ -136,7 +137,7 @@ def build_toolbar(editor):
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
 
-    # debt: The second lambda function is unclear and not good ux, it unselects the highlighted text after setting the font 
+    # debt: The second lambda function is unclear and not good ux, it unselects the highlighted text after setting the font
     # size.currentIndexChanged.connect(lambda x: editor.selected.setFontPointSize(int(size.currentText()) if x else editor.selected.fontPointSize()))
     size.currentIndexChanged.connect(lambda x: changeFontSize(x))
 

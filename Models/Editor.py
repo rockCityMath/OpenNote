@@ -38,6 +38,14 @@ class Editor(QMainWindow):
 
         build_ui(self)
 
+    # The editor.frame sends events here
+    def eventFilter(self, source, event):
+        if source is self.frame:
+            print(event)
+
+        return False
+
+
     # If user takes a screensnip, save it to a file and put it on the page
     def onSnippingCompleted(self, image_matrix):
         self.setWindowState(Qt.WindowActive)
@@ -73,12 +81,12 @@ class Editor(QMainWindow):
                 if pop_item['action'] == 'move':
                     params = self.notebook.page[self.page].section[self.section].object[index]
                     params.x = pop_item['x']
-                    params.y = pop_item['y']         
+                    params.y = pop_item['y']
                     self.notebook.page[self.page].section[self.section].object[index] = params
-                    
+
                     self.object[index].deleteLater()
 
-                    self.object.pop(index)             
+                    self.object.pop(index)
                     #deleting in old position
                     build_object(self,params)
                     self.autosaver.onChangeMade()
@@ -89,6 +97,6 @@ class Editor(QMainWindow):
                     self.autosaver.onChangeMade()
                 else:
                     # self.object.append(pop_item['data'])
-                    self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])         
+                    self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])
                     build_object(self,pop_item['data'])
                     self.autosaver.onChangeMade()
