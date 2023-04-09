@@ -80,7 +80,6 @@ def store_section(editor):
                     editor.notebook.page[editor.page].section[editor.section].object[o].y = editor.object[o].geometry().y()
                     editor.notebook.page[editor.page].section[editor.section].object[o].w = editor.object[o].geometry().width()
                     editor.notebook.page[editor.page].section[editor.section].object[o].h = editor.object[o].geometry().height()
-                    editor.notebook.page[editor.page].section[editor.section].object[o].t = editor.object[o].childWidget.t
 
 def section_menu(editor, section, event):
     section.setFocus()

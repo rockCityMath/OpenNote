@@ -72,6 +72,7 @@ class DraggableContainer(QWidget):
             self.child_object_type = WidgetType.TABLE
             self.menu = table_object_menu(self.parentWidget())
             self.childWidget.setEditTriggers(QTableWidget.DoubleClicked) # Connect the itemDoubleClicked signal of the table widget to the mouseDoubleClickEvent slot
+
         else:
             print("An unsupported widget was added to the editor, this will break things.")
             quit()
