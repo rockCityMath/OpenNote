@@ -38,6 +38,7 @@ class TablePickleable():
         self.y = y
         self.w = w
         self.h = h
+        
         self.t = [[0 for j in range(cols)] for i in range(rows)]
         self.type = WidgetType.TABLE
         self.rows = rows

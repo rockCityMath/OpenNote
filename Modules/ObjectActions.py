@@ -136,8 +136,6 @@ def paste_object(editor, event):
         y = event.pos().y() + 130
         w = editor.clipboard_object.width
         h = editor.clipboard_object.height
-        rows  = editor.clipboard_object.row
-        cols = editor.clipboard_object.col
         data = editor.clipboard_object.data # debt: Not immediately clear what's gonna be in here
         undo_name = editor.clipboard_object.undo_name
 
@@ -157,13 +155,16 @@ def paste_object(editor, event):
             editor.object.append(drag)
 
         else:
-            table = TableWidget(editor, x,y,w,h,rows,cols,data)
+            rows = data['row']
+            cols = data['col']
+            dt = data['data']
+            table = TableWidget(editor, x,y,w,h,rows,cols,dt)
             for i in range(rows):
                 for j in range(cols):
-                    table.setItem(i,j,QTableWidgetItem(data[i][j]))
+                    table.setItem(i,j,QTableWidgetItem(dt[i][j]))
             
             table.setObjectName(undo_name)
-            editor.notebook.page[editor.page].section[editor.section].object.append(TablePickleable(undo_name, x,y,w,h,rows,cols,data))
+            editor.notebook.page[editor.page].section[editor.section].object.append(TablePickleable(undo_name, x,y,w,h,rows,cols,dt))
             drag = DraggableContainer(editor, QPoint(x, y), table)
             editor.object.append(drag)
 
