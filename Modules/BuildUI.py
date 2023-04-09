@@ -49,7 +49,7 @@ def build_ui(editor):
     sidebar.setContentsMargins(0, 0, 0, 0)
     editor.pages.setContentsMargins(0, 0, 0, 0)
     editor.pages_frame = QFrame()
-
+    #just smth
     #sidebar.setStretchFactor(editor.pages, 1)
     addPage = QPushButton("Create New Page")
     addPage.clicked.connect(lambda: add_page(editor))
