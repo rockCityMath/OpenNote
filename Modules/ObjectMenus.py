@@ -97,6 +97,7 @@ def copy_object(editor):
                 
                 editor.clipboard_object = Clipboard(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), data, ob.child_object_type, undo_name)
 
+
 def add_r(editor):
     pass
 def add_c(editor):

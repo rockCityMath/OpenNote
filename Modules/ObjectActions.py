@@ -18,7 +18,7 @@ class CreateTableDialog(QDialog):
         self.colsLineEdit = QLineEdit()
 
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.buttonBox.accepted.connect(self.checkInputs)
+        self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
         layout = QVBoxLayout()
@@ -34,18 +34,6 @@ class CreateTableDialog(QDialog):
         rows = int(self.rowsLineEdit.text())
         cols = int(self.colsLineEdit.text())
         return rows, cols
-
-    def checkInputs(self):
-        try:
-            rows = int(self.rowsLineEdit.text())
-            cols = int(self.colsLineEdit.text())
-            if rows <= 0 or cols <= 0 :
-                QMessageBox.critical(self, "Error", "Rows and columns must be positive integers.")
-            else:
-                self.accept()
-        except ValueError:
-            QMessageBox.critical(self, "Error", "Rows and columns must be positive integers.")
-
 
 # When a user creates a new Object (TextBox, ImageObj, etc.)
 # 1 Create a Widget of (type)
@@ -187,11 +175,7 @@ def build_object(editor, params):
         editor.object.append(drag)
 
     if params.type == WidgetType.TABLE:
-        table = TableWidget(editor, params.x, params.y, params.w, params.h,params.rows,params.cols, params.t)
-        for i in range(len(params.t)):
-            for j in range(len(params.t[0])):
-                table.setItem(i,j,QTableWidgetItem(params.t[i][j]))
-            
+        table = TableWidget(editor, params.x, params.y, params.w, params.h,params.rows,params.cols)
         drag = DraggableContainer(editor, QPoint(params.x, params.y), table)
         editor.object.append(drag)
 
