@@ -143,7 +143,18 @@ def paste_object(editor, event):
             editor.object.append(drag)
 
         else:
-            print("Cannot paste this clipboard")
+            rows = data['row']
+            cols = data['col']
+            dt = data['data']
+            table = TableWidget(editor, x,y,w,h,rows,cols,dt)
+            for i in range(rows):
+                for j in range(cols):
+                    table.setItem(i,j,QTableWidgetItem(dt[i][j]))
+            
+            table.setObjectName(undo_name)
+            editor.notebook.page[editor.page].section[editor.section].object.append(TablePickleable(undo_name, x,y,w,h,rows,cols,dt))
+            drag = DraggableContainer(editor, QPoint(x, y), table)
+            editor.object.append(drag)
 
         # Undo related
         cmd = {'type':'object','name':undo_name, 'action':'create'}

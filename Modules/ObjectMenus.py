@@ -89,7 +89,14 @@ def copy_object(editor):
             elif ob.child_object_type == WidgetType.TEXT:
                 editor.clipboard_object = Clipboard(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.child_object_type, undo_name)
             else:
-                print("Clipboard not supported for object type: " + str(type(ob)))
+                data = {
+                    'data':ob.childWidget.t,
+                    'row': ob.childWidget.rows,
+                    'col': ob.childWidget.cols
+                    }
+                
+                editor.clipboard_object = Clipboard(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), data, ob.child_object_type, undo_name)
+
 
 def add_r(editor):
     pass
