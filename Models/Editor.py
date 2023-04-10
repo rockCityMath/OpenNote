@@ -39,11 +39,11 @@ class Editor(QMainWindow):
         build_ui(self)
 
     # The editor.frame sends events here
-    def eventFilter(self, source, event):
-        if source is self.frame:
-            print(event)
+    # def eventFilter(self, source, event):
+    #     if source is self.frame:
+    #         print(event)
 
-        return False
+    #     return False
 
 
     # If user takes a screensnip, save it to a file and put it on the page
