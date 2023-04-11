@@ -11,10 +11,17 @@ class EditorFrame(QFrame):
         self.editor = editor
         self.setStyleSheet("background-color: white;")
 
-        self.isMultiselecting = False
-        self.multiSelectWidget = None
+        self.isMultiselecting = False # If user is drawing multiselecting (specifically drawing the multiselect)
+        self.isMultiObjectMoving = False # User has selected their objects
+        self.isMovingObjects = False # User has clicked on an object and is dragging the selected objects
+        self.multiSelectWidget = None # Draws the multiselect
         self.multiSelectStartLocalPos = None
         self.multiSelectStartGlobalPos = None
+        self.selectedObjects = [] # All objects selected by multiselect
+        self.firstSelectionEventPos = None # Event that started the movement (objects should move relative to this)
+        self.firstSelectedObject = None
+        self.randomOffset = None
+        self.isFirstMove = True
 
     def mouseReleaseEvent(self, event):
         editor = self.editor
@@ -25,7 +32,6 @@ class EditorFrame(QFrame):
             if self.isMultiselecting:
 
                 # Get all DraggableContainers in the selection
-                selected = []
                 for o in editor.object:
 
                     # Map all positions to global for correct coord checks
@@ -36,9 +42,13 @@ class EditorFrame(QFrame):
                     # If object x + width is between start and end x, and object y + height is between start and end y
                     if ob_tl_pos.x() > start_pos.x() and ob_tl_pos.x() + o.width() < end_pos.x():
                         if ob_tl_pos.y() > start_pos.y() and ob_tl_pos.y() + o.height() < end_pos.y():
-                            selected.append(o)
+                            self.selectedObjects.append(o)
 
-                print("Count: " + str(len(selected)))
+                # Enter multi-object move mode
+                if len(self.selectedObjects) > 0:
+                    self.isMultiObjectMoving = True
+
+                print("Count: " + str(len(self.selectedObjects)))
 
                 # Reset multiselecting
                 self.isMultiselecting = False
@@ -47,6 +57,7 @@ class EditorFrame(QFrame):
 
             # If clicking to add text
             else:
+
                 o = len(editor.object) - 1
                 if len(editor.object) > 0:
                     if editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.TEXT:

@@ -6,6 +6,8 @@ from Modules.BuildUI import *
 from Modules.Save import Autosaver
 from Modules.Screensnip import SnippingWidget
 from Modules.ObjectActions import *
+from Models.DraggableContainer import DraggableContainer
+from Modules.Enums import TextBoxStyles
 
 from Models.Notebook import Notebook
 
@@ -45,8 +47,97 @@ class Editor(QMainWindow):
 
     #     return False
 
+    # Do this on multiselect object instead
+    def eventFilter(self, object, event):
 
-    # If user takes a screensnip, save it to a file and put it on the page
+        if isinstance(object, DraggableContainer):
+
+            # If clicking on an object
+            if event.type() == QEvent.MouseButtonPress:
+
+                # If in multi-object moving mode
+                if self.frame.isMultiObjectMoving:
+
+                    # If clicking on selected object
+                    if object in self.frame.selectedObjects:
+                        print("Selected one: " + object.childWidget.toPlainText())
+                        self.frame.isMovingObjects = True # is in object moving mode
+                        self.frame.firstSelectionEventPos = event.pos() # position of the click inside the selected widget
+                        self.frame.firstSelectedObject = self.frame.selectedObjects[0]
+                        # self.frame.firstSelectedObject = object
+                        self.frame.randomOffset = object.pos() - self.frame.firstSelectedObject.pos()
+
+            if event.type() == QEvent.MouseMove and self.frame.isMovingObjects and isinstance(object, DraggableContainer):
+
+
+                for o in reversed(self.frame.selectedObjects): # fuck it, reverse
+
+                    # 0 index ob offset from event
+                    print(self.frame.randomOffset / 4)
+                    offsetPositionFromInitObject = self.frame.selectedObjects[0].pos() + self.frame.firstSelectionEventPos - o.pos()
+
+                    toMove = event.globalPos() - offsetPositionFromInitObject
+
+
+                    toMove = toMove - self.frame.randomOffset
+
+                    if toMove.x() < 0:
+                        return
+                    elif toMove.y() < 0:
+                        return
+
+                    elif toMove.x() > o.parentWidget().width() - o.width():
+                        return
+
+
+
+                    # # Dont move outside the editor frame
+                    # if(toMove.x() < o.parentWidget().width() - o.parentWidget().frame.width()):
+                    #     return
+                    # if(toMove.y() < o.parentWidget().height() - o.parentWidget().frame.height()):
+                    #     return
+                    # if(toMove.y() > o.parentWidget().frame.height() + 20):
+                    #     return
+
+                    o.move(toMove)
+                    o.newGeometry.emit(o.geometry())
+                    o.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+                    print("moved: " + str(o.childWidget.toPlainText()))
+
+
+                # If first move, offset
+                if self.frame.isFirstMove:
+                    self.frame.isFirstMove = True
+                return True # Keep the event from going to the draggablecontainer so it doesnt have that mousemoveevent run on it too
+
+            if event.type() == QEvent.MouseButtonRelease and self.frame.isMovingObjects and isinstance(object, DraggableContainer):
+                print("Released")
+
+                self.frame.isMultiselecting = False # If user is drawing multiselecting (specifically drawing the multiselect)
+                self.frame.isMultiObjectMoving = False # User has selected their objects
+                self.frame.isMovingObjects = False # User has clicked on an object and is dragging the selected objects
+                self.frame.multiSelectWidget = None # Draws the multiselect
+                self.frame.multiSelectStartLocalPos = None
+                self.frame.multiSelectStartGlobalPos = None
+                for rem in self.frame.selectedObjects:
+                    rem.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+                self.frame.selectedObjects = [] # All objects selected by multiselect
+                self.frame.firstSelectionEventPos = None # Event that started the movement (objects should move relative to this)
+                self.frame.firstSelectedObject = None
+                self.frame.randomOffset = None
+                self.frame.isFirstMove = True
+
+            # On any paint event, make sure selected objects keep their border | Not ideal but...
+            if event.type() == QEvent.Paint and self.frame.isMultiObjectMoving and object in self.frame.selectedObjects:
+                object.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
+            return False
+
+        else:
+            return False
+
+
+    # When user finishes screensnip, bring back main window and add image to notebook
     def onSnippingCompleted(self, image_matrix):
         self.setWindowState(Qt.WindowActive)
         self.showMaximized()

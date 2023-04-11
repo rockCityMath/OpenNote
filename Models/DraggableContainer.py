@@ -273,6 +273,9 @@ class DraggableContainer(QWidget):
 
         if (self.mode == Mode.MOVE or self.mode == Mode.NONE) and e.buttons() and Qt.LeftButton:
             toMove = e.globalPos() - self.position
+
+            print("Real tomove: " + str(toMove))
+
             if toMove.x() < 0:return
             if toMove.y() < 0:return
             if toMove.x() > self.parentWidget().width() - self.width(): return
