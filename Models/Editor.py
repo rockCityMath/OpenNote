@@ -104,7 +104,7 @@ class Editor(QMainWindow):
                 self.frame.isFirstMove = True
 
             # On any paint event, make sure selected objects keep their border | Not ideal but...
-            if event.type() == QEvent.Paint and self.frame.isMultiObjectMoving and object in self.frame.selectedObjects:
+            if event.type() == self.frame.isMultiObjectMoving and object in self.frame.selectedObjects and QEvent.Paint:
                 object.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
             return False
