@@ -11,6 +11,7 @@ class EditorFrame(QFrame):
         self.editor = editor
         self.setStyleSheet("background-color: white;")
 
+        # MOST SHOULD BE MODES
         self.isMultiselecting = False # If user is drawing multiselecting (specifically drawing the multiselect)
         self.isMultiObjectMoving = False # User has selected their objects
         self.isMovingObjects = False # User has clicked on an object and is dragging the selected objects
@@ -21,7 +22,6 @@ class EditorFrame(QFrame):
         self.firstSelectionEventPos = None # Event that started the movement (objects should move relative to this)
         self.firstSelectedObject = None
         self.randomOffset = None
-        self.isFirstMove = True
 
     def mouseReleaseEvent(self, event):
         editor = self.editor
@@ -48,8 +48,6 @@ class EditorFrame(QFrame):
                 if len(self.selectedObjects) > 0:
                     self.isMultiObjectMoving = True
 
-                print("Count: " + str(len(self.selectedObjects)))
-
                 # Reset multiselecting
                 self.isMultiselecting = False
                 self.multiSelectWidget.hide()
@@ -57,7 +55,6 @@ class EditorFrame(QFrame):
 
             # If clicking to add text
             else:
-
                 o = len(editor.object) - 1
                 if len(editor.object) > 0:
                     if editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.TEXT:
