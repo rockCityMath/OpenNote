@@ -62,16 +62,11 @@ class Multiselector():
         if len(self.selectedObjects) > 0:
             self.mode = MultiselectMode.HAS_SELECTED_OBJECTS
 
-        # Hide selection area, selected objects will become ighlighted
+        # Hide selection area
         self.drawingWidget.hide()
-
-        # just for now
-        for o in self.selectedObjects:
-            o.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
     def beginDragIfObjectSelected(self, object, event):
         if object in self.selectedObjects:
-            print("BEGIN DRAGGING")
             self.mode = MultiselectMode.IS_DRAGGING_OBJECTS
             self.dragInitEventPos = event.pos()
             self.dragOffset = object.pos() - self.selectedObjects[0].pos()
@@ -102,8 +97,8 @@ class Multiselector():
 
     def finishDraggingObjects(self):
         self.mode = MultiselectMode.NONE
-        for rem in self.selectedObjects:
-            rem.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        for o in self.selectedObjects:
+            o.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
         self.drawAreaStartLocalPos = None
         self.drawAreaStartGlobalPos = None
         self.selectedObjects = []

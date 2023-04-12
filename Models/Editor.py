@@ -51,16 +51,6 @@ class Editor(QMainWindow):
             # If clicking on an object
             if event.type() == QEvent.MouseButtonPress:
 
-                # If in multi-object moving mode
-                # if self.frame.isMultiObjectMoving:
-
-                #     # If clicking on selected object
-                #     if object in self.frame.selectedObjects:
-                #         self.frame.isMovingObjects = True # is in object moving mode
-                #         self.frame.firstSelectionEventPos = event.pos() # position of the click inside the selected widget
-                #         self.frame.firstSelectedObject = self.frame.selectedObjects[0]
-                #         self.frame.randomOffset = object.pos() - self.frame.firstSelectedObject.pos()
-
                 if self.frame.multiselector.mode == MultiselectMode.HAS_SELECTED_OBJECTS:
                     self.frame.multiselector.beginDragIfObjectSelected(object, event)
 
@@ -68,53 +58,12 @@ class Editor(QMainWindow):
                 if self.frame.multiselector.mode == MultiselectMode.IS_DRAGGING_OBJECTS:
                     self.frame.multiselector.dragObjects(event)
 
-            # If dragging objects in object-move mode
-            # if event.type() == QEvent.MouseMove and self.frame.isMovingObjects and isinstance(object, DraggableContainer):
-            #     for o in reversed(self.frame.selectedObjects): # fuck it, reversed
-
-            #         # Position of the first object's top left corner + the offset of the click inside the selected object - the position of the current object
-            #         offsetPositionFromInitObject = self.frame.selectedObjects[0].pos() + self.frame.firstSelectionEventPos - o.pos()
-            #         toMove = event.globalPos() - offsetPositionFromInitObject
-
-            #         # For some reason it will kind of attempt to move the objects as if the last object in the array was selected by the user
-            #         # So offset that, then add a y offset becase it does something weird with that too
-            #         toMove = toMove - self.frame.randomOffset - QPoint(0, 20)
-
-            #         # Dont go out of bounds - super wierd behavoir
-            #         if toMove.x() < 0: return True
-            #         if toMove.y() < 0: return True
-            #         if toMove.x() > o.parentWidget().width() - o.width(): return True
-            #         if(toMove.x() < o.parentWidget().width() - o.parentWidget().frame.width()): return True
-            #         if(toMove.y() < o.parentWidget().height() - o.parentWidget().frame.height()): return True
-            #         if(toMove.y() > o.parentWidget().frame.height() + 20): return True
-
-            #         o.move(toMove)
-            #         o.newGeometry.emit(o.geometry())
-            #         o.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-
                     return True # Keep the event from going to the draggablecontainer so it doesnt have that mousemoveevent run on it too
 
             # If in object-moving mode, and the mouse is released, reset all multiselecting
             if event.type() == QEvent.MouseButtonRelease and isinstance(object, DraggableContainer):
                 if self.frame.multiselector.mode == MultiselectMode.IS_DRAGGING_OBJECTS:
                     self.frame.multiselector.finishDraggingObjects()
-
-                # print("Released")
-
-                # # CLEAN THIS
-                # self.frame.isMultiselecting = False
-                # self.frame.isMultiObjectMoving = False
-                # self.frame.isMovingObjects = False
-                # self.frame.multiSelectWidget = None
-                # self.frame.multiSelectStartLocalPos = None
-                # self.frame.multiSelectStartGlobalPos = None
-                # for rem in self.frame.selectedObjects:
-                #     rem.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-                # self.frame.selectedObjects = []
-                # self.frame.firstSelectionEventPos = None
-                # self.frame.firstSelectedObject = None
-                # self.frame.randomOffset = None
-                # self.frame.isFirstMove = True
 
             # After the selection is made, its possible that the user moves in and out of selected textboxes,
             # This will remove their focus border, this mitigates that. Note: Do not let this run when the object is moving, its too expensive bc too many paint events
