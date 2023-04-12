@@ -4,12 +4,14 @@ from PySide6.QtGui import QAction
 from Modules.Enums import WidgetType
 from Modules.ObjectActions import add_object, paste_object
 from Modules.Enums import TextBoxStyles
+from Modules.Multiselect import Multiselector, MultiselectMode
 
 class EditorFrame(QFrame):
     def __init__(self, editor):
         super().__init__(editor)
         self.editor = editor
         self.setStyleSheet("background-color: white;")
+        self.multiselector = Multiselector(self)
 
         # MOST SHOULD BE MODES
         self.isMultiselecting = False # If user is drawing multiselecting (specifically drawing the multiselect)
@@ -27,31 +29,32 @@ class EditorFrame(QFrame):
         editor = self.editor
 
         if event.button() == Qt.LeftButton:
-
+            if self.multiselector.mode == MultiselectMode.IS_DRAWING_AREA:
+                self.multiselector.finishDrawingArea(event)
             # If finishing a multiselect
-            if self.isMultiselecting:
+            # if self.isMultiselecting:
 
-                # Get all DraggableContainers in the selection
-                for o in editor.object:
+            #     # Get all DraggableContainers in the selection
+            #     for o in editor.object:
 
-                    # Map all positions to global for correct coord checks
-                    ob_tl_pos = o.mapToGlobal(QPoint(0, 0)) # Object top left corner
-                    start_pos = self.multiSelectStartGlobalPos
-                    end_pos = event.globalPos()
+            #         # Map all positions to global for correct coord checks
+            #         ob_tl_pos = o.mapToGlobal(QPoint(0, 0)) # Object top left corner
+            #         start_pos = self.multiSelectStartGlobalPos
+            #         end_pos = event.globalPos()
 
-                    # If object x + width is between start and end x, and object y + height is between start and end y
-                    if ob_tl_pos.x() > start_pos.x() and ob_tl_pos.x() + o.width() < end_pos.x():
-                        if ob_tl_pos.y() > start_pos.y() and ob_tl_pos.y() + o.height() < end_pos.y():
-                            self.selectedObjects.append(o)
+            #         # If object x + width is between start and end x, and object y + height is between start and end y
+            #         if ob_tl_pos.x() > start_pos.x() and ob_tl_pos.x() + o.width() < end_pos.x():
+            #             if ob_tl_pos.y() > start_pos.y() and ob_tl_pos.y() + o.height() < end_pos.y():
+            #                 self.selectedObjects.append(o)
 
-                # Enter multi-object move mode
-                if len(self.selectedObjects) > 0:
-                    self.isMultiObjectMoving = True
+            #     # Enter multi-object move mode
+            #     if len(self.selectedObjects) > 0:
+            #         self.isMultiObjectMoving = True
 
-                # Reset multiselecting
-                self.isMultiselecting = False
-                self.multiSelectWidget.hide()
-                self.multiSelectWidget = None
+            #     # Reset multiselecting
+            #     self.isMultiselecting = False
+            #     self.multiSelectWidget.hide()
+            #     self.multiSelectWidget = None
 
             # If clicking to add text
             else:
@@ -96,17 +99,21 @@ class EditorFrame(QFrame):
     def mouseMoveEvent(self, event): # This event is only called after clicking down on the frame and dragging
 
         # Set up multi-select on first move of mouse drag | Only supporting top-left to bottom-right multiselecting rn
-        if not self.isMultiselecting:
-            self.isMultiselecting = True
-            self.multiSelectWidget = QWidget(self)
-            self.multiSelectWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-            self.multiSelectWidget.setGeometry(event.pos().x(), event.pos().y(), 0, 0)
-            self.multiSelectWidget.show()
-            self.multiSelectStartLocalPos = event.pos()
-            self.multiSelectStartGlobalPos = event.globalPos()
+        # if not self.isMultiselecting:
+        if self.multiselector.mode != MultiselectMode.IS_DRAWING_AREA:
+            self.multiselector.beginDrawingArea(event)
+
+            # self.isMultiselecting = True
+            # self.multiSelectWidget = QWidget(self)
+            # self.multiSelectWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+            # self.multiSelectWidget.setGeometry(event.pos().x(), event.pos().y(), 0, 0)
+            # self.multiSelectWidget.show()
+            # self.multiSelectStartLocalPos = event.pos()
+            # self.multiSelectStartGlobalPos = event.globalPos()
 
         # Resize multi-select widget on mouse every proceeding mouse movement (dragging)
         else:
-            width = event.pos().x() - self.multiSelectStartLocalPos.x()
-            height = event.pos().y() - self.multiSelectStartLocalPos.y()
-            self.multiSelectWidget.resize(width, height)
+            self.multiselector.continueDrawingArea(event)
+            # width = event.pos().x() - self.multiSelectStartLocalPos.x()
+            # height = event.pos().y() - self.multiSelectStartLocalPos.y()
+            # self.multiSelectWidget.resize(width, height)
