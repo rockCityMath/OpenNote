@@ -147,6 +147,11 @@ def build_toolbar(editor):
         cursor.clearSelection()
         editor.selected.setTextCursor(cursor)
 
+    fontColor = build_action(toolbar, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
+    fontColor.triggered.connect(lambda x: openFGColorDialog(editor))
+
+    bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
+    bgColor.triggered.connect(lambda x: openBGColorDialog(editor))
 
     bold = build_action(toolbar, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
     bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
@@ -159,13 +164,25 @@ def build_toolbar(editor):
 
     toolbar.addWidget(font)
     toolbar.addWidget(size)
-    toolbar.addActions([bold, italic, underline])
+    toolbar.addActions([fontColor, bgColor, bold, italic, underline])
 
 def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action = QAction(QIcon(icon_path), action_name, parent)
     action.setStatusTip(set_status_tip)
     action.setCheckable(set_checkable)
     return action
+
+def openFGColorDialog(editor):
+    color = QColorDialog.getColor()
+    if editor.selected != None:
+        editor.selected.setTextColor(color)
+    return
+
+def openBGColorDialog(editor):
+    color = QColorDialog.getColor()
+    if editor.selected != None:
+        editor.selected.parentWidget().setStyleSheet("background-color: %s" % color.name())
+    return
 
 def frame_menu(editor, event):
     if event.buttons() == Qt.LeftButton:
