@@ -63,6 +63,8 @@ class Multiselector():
 
         if len(self.selectedObjects) > 0:
             self.mode = MultiselectMode.HAS_SELECTED_OBJECTS
+        else:
+            self.finishDraggingObjects()
 
         # Hide selection area
         self.drawingWidget.hide()

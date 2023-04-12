@@ -40,7 +40,7 @@ def saveAs(editor, notebook): # debt: Make this open to the Saves folder
 # Autosave the program once every n seconds if a change has been made
 class Autosaver:
     saveInterval = 5 # Seconds
-    enabled = False # For testing/debugging
+    enabled = True # For testing/debugging
 
     def __init__(self, editor, notebook):
         self.timer = None
