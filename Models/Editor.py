@@ -2,17 +2,13 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
+from Modules.ObjectActions import *
 from Modules.BuildUI import *
 from Modules.Save import Autosaver
 from Modules.Screensnip import SnippingWidget
-from Modules.ObjectActions import *
 from Models.DraggableContainer import DraggableContainer
-from Modules.Enums import TextBoxStyles
 from Modules.Multiselect import MultiselectMode
-
 from Models.Notebook import Notebook
-
-import random
 
 # models.notebook.Notebook is where all Notebook and Object data is stored
 # models.object.* are models for Widgets used in the editor
@@ -43,38 +39,6 @@ class Editor(QMainWindow):
 
         build_ui(self)
 
-    # Do this on multiselect object instead
-    def eventFilter(self, object, event):
-
-        if isinstance(object, DraggableContainer):
-
-            # If clicking on an object
-            if event.type() == QEvent.MouseButtonPress:
-
-                if self.frame.multiselector.mode == MultiselectMode.HAS_SELECTED_OBJECTS:
-                    self.frame.multiselector.beginDragIfObjectSelected(object, event)
-
-            if event.type() == QEvent.MouseMove:
-                if self.frame.multiselector.mode == MultiselectMode.IS_DRAGGING_OBJECTS:
-                    self.frame.multiselector.dragObjects(event)
-
-                    return True # Keep the event from going to the draggablecontainer so it doesnt have that mousemoveevent run on it too
-
-            # If in object-moving mode, and the mouse is released, reset all multiselecting
-            if event.type() == QEvent.MouseButtonRelease and isinstance(object, DraggableContainer):
-                if self.frame.multiselector.mode == MultiselectMode.IS_DRAGGING_OBJECTS:
-                    self.frame.multiselector.finishDraggingObjects()
-
-            # After the selection is made, its possible that the user moves in and out of selected textboxes,
-            # This will remove their focus border, this mitigates that. Note: Do not let this run when the object is moving, its too expensive bc too many paint events
-            if self.frame.multiselector.mode != MultiselectMode.NONE and self.frame.multiselector.mode != MultiselectMode.IS_DRAGGING_OBJECTS and event.type() == QEvent.Paint:
-                self.frame.multiselector.focusObjectIfInMultiselect()
-
-            return False
-
-        else:
-            return False
-
     # When user finishes screensnip, bring back main window and add image to notebook
     def onSnippingCompleted(self, image_matrix):
         self.setWindowState(Qt.WindowActive)
@@ -89,11 +53,13 @@ class Editor(QMainWindow):
         self.setWindowState(Qt.WindowMinimized)
         self.snippingWidget.start(event_pos)
 
-    # Drag object event
-    def dragEnterEvent(self, event):
-        event.acceptProposedAction()
-        obj = self.focusWidget()
-        self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()})
+    # This isnt needed right?
+
+    # # Drag object event
+    # def dragEnterEvent(self, event):
+    #     event.acceptProposedAction()
+    #     obj = self.focusWidget()
+    #     self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()})
 
     def focusInEvent(self, event):
         self.repaint()

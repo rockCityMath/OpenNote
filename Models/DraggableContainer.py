@@ -50,7 +50,7 @@ class DraggableContainer(QWidget):
         self.m_infocus = True
         self.m_showMenu = False
         self.m_isEditing = True
-        self.installEventFilter(editor)
+        self.installEventFilter(editor.frame) # Send all events to EditorFrame for inspection before they get to the ones below
         self.setGeometry(cWidget.geometry())
         self.old_state = {}
         self.newGeometry.connect(self.newGeometryEvent)
@@ -273,8 +273,6 @@ class DraggableContainer(QWidget):
 
         if (self.mode == Mode.MOVE or self.mode == Mode.NONE) and e.buttons() and Qt.LeftButton:
             toMove = e.globalPos() - self.position
-
-            print("Real tomove: " + str(toMove))
 
             if toMove.x() < 0:return
             if toMove.y() < 0:return

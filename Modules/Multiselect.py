@@ -11,16 +11,14 @@ class MultiselectMode(Enum):
     HAS_SELECTED_OBJECTS = 2,
     IS_DRAGGING_OBJECTS = 3
 
-# if it only has drawing logic reflect that in name
 class Multiselector():
     def __init__(self, editorFrame):
-
         self.editorFrame = editorFrame
 
         self.drawingWidget = QWidget(editorFrame)  # Allows the user to see their selected area
         self.mode = MultiselectMode.NONE           # Tracks what state the multiselect is in
 
-        self.drawAreaStartLocalPos = None          # Point where user starts dragging to select multiple objects
+        self.drawAreaStartLocalPos = None          # Point where user starts drawing to select multiple objects
         self.drawAreaStartGlobalPos = None
         self.selectedObjects = []                  # All objects in the user's selected area
         self.dragInitEventPos = None               # Position of the event that started the dragging
@@ -40,11 +38,15 @@ class Multiselector():
 
         self.drawingWidget.resize(width, height)
 
-        self.drawingWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-        self.drawingWidget.show()
-
     def finishDrawingArea(self, event):
         editor = self.editorFrame.editor
+
+        # Throw away if the area of the selection is negative (user dragged from bottom right to top left)
+        if self.drawAreaStartGlobalPos.x() > event.globalPos().x() or self.drawAreaStartGlobalPos.y() > event.globalPos().y():
+            self.drawingWidget.hide()
+            self.finishDraggingObjects()
+            # You could probably switch around the coordinates in here and modify drawing logic to support other drag directions
+            return
 
         # Get all DraggableContainers in the selection
         for o in editor.object:
@@ -72,10 +74,13 @@ class Multiselector():
             self.dragOffset = object.pos() - self.selectedObjects[0].pos()
 
     def dragObjects(self, event):
+
+        # Get the position that each object would move to
+        objectPositions = []
         for o in reversed(self.selectedObjects): # fuck it, reversed
 
             # You have to know this, focus
-            # Position of the first (in the reversed array) object's top left corner + the offset of the click inside the selected object - the position of the current object
+            # Position of the first (in the reversed array) object's top left corner + the offset of the click inside the selected object - the position of the object to move
             offsetPositionFromInitObject = self.selectedObjects[0].pos() + self.dragInitEventPos - o.pos()
             toMove = event.globalPos() - offsetPositionFromInitObject
 
@@ -83,7 +88,7 @@ class Multiselector():
             # So offset that, then add a y offset becase it does something weird with that too
             toMove = toMove - self.dragOffset - QPoint(0, 20)
 
-            # Dont go out of bounds - super wierd behavoir
+            # If an object wants to move out of bounds, quit the loop and eat the event
             if toMove.x() < 0: return True
             if toMove.y() < 0: return True
             if toMove.x() > o.parentWidget().width() - o.width(): return True
@@ -91,14 +96,22 @@ class Multiselector():
             if(toMove.y() < o.parentWidget().height() - o.parentWidget().frame.height()): return True
             if(toMove.y() > o.parentWidget().frame.height() + 20): return True
 
-            o.move(toMove)
+            objectPositions.append(toMove)
+
+        # If no objects would move out of bounds, perform the moves
+        for i, o in enumerate(reversed(self.selectedObjects)):
+            o.move(objectPositions[i])
             o.newGeometry.emit(o.geometry())
-            o.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
     def finishDraggingObjects(self):
+        try:
+            for o in self.selectedObjects:
+                o.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        except:
+            pass # Generally only fails because the object references are gone so we want to exit anyways
+
         self.mode = MultiselectMode.NONE
-        for o in self.selectedObjects:
-            o.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+
         self.drawAreaStartLocalPos = None
         self.drawAreaStartGlobalPos = None
         self.selectedObjects = []
@@ -106,5 +119,10 @@ class Multiselector():
         self.dragOffset = None
 
     def focusObjectIfInMultiselect(self):
-        for o in self.selectedObjects:
-            o.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
+        # Exits multiselecting if the selected object references are no longer accessible
+        try:
+            for o in self.selectedObjects:
+                o.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+        except:
+            self.finishDraggingObjects()
