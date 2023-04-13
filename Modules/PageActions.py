@@ -10,20 +10,22 @@ from Modules.SectionActions import *
 # 1 Call page.build_page to build a Widget and add to the sidebar (Page list)
 # 2 Add Page object to models.notebook.Notebook
 def add_page(editor):
-    title, accept = QInputDialog.getText(editor, 'New Page Title', 'Enter title of new page: ')
-    if accept:
+    page_count = len(editor.notebook.page) + 1
+    title = "Page " + str(page_count)
+    done = False
+    while done == False:
+        done = True
         for p in range(len(editor.notebook.page)):
             if title == editor.notebook.page[p].title:
-                error = QMessageBox(editor)
-                error.setText("A Page with that name already exists.")
-                error.show()
-                return
-        build_page(editor, title)
-        editor.notebook.page.append(Page(title))
-        add_page_change(editor)
-        editor.section = -1
-        add_section(editor)
-        editor.autosaver.onChangeMade()
+                page_count += 1
+                title = "Page " + str(page_count)
+                done = False
+    build_page(editor, title)
+    editor.notebook.page.append(Page(title))
+    add_page_change(editor)
+    editor.section = -1
+    add_section(editor)
+    editor.autosaver.onChangeMade()
 
 # Create page widget in sidebar when
 # Case 1: When Notebook is loaded
@@ -98,7 +100,7 @@ def add_page_change(editor):
         for s in range(len(editor.notebook.page[editor.page].section)):
             editor.sections.itemAt(s).widget().deleteLater()
     # editor.page is set to new page
-    editor.page += 1
+    editor.page = len(editor.notebook.page) - 1
 
     for p in range(len(editor.notebook.page)):
         editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
