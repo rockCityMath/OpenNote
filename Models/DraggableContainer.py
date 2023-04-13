@@ -50,7 +50,7 @@ class DraggableContainer(QWidget):
         self.m_infocus = True
         self.m_showMenu = False
         self.m_isEditing = True
-        self.installEventFilter(editor)
+        self.installEventFilter(editor.frame) # Send all events to EditorFrame for inspection before they get to the ones below
         self.setGeometry(cWidget.geometry())
         self.old_state = {}
         self.newGeometry.connect(self.newGeometryEvent)
@@ -97,7 +97,7 @@ class DraggableContainer(QWidget):
         if self.child_object_type == WidgetType.IMAGE:
             self.childWidget.newGeometryEvent(e, self) # Give reference to this container to the child
 
-            
+
 
     def focusInEvent(self, a0: QFocusEvent):
         if hasattr(self, 'childWidget'): # Widget not present on first focus
@@ -273,6 +273,7 @@ class DraggableContainer(QWidget):
 
         if (self.mode == Mode.MOVE or self.mode == Mode.NONE) and e.buttons() and Qt.LeftButton:
             toMove = e.globalPos() - self.position
+
             if toMove.x() < 0:return
             if toMove.y() < 0:return
             if toMove.x() > self.parentWidget().width() - self.width(): return
@@ -290,8 +291,8 @@ class DraggableContainer(QWidget):
             self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
             self.parentWidget().repaint()
             return
-        
-        # debt: To make images resize better, ImageWidget should probaly implement this and setCursorShape 
+
+        # debt: To make images resize better, ImageWidget should probaly implement this and setCursorShape
         # So that it can make the cursor move with the corners of pixmap and not corners of this container
         if (self.mode != Mode.MOVE) and e.buttons() and Qt.LeftButton:
             if self.mode == Mode.RESIZETL: # Left - Top

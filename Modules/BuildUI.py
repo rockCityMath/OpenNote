@@ -4,6 +4,7 @@ from Modules.Load import new, load
 from Modules.PageActions import add_page
 from Modules.SectionActions import add_section
 from Modules.ObjectActions import add_object, paste_object
+from Models.EditorFrame import EditorFrame
 
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -79,9 +80,7 @@ def build_ui(editor):
     editor.sections.setContentsMargins(0, 0, 0, 0)
     workspace.addWidget(sections_widget)
 
-    editor.frame = QFrame(editor)
-    editor.frame.setStyleSheet("background-color: white;")
-    editor.frame.mousePressEvent = lambda event: frame_menu(editor, event)
+    editor.frame = EditorFrame(editor)
     workspace.addWidget(editor.frame)
 
     # stylesheet reference
@@ -136,7 +135,7 @@ def build_toolbar(editor):
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
 
-    # debt: The second lambda function is unclear and not good ux, it unselects the highlighted text after setting the font 
+    # debt: The second lambda function is unclear and not good ux, it unselects the highlighted text after setting the font
     # size.currentIndexChanged.connect(lambda x: editor.selected.setFontPointSize(int(size.currentText()) if x else editor.selected.fontPointSize()))
     size.currentIndexChanged.connect(lambda x: changeFontSize(x))
 
@@ -147,6 +146,11 @@ def build_toolbar(editor):
         cursor.clearSelection()
         editor.selected.setTextCursor(cursor)
 
+    fontColor = build_action(toolbar, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
+    fontColor.triggered.connect(lambda x: openFGColorDialog(editor))
+
+    bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
+    bgColor.triggered.connect(lambda x: openBGColorDialog(editor))
 
     bold = build_action(toolbar, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
     bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
@@ -159,7 +163,7 @@ def build_toolbar(editor):
 
     toolbar.addWidget(font)
     toolbar.addWidget(size)
-    toolbar.addActions([bold, italic, underline])
+    toolbar.addActions([fontColor, bgColor, bold, italic, underline])
 
 def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action = QAction(QIcon(icon_path), action_name, parent)
@@ -167,51 +171,15 @@ def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action.setCheckable(set_checkable)
     return action
 
-def frame_menu(editor, event):
-    if event.buttons() == Qt.LeftButton:
-        o = len(editor.object) - 1
-        if len(editor.object) > 0:
-            if editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.TEXT:
-                if editor.object[o].childWidget.toPlainText() == '':
-                    editor.object[o].deleteLater()
-                    editor.object.pop(o)
-                    editor.notebook.page[editor.page].section[editor.section].object.pop(o)
-                    editor.autosaver.onChangeMade()
-        add_object(editor, event, WidgetType.TEXT)
-        editor.object[len(editor.object) - 1].childWidget.setFocus()
+def openFGColorDialog(editor):
+    color = QColorDialog.getColor()
+    if editor.selected != None:
+        editor.selected.setTextColor(color)
+    return
 
-    # Open Context Menu
-    if event.buttons() == Qt.RightButton:
-        editor.setFocus()
-        if editor.section > -1:
-            frame_menu = QMenu(editor)
+def openBGColorDialog(editor):
+    color = QColorDialog.getColor()
+    if editor.selected != None:
+        editor.selected.parentWidget().setStyleSheet("background-color: %s" % color.name())
+    return
 
-            add_image = QAction("Add Image", editor)
-            add_image.triggered.connect(lambda: add_object(editor, event, WidgetType.IMAGE))
-            frame_menu.addAction(add_image)
-
-            add_table = QAction("Add Table", editor)
-            add_table.triggered.connect(lambda: add_object(editor, event, WidgetType.TABLE))
-            frame_menu.addAction(add_table)
-
-            paste = QAction("Paste", editor)
-            paste.triggered.connect(lambda: paste_object(editor, event))
-            frame_menu.addAction(paste)
-
-            take_screensnip = QAction("Snip Screen", editor)
-            take_screensnip.triggered.connect(lambda: editor.snipArea({'x': event.pos().x(), 'y': event.pos().y()}))
-            frame_menu.addAction(take_screensnip)
-
-#            lambduhs=[]
-#            for name, c in get_plugins():
-#                displayName = getattr(c,"DisplayName",name)
-#                shortcut = getattr(c,"ShortcutKey","")
-#                item_action = QAction(displayName, editor)
-#                if shortcut!="":
-#                        item_action.setShortcut(QKeySequence.fromString(shortcut))
-#                def tmp(name,c):
-#                    return lambda: add_plugin_object(editor,event,name,c)
-#                item_action.triggered.connect(tmp(name,c))
-#                frame_menu.addAction(item_action)
-
-            frame_menu.exec(event.globalPos())
