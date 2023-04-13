@@ -10,21 +10,23 @@ from Modules.Enums import WidgetType
 # Refer to page.(add, build, change)_page in Page.py for notes
 def add_section(editor):
     if editor.page > -1:
-        title, accept = QInputDialog.getText(editor, 'New Section Title', 'Enter title of new section: ')
-        if accept:
+        section_count = len(editor.notebook.page[editor.page].section) + 1
+        title = "Section " + str(section_count)
+        done = False
+        while done == False:
+            done = True
             for s in range(len(editor.notebook.page[editor.page].section)):
                 if title == editor.notebook.page[editor.page].section[s].title:
-                    error = QMessageBox(editor)
-                    error.setText("A section with that name already exists.")
-                    error.show()
-                    return
-            build_section(editor, title)
-            editor.notebook.page[editor.page].section.append(Section(title))
-            editor.section += 1
-            for s in range(len(editor.notebook.page[editor.page].section)):
-                editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
-            editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
-            editor.autosaver.onChangeMade()
+                    section_count += 1
+                    title = "Section " + str(section_count)
+                    done = False
+        build_section(editor, title)
+        editor.notebook.page[editor.page].section.append(Section(title))
+        editor.section += 1
+        for s in range(len(editor.notebook.page[editor.page].section)):
+            editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
+        editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
+        editor.autosaver.onChangeMade()
     else:
         error = QMessageBox(editor)
         error.setText("Cannot create a section without a page.")
@@ -104,7 +106,7 @@ def section_menu(editor, section, event):
 def rename_section(editor):
     title, accept = QInputDialog.getText(editor, 'Change Section Title', 'Enter new title of section: ')
     if accept:
-        old_name = editor.notebook.page[editor.page].section[s].title
+        #old_name = editor.notebook.page[editor.page].section[s].title #references s before assignment - why is this here??
         for s in range(len(editor.notebook.page[editor.page].section)):
             if title == editor.notebook.page[editor.page].section[s].title:
                 error = QMessageBox(editor)
