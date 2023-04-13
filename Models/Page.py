@@ -1,6 +1,14 @@
-# Pages are 'child' objects of a Notebook object
-# Page.section is an array of Section objects
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
+
 class Page:
-    def __init__(self, title):
+    def __init__(self, editor, title):
         self.title = title
-        self.section = []
+        self.sections = []
+
+        # Display tab in notbook - adding a page to notebook adds to editor
+        self.tabWidget = QPushButton(title)
+        self.tabWidget.mousePressEvent = lambda event: editor.handlePageClick(self.tabWidget, event)
+        self.tabWidget.setObjectName(title)
+        editor.page_tabs.addWidget(self.tabWidget)

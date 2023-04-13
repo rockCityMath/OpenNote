@@ -42,6 +42,7 @@ class CreateTableDialog(QDialog):
 def add_object(editor, event, type):
     x = event.pos().x() + 250
     y = event.pos().y() + 130
+    addLocation = QPoint(x, y)
 
     # Name for undo
     random_number = random.randint(100, 999)
@@ -49,16 +50,25 @@ def add_object(editor, event, type):
 
     if type == WidgetType.TEXT:
 
-        default_height = 35
-        default_width = 10
+        # default_height = 35
+        # default_width = 10
 
         # Create textbox and add to notebook
-        text = TextboxWidget(editor, x, y, default_width, default_height, '')
+        # text = TextboxWidget(editor, x, y, default_width, default_height, '')
+        text = TextboxWidget(editor, addLocation)
         text.setObjectName(undo_name)
-        editor.notebook.page[editor.page].section[editor.section].object.append(TextboxPickleable(undo_name, x, y, default_width, default_height, ''))
-        drag = DraggableContainer(editor, QPoint(x, y), text)
+        # editor.notebook.page[editor.page].section[editor.section].object.append(TextboxPickleable(undo_name, x, y, default_width, default_height, ''))
 
-        editor.object.append(drag)
+        # NEW: DC shouldnt need the add location, just get from widget
+        drag = DraggableContainer(editor, addLocation, text)
+
+        # editor.object.append(drag)
+        pi = editor.pageIndex
+        si = editor.sectionIndex
+
+        # NEW: Add objects to section not editor
+        editor.pages[pi].sections[si].objects.append(drag)
+
 
         # Undo related
         cmd = {'type':'object','name':undo_name, 'action':'create'}

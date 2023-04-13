@@ -12,16 +12,16 @@ from Modules.SectionActions import *
 def add_page(editor):
     title, accept = QInputDialog.getText(editor, 'New Page Title', 'Enter title of new page: ')
     if accept:
-        for p in range(len(editor.notebook.page)):
-            if title == editor.notebook.page[p].title:
+        for p in range(len(editor.notebook.pages)):
+            if title == editor.notebook.pages[p].title:
                 error = QMessageBox(editor)
                 error.setText("A Page with that name already exists.")
                 error.show()
                 return
-        build_page(editor, title)
-        editor.notebook.page.append(Page(title))
+        build_page(editor, title) # Add page widget to sidebar
+        editor.notebook.pages.append(Page(title))
         add_page_change(editor)
-        editor.section = -1
+        editor.sectionIndex = -1
         add_section(editor)
         editor.autosaver.onChangeMade()
 
@@ -38,73 +38,112 @@ def build_page(editor, title):
 # Creates widgets from new page, Section[0]
 def change_page(editor):
     # Save current section in models.notebook.Notebook
-    if len(editor.object) > 0:
-        store_section(editor)
+    # if len(editor.object) > 0:
+    #     store_section(editor)
+
+    # new page goto first section
+    editor.sectionIndex = 1
+
+    print("CHANGE PAGE")
+    print(editor.pageIndex)
+    print(editor.sectionIndex)
+
+    print("# Section in page: " + str(len(editor.notebook.pages[editor.pageIndex].sections)))
+
+    # NEW: Hide objects on old page's section
+    currentSectionObjects = editor.notebook.pages[editor.pageIndex].sections[editor.sectionIndex].objects
+    if len(currentSectionObjects) > 0:
+        for o in currentSectionObjects:
+            print("HIDING OLD PAGE OBJECT")
+            o.hide()
 
     # Destroy all Widgets (TextBox, ImageObj, etc.)
-    if len(editor.object) > 0:
-        for o in range(len(editor.object)):
-            editor.object[o].deleteLater()
+    # if len(editor.object) > 0:
+    #     for o in range(len(editor.object)):
+    #         editor.object[o].deleteLater()
 
     # Empty list of Widgets in editor
-    editor.object.clear()
+    # editor.object.clear()
 
     # Destroy all Section Widgets on current Page
-    if len(editor.notebook.page[editor.page].section) > 0:
-        for s in range(len(editor.notebook.page[editor.page].section)):
-            editor.sections.itemAt(s).widget().deleteLater()
+    # if len(editor.notebook.page[editor.page].section) > 0:
+    #     for s in range(len(editor.notebook.page[editor.page].section)):
+    #         editor.sections.itemAt(s).widget().deleteLater()
 
-    # edtor.page is set to new page
-    for p in range(len(editor.notebook.page)):
+    # Update UI, set new page index
+    for p in range(len(editor.notebook.pages)):
         editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
-        if(editor.focusWidget().objectName() == editor.notebook.page[p].title):
+        if(editor.focusWidget().objectName() == editor.notebook.pages[p].title):
+            print("UPDATING PAGE")
             editor.pages.itemAt(p).widget().setStyleSheet("background-color: #c2c2c2")
-            editor.page = p
+            editor.pageIndex = p
     # Above can probably be improved
 
     # Build all Section Widgets on current Page
-    if len(editor.notebook.page[editor.page].section) > 0:
-        for s in range(len(editor.notebook.page[editor.page].section)):
-            build_section(editor, editor.notebook.page[editor.page].section[s].title)
+    # if len(editor.notebook.page[editor.page].section) > 0:
+    #     for s in range(len(editor.notebook.page[editor.page].section)):
+    #         build_section(editor, editor.notebook.page[editor.page].section[s].title)
+
+    # Show all objects on new page's first section
+    newSectionObjects = editor.notebook.pages[editor.pageIndex].sections[editor.sectionIndex].objects
+    for o in newSectionObjects:
+        print("SHOWING NEW PAGE OBJECT")
+        o.show()
 
     # editor.section is set to Section[0]
     # build all objects on Page[x], Section[0]
-    if(len(editor.notebook.page[editor.page].section)) > 0:
-        editor.section = 0
-        for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
-            params = editor.notebook.page[editor.page].section[editor.section].object[o]
-            build_object(editor, params)
-        editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
-    else:
-        editor.section = -1
+    # if(len(editor.notebook.page[editor.page].section)) > 0:
+    #     editor.section = 0
+    #     for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
+    #         params = editor.notebook.page[editor.page].section[editor.section].object[o]
+    #         build_object(editor, params)
+    #     editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
+    # else:
+    #     editor.section = -1
 
-# Variant on above function for CASE: Add New Page
+# Run after a new page is built
 def add_page_change(editor):
 
-    # Save current section in models.notebook.Notebook
-    if len(editor.object) > 0:
-        store_section(editor)
+    firstPage = False
+    if editor.pageIndex == -1:
+        firstPage = True
 
-    # Destroy all Widgets (TextBox, ImageObj, etc.)
-    if len(editor.object) > 0:
-        for o in range(len(editor.object)):
-            editor.object[o].deleteLater()
+    # Hide objects on old page
+    if not firstPage:
+        print("NEW PAGE CHANGE ")
+        currentSectionObjects = editor.notebook.pages[editor.pageIndex].sections[editor.sectionIndex].objects
+        if len(currentSectionObjects) > 0:
+            for o in currentSectionObjects:
+                print("HIDING OLD PAGE OBJECT")
+                o.hide()
 
-    # Empty list of Widgets in editor
-    editor.object.clear()
-
-    # Destroy all Section Widgets on current Page
-    if len(editor.notebook.page[editor.page].section) > 0:
-        for s in range(len(editor.notebook.page[editor.page].section)):
-            editor.sections.itemAt(s).widget().deleteLater()
-    # editor.page is set to new page
-    editor.page += 1
-
-    for p in range(len(editor.notebook.page)):
+    # Set other page tabs to white
+    for p in range(len(editor.notebook.pages)):
+        print(len(editor.notebook.pages))
         editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
 
-    editor.pages.itemAt(editor.page).widget().setStyleSheet("background-color: #c2c2c2")
-    editor.autosaver.onChangeMade()
+    # Set current page tab to grey - if theres one page, its because it just got added and its the only one
+    if not firstPage:
+        editor.pages.itemAt(editor.pageIndex).widget().setStyleSheet("background-color: #c2c2c2")
+
+    # Update UI, set new page index
+    for p in range(len(editor.notebook.pages)):
+        editor.pages.itemAt(p).widget().setStyleSheet("background-color: #f0f0f0")
+        if(editor.focusWidget().objectName() == editor.notebook.pages[p].title):
+            print("UPDATING PAGE")
+            editor.pages.itemAt(p).widget().setStyleSheet("background-color: #c2c2c2")
+            editor.pageIndex = p
+
+    if firstPage:
+        editor.pages.itemAt(0).widget().setStyleSheet("background-color: #c2c2c2")
+        editor.pageIndex = 1
+
+    # Show all objects on new page's first section
+    if not firstPage:
+        newSectionObjects = editor.notebook.pages[editor.pageIndex].sections[editor.sectionIndex].objects
+        for o in newSectionObjects:
+            print("SHOWING NEW PAGE OBJECT")
+            o.show()
 
 # Handles Page Clicks
 def page_menu(editor, page, event):

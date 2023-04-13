@@ -2,9 +2,10 @@ class Notebook:
     def __init__(self, title):
         self.path = None
         self.title = title
-        self.page = []
+        # NEW: changed this to pages
+        self.pages = []
 
-# I'm leaving this because it's gonna be kinda how plugins work 
+# I'm leaving this because it's gonna be kinda how plugins work
 # Want to create a new Object to be used in the editor?
 # Add a class here with params to create a new savable object
 # Add a class in models.object.py to create a widget to be used in the editor

@@ -35,12 +35,11 @@ def load(editor):
         file = open(path, 'rb')
         destroy(editor)
         editor.notebook = pickle.load(file)
-        for page in editor.notebook.page:
-          for section in page.section:
-            for o in section.object:
-              if o.type=="plugin":
+        for page in editor.notebook.pages:
+          for section in page.sections:
+            for o in section.objects:
                 o.restoreWidget(editor)
-                o.hide()
+                o.hide() # NEW: Need this?
     else:
         return
     build(editor)
@@ -62,13 +61,12 @@ def load_most_recent_notebook(editor):
                 file = open(os.path.join(os.getcwd() + "\\Saves", f), 'rb')
                 destroy(editor)
                 editor.notebook = pickle.load(file)
-                for page in editor.notebook.page:
-                  for section in page.section:
-                    for o in section.object:
-                      if o.type=="plugin":
+                for page in editor.notebook.pages:
+                  for section in page.sections:
+                    for o in section.objects:
                         o.restoreWidget(editor)
-                        o.hide()
-                build(editor)
+                        o.hide() # NEW: Need this?
+                        build(editor)
                 return
             except:
                 continue
@@ -83,20 +81,20 @@ def build(editor):
 
     # Initialize the autosaver
     editor.autosaver = Autosaver(editor, editor.notebook)
-    editor.object = []
+    # editor.object = []
     editor.selected = None
 
-    editor.object = []
-    editor.selected = None
+    # editor.object = []
+    # editor.selected = None
 
-    if len(editor.notebook.page) > 0:   # If pages exist
+    if len(editor.notebook.pages) > 0:   # If pages exist
 
         # Show all Pages in Notebook
         for p in range(len(editor.notebook.page)):
             params = editor.notebook.page[p]
             build_page(editor, params.title)    # Build functions add widgets to editor
         editor.pages.itemAt(0).widget().setStyleSheet("background-color: #c2c2c2")
-        editor.page = 0
+        editor.pageIndex = 0
 
         if len(editor.notebook.page[0].section) > 0:    #If sections exist
 
@@ -105,7 +103,7 @@ def build(editor):
                 params = editor.notebook.page[0].section[s]
                 build_section(editor, params.title)
             editor.sections.itemAt(0).widget().setStyleSheet("background-color: #c2c2c2")
-            editor.section = 0
+            editor.sectionIndex = 0
 
             if len(editor.notebook.page[0].section[0].object) > 0:  # If objects exist
                 # Show objects in page1, section1
@@ -114,8 +112,8 @@ def build(editor):
                     build_object(editor, params)
 
     # Select page1, section1
-    editor.page = 0
-    editor.section = 0
+    editor.pageIndex = 0
+    editor.sectionIndex = 0
 
 # Destroy all Widgets in the Current Notebook
 def destroy(editor):

@@ -9,21 +9,21 @@ from Modules.Enums import WidgetType
 
 # Refer to page.(add, build, change)_page in Page.py for notes
 def add_section(editor):
-    if editor.page > -1:
+    if editor.pageIndex > -1:
         title, accept = QInputDialog.getText(editor, 'New Section Title', 'Enter title of new section: ')
         if accept:
-            for s in range(len(editor.notebook.page[editor.page].section)):
-                if title == editor.notebook.page[editor.page].section[s].title:
+            for s in range(len(editor.notebook.pages[editor.pageIndex].sections)):
+                if title == editor.notebook.pages[editor.pageIndex].sections[s].title:
                     error = QMessageBox(editor)
                     error.setText("A section with that name already exists.")
                     error.show()
                     return
             build_section(editor, title)
-            editor.notebook.page[editor.page].section.append(Section(title))
-            editor.section += 1
-            for s in range(len(editor.notebook.page[editor.page].section)):
+            editor.notebook.pages[editor.pageIndex].sections.append(Section(title))
+            editor.sectionIndex += 1
+            for s in range(len(editor.notebook.pages[editor.pageIndex].sections)):
                 editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
-            editor.sections.itemAt(editor.section).widget().setStyleSheet("background-color: #c2c2c2")
+            editor.sections.itemAt(editor.sectionIndex).widget().setStyleSheet("background-color: #c2c2c2")
             editor.autosaver.onChangeMade()
     else:
         error = QMessageBox(editor)
@@ -38,25 +38,39 @@ def build_section(editor, title):
     editor.sections.addWidget(section)
 
 def change_section(editor, section):
-    store_section(editor)
-    for o in range(len(editor.object)):
-        editor.object[o].deleteLater()
-    editor.object.clear()
+    # store_section(editor)
+    # for o in range(len(editor.object)):
+    #     editor.object[o].deleteLater()
+    # editor.object.clear()
 
-    for s in range(len(editor.notebook.page[editor.page].section)):
+    currentSectionObjects = editor.notebook.pages[editor.pageIndex].sections[editor.sectionIndex].objects
+    if len(currentSectionObjects) > 0:
+        for o in currentSectionObjects:
+            print("HIDING OLD SECTION OBJECT")
+            o.hide()
+
+    # Update UI, set new section index
+    for s in range(len(editor.notebook.pages[editor.pageIndex].sections)):
         editor.sections.itemAt(s).widget().setStyleSheet("background-color: #f0f0f0")
-        if(editor.focusWidget().objectName() == editor.notebook.page[editor.page].section[s].title):
+        if(editor.focusWidget().objectName() == editor.notebook.pages[editor.pageIndex].sections[s].title):
             editor.sections.itemAt(s).widget().setStyleSheet("background-color: #c2c2c2")
-            editor.section = s
-    for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
-        params = editor.notebook.page[editor.page].section[editor.section].object[o]
-        build_object(editor, params)
+            editor.sectionIndex = s
+
+    # for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):
+    #     params = editor.notebook.page[editor.page].section[editor.section].object[o]
+    #     build_object(editor, params)
+
+    newSectionObjects = editor.notebook.pages[editor.pageIndex].sections[editor.sectionIndex].objects
+    for o in newSectionObjects:
+        print("SHOWING NEW SECTION OBJECT")
+        o.show()
 
     editor.setFocus()
 
 # When a user changes sections (or changes pages, which will cause the section to change)
 # Store params from all Widgets into their respective Objects in models.notebook.Notebook
 def store_section(editor):
+    print("THIS SHOULD NOT BE CALLED")
     if(len(editor.notebook.page) > 0 and len(editor.notebook.page[editor.page].section) > 0):
         if(len(editor.notebook.page[editor.page].section[editor.section].object)) > 0:
             for o in range(len(editor.notebook.page[editor.page].section[editor.section].object)):

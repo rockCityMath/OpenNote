@@ -6,33 +6,35 @@ from Modules.ObjectActions import *
 from Modules.BuildUI import *
 from Modules.Save import Autosaver
 from Modules.Screensnip import SnippingWidget
-from Models.DraggableContainer import DraggableContainer
-from Modules.Multiselect import MultiselectMode
 from Models.Notebook import Notebook
 
-# models.notebook.Notebook is where all Notebook and Object data is stored
-# models.object.* are models for Widgets used in the editor
-#   Notebook Objects and Widgets from these models share params (geometry, text, image path, etc.)
-#   Pickle will save the Notebook object
-#   The editor will create and destroy Widgets per Page/Section (see modules.page.change_section, modules.load.build)
-#       A Section's Widgets also exist in self.object, ordered by time of creation
+from Modules.EditorActions.PageActions import addPage, displayPage, goToPage, handlePageClick, renamePage, deletePage, getPageTabIndex
 
 class Editor(QMainWindow):
     def __init__(self):
         super().__init__()
 
         self.notebook = Notebook('Untitled Notebook')    # Current notebook object
-        self.object = []                        # List of Widgets on current Page/Section
-        self.page = -1                          # Index of current Page (New notebook has no pages: set to -1)
-        self.section = -1                       # Index of current Section (New notebook has no sections: set to -1)
-        self.selected = None                    # Selected object (for font attributes of TextBox)
 
+        self.pageIndex = -1                              # Index of current Page (New notebook has no pages: set to -1)
+        self.sectionIndex = -1                           # Index of current Section (New notebook has no sections: set to -1)
+        self.selected = None                             # Selected object (for font attributes of TextBox)
+
+        # Attributes set in BuildUI
+        self.notebook_title: QTextEdit   # Editable title of notebook
+        self.page_tabs: QVBoxLayout      # Layout for page tabs (which are qpushbuttons)
+        self.section_tabs: QHboxLayout   # Layout for section tabs (which are qpushbuttons)
+        self.frame: EditorFrame
+
+        # OLD STUFF
         self.autosaver = Autosaver(self, self.notebook)  # Object with method for indicating changes and determining if we should autosave
         self.undo_stack = [] #QUndoStack()
         self.temp_buffer = []
+
         self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
         self.shortcut.setContext(Qt.ApplicationShortcut)
         self.shortcut.activated.connect(self.undo_event)
+
         self.setFocus()
         self.snippingWidget = SnippingWidget(app=QApplication.instance())
         self.snippingWidget.onSnippingCompleted = self.onSnippingCompleted
@@ -40,6 +42,7 @@ class Editor(QMainWindow):
         build_ui(self)
 
     # When user finishes screensnip, bring back main window and add image to notebook
+    # This should move to the SnippingWidget class prob
     def onSnippingCompleted(self, image_matrix):
         self.setWindowState(Qt.WindowActive)
         self.showMaximized()
@@ -52,14 +55,6 @@ class Editor(QMainWindow):
     def snipArea(self, event_pos):
         self.setWindowState(Qt.WindowMinimized)
         self.snippingWidget.start(event_pos)
-
-    # This isnt needed right?
-
-    # # Drag object event
-    # def dragEnterEvent(self, event):
-    #     event.acceptProposedAction()
-    #     obj = self.focusWidget()
-    #     self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()})
 
     def focusInEvent(self, event):
         self.repaint()
@@ -95,3 +90,12 @@ class Editor(QMainWindow):
                     self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])
                     build_object(self,pop_item['data'])
                     self.autosaver.onChangeMade()
+
+# Page methods
+Editor.addPage = addPage
+Editor.displayPage = displayPage
+Editor.goToPage = goToPage
+Editor.handlePageClick = handlePageClick
+Editor.renamePage = renamePage
+Editor.deletePage = deletePage
+Editor.getPageTabIndex = getPageTabIndex
