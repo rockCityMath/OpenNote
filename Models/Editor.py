@@ -2,11 +2,12 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
+from Modules.ObjectActions import *
 from Modules.BuildUI import *
 from Modules.Save import Autosaver
 from Modules.Screensnip import SnippingWidget
-from Modules.ObjectActions import *
-
+from Models.DraggableContainer import DraggableContainer
+from Modules.Multiselect import MultiselectMode
 from Models.Notebook import Notebook
 
 # models.notebook.Notebook is where all Notebook and Object data is stored
@@ -38,7 +39,7 @@ class Editor(QMainWindow):
 
         build_ui(self)
 
-    # If user takes a screensnip, save it to a file and put it on the page
+    # When user finishes screensnip, bring back main window and add image to notebook
     def onSnippingCompleted(self, image_matrix):
         self.setWindowState(Qt.WindowActive)
         self.showMaximized()
@@ -52,11 +53,13 @@ class Editor(QMainWindow):
         self.setWindowState(Qt.WindowMinimized)
         self.snippingWidget.start(event_pos)
 
-    # Drag object event
-    def dragEnterEvent(self, event):
-        event.acceptProposedAction()
-        obj = self.focusWidget()
-        self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()})
+    # This isnt needed right?
+
+    # # Drag object event
+    # def dragEnterEvent(self, event):
+    #     event.acceptProposedAction()
+    #     obj = self.focusWidget()
+    #     self.temp_buffer.append({'type':'object','action':'move','name':obj.objectName(),'x':event.pos().x(),'y':event.pos().y()})
 
     def focusInEvent(self, event):
         self.repaint()
@@ -73,12 +76,12 @@ class Editor(QMainWindow):
                 if pop_item['action'] == 'move':
                     params = self.notebook.page[self.page].section[self.section].object[index]
                     params.x = pop_item['x']
-                    params.y = pop_item['y']         
+                    params.y = pop_item['y']
                     self.notebook.page[self.page].section[self.section].object[index] = params
-                    
+
                     self.object[index].deleteLater()
 
-                    self.object.pop(index)             
+                    self.object.pop(index)
                     #deleting in old position
                     build_object(self,params)
                     self.autosaver.onChangeMade()
@@ -89,6 +92,6 @@ class Editor(QMainWindow):
                     self.autosaver.onChangeMade()
                 else:
                     # self.object.append(pop_item['data'])
-                    self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])         
+                    self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])
                     build_object(self,pop_item['data'])
                     self.autosaver.onChangeMade()
