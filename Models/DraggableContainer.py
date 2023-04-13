@@ -1,7 +1,5 @@
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-from PySide6.QtWidgets import *
-from enum import Enum
+
+FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 from Modules.Enums import *
 from Modules.ObjectMenus import *
@@ -329,3 +327,228 @@ class DraggableContainer(QWidget):
                 self.resize(e.x(), e.y())
             self.parentWidget().repaint()
         self.newGeometry.emit(self.geometry())
+
+class TextBox(QTextEdit):
+    def __init__(self, editor, x, y, w, h, text):
+        super().__init__(editor)
+
+        self.editor = editor
+        self.type = 'text'
+        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject
+        self.setText(text)
+
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.show()
+
+        self.textChanged.connect(lambda: editor.autosaver.onChangeMade())
+        
+class TableObject(QTableWidget):
+    def __init__(self, editor, x, y,w,h, rows, cols):
+            super().__init__(rows, cols, editor)
+            # self.setEditTriggers(QTableWidget.DoubleClicked)
+            self.rows=rows
+            self.cols=cols
+            self.editor = editor
+            self.type = 'table'
+            self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+            self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject
+            self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.show()
+            # self.cellChanged.connect(lambda: editor.autosaver.onChangeMade())   
+            # self.itemChanged.connect(lambda: editor.autosaver.onChangeMade())
+    
+
+class ImageObj(QTextEdit):
+    def __init__(self, editor, x, y, w, h, path):
+        super().__init__(editor)
+
+        self.type = 'image'
+        self.path = path
+        self.setReadOnly(True) # Dont let the user delete the image in its HTML form
+        self.setGeometry(x, y, w, h)
+        fragment = QTextDocumentFragment.fromHtml(f"<img src={path} height='%1' width='%2'>")
+        self.textCursor().insertFragment(fragment)
+#        self.mouseDoubleClickEvent = lambda event: drag(editor, event)
+#        self.setContextMenuPolicy(Qt.CustomContextMenu)
+#        self.customContextMenuRequested.connect(lambda event: object_menu(editor, event))
+        self.show()
+
+# Select TextBox for font styling
+def select(editor, event):
+    editor.selected = editor.focusWidget()
+
+def drag(editor, event):
+    if (event.buttons() == Qt.LeftButton):
+        drag = QDrag(editor)
+        mimeData = QMimeData()
+        drag.setMimeData(mimeData)
+        drag.exec(Qt.MoveAction)
+
+def table_object_menu(editor):
+    object_menu = QMenu(editor)
+
+    # Delete
+    delete = QAction("Delete", editor)
+    delete.triggered.connect(lambda: delete_object(editor))
+    object_menu.addAction(delete)
+
+    # Copy
+    copy = QAction("Copy", editor)
+    copy.triggered.connect(lambda: copy_object(editor))
+    object_menu.addAction(copy)
+
+    # Cut
+    cut = QAction("Cut", editor)
+    cut.triggered.connect(lambda: cut_object(editor))
+    object_menu.addAction(cut)
+    
+    add_row = QAction("Add Row", editor)
+    add_row.triggered.connect(lambda: add_r(editor))
+    object_menu.addAction(add_row)
+    
+    add_col = QAction("Add Col", editor)
+    add_col.triggered.connect(lambda: add_c(editor))
+    object_menu.addAction(add_col)
+    
+    del_row = QAction("Del Row", editor)
+    del_row.triggered.connect(lambda: del_r(editor))
+    object_menu.addAction(del_row)
+    
+    del_col = QAction("Del Col", editor)
+    del_col.triggered.connect(lambda: del_c(editor))
+    object_menu.addAction(del_col)
+    
+    
+    return object_menu    
+# Returns the menu to be put on the DraggableObject
+def get_object_menu(editor):
+    object_menu = QMenu(editor)
+
+    toolbar = QToolBar()
+    toolbar.setIconSize(QSize(25, 25))
+    toolbar.setMovable(False)
+    editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
+
+    font = QFontComboBox()
+    font.currentFontChanged.connect(lambda x: editor.selected.setCurrentFont(font.currentFont() if x else editor.selected.currentFont()))
+
+    size = QComboBox()
+    size.addItems([str(fs) for fs in FONT_SIZES])
+    size.currentIndexChanged.connect(lambda x: editor.selected.setFontPointSize(float(x + 10) if x else editor.selected.fontPointSize()))
+
+    bold = build_action(toolbar, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
+    bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
+
+    italic = build_action(toolbar, 'assets/icons/svg_font_italic', "Italic", "Italic", True)
+    italic.toggled.connect(lambda x: editor.selected.setFontItalic(True if x else False))
+
+    underline = build_action(toolbar, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
+    underline.toggled.connect(lambda x: editor.selected.setFontUnderline(True if x else False))
+
+    toolbar.addWidget(font)
+    toolbar.addWidget(size)
+    toolbar.addActions([bold, italic, underline])
+
+    tba = QWidgetAction(object_menu)
+    tba.setDefaultWidget(toolbar)
+
+    object_menu.addAction(tba)
+
+    # Delete
+    delete = QAction("Delete", editor)
+    delete.triggered.connect(lambda: delete_object(editor))
+    object_menu.addAction(delete)
+
+    # Copy
+    copy = QAction("Copy", editor)
+    copy.triggered.connect(lambda: copy_object(editor))
+    object_menu.addAction(copy)
+
+    # Cut
+    cut = QAction("Cut", editor)
+    cut.triggered.connect(lambda: cut_object(editor))
+    object_menu.addAction(cut)
+
+    return object_menu
+
+def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
+    action = QAction(QIcon(icon_path), action_name, parent)
+    action.setStatusTip(set_status_tip)
+    action.setCheckable(set_checkable)
+    return action
+
+# Non DraggableObject things still use this
+def object_menu(editor, event):
+
+    # Delete
+    delete = QAction("Delete", editor)
+    delete.triggered.connect(lambda: delete_object(editor))
+    object_menu.addAction(delete)
+
+    # Copy
+    copy = QAction("Copy", editor)
+    copy.triggered.connect(lambda: copy_object(editor))
+    object_menu.addAction(copy)
+
+    # Cut
+    cut = QAction("Cut", editor)
+    cut.triggered.connect(lambda: cut_object(editor))
+    object_menu.addAction(cut)
+
+    object_menu.exec(editor.focusWidget().viewport().mapToGlobal(event))
+
+def delete_object(editor):
+    try:
+        for o in range(len(editor.object)):
+            if (editor.object[o] == editor.focusWidget()):
+                
+                editor.undo_stack.append(
+                    {'type':'object',
+                     'name':editor.notebook.page[editor.page].section[editor.section].object[o].name,
+                     'action':'delete'
+                     })
+
+                # Remove Widget from editor
+                editor.object[o].deleteLater()
+                editor.object.pop(o)       
+                
+                item = editor.notebook.page[editor.page].section[editor.section].object.pop(o)
+                editor.undo_stack[-1]['data']=item
+                editor.autosaver.onChangeMade()
+                return
+    except:
+        return # Sometimes this logs an err to console that doesnt seem like it matters
+
+def copy_object(editor):
+    for o in range(len(editor.object)):
+        if (editor.object[o] == editor.focusWidget()):
+
+            # Store the object that was clicked on in the editor's clipboard
+            ob = editor.object[o]
+            undo_name = ob.objectName()+'(1)'
+            if ob.object_type == 'image':
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.path, ob.object_type, undo_name) # TODO: move name
+            elif ob.object_type == 'text':
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name)
+            else:
+                editor.clipboard_object = ClipboardObject(ob.childWidget.frameGeometry().width(), ob.childWidget.frameGeometry().height(), ob.childWidget.toHtml(), ob.object_type, undo_name, editor.object[o].cols, editor.object[o].rows)
+            
+                
+
+def add_r(editor):
+    pass
+def add_c(editor):
+    pass
+def del_r(editor):
+    pass
+def del_c(editor):
+    pass
+
+
+def cut_object(editor):
+    copy_object(editor)
+    delete_object(editor)
+
