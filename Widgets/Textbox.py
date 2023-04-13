@@ -22,6 +22,16 @@ class TextboxWidget(QTextEdit):
         QTextEdit.mousePressEvent(self, event)
 
     def focusOutEvent(self, event):
+        editor = self.parentWidget().parentWidget()
+        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        if self.toPlainText() == '':
+            for o in range(len(editor.object) - 1):
+                if editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.TEXT:
+                    if editor.object[o].childWidget.toPlainText() == '':
+                        editor.object[o].deleteLater()
+                        editor.object.pop(o)
+                        editor.notebook.page[editor.page].section[editor.section].object.pop(o)
+                        editor.autosaver.onChangeMade()
         QTextEdit.focusOutEvent(self, event)
 
     # When user starts typing in new box, expand its size
