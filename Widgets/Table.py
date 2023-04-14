@@ -41,7 +41,7 @@ class TableWidget(QTableWidget):
         # Update the number of columns in the table
         self.cols += 1
         
-    def delete_col(self):
+    def del_col(self):
         # Get the selected row index
         selected_col = self.currentRow()
 
@@ -61,7 +61,7 @@ class TableWidget(QTableWidget):
         # Update the number of rows in the table
         self.rows += 1
         
-    def delete_row(self):
+    def del_row(self):
         # Get the selected row index
         selected_row = self.currentRow()
 

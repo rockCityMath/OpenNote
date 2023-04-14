@@ -110,9 +110,16 @@ def add_c(editor):
                 editor.notebook.page[editor.page].section[editor.section].object[o].cols+=1
 
 def del_r(editor):
-    pass
+    for o in range(len(editor.object)):
+            if (editor.object[o] == editor.focusWidget()):
+                editor.object[o].childWidget.del_row()
+                editor.notebook.page[editor.page].section[editor.section].object[o].rows-=1
 def del_c(editor):
-    pass
+    for o in range(len(editor.object)):
+            if (editor.object[o] == editor.focusWidget()):
+                editor.object[o].childWidget.del_col()
+                editor.notebook.page[editor.page].section[editor.section].object[o].cols-=1
+                
 
 def cut_object(editor):
     copy_object(editor)
