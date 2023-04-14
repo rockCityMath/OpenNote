@@ -99,9 +99,16 @@ def copy_object(editor):
 
 
 def add_r(editor):
-    pass
+    for o in range(len(editor.object)):
+            if (editor.object[o] == editor.focusWidget()):
+                editor.object[o].childWidget.add_row()
+                editor.notebook.page[editor.page].section[editor.section].object[o].rows+=1
 def add_c(editor):
-    pass
+    for o in range(len(editor.object)):
+            if (editor.object[o] == editor.focusWidget()):
+                editor.object[o].childWidget.add_column()
+                editor.notebook.page[editor.page].section[editor.section].object[o].cols+=1
+
 def del_r(editor):
     pass
 def del_c(editor):
