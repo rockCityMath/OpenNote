@@ -30,6 +30,46 @@ class TableWidget(QTableWidget):
     def on_cell_changed(self, row, col):
         value = self.item(row, col).text()
         self.t[row][col] = value
+        
+    def add_column(self):
+        # Get the current number of columns in the table
+        num_cols = self.columnCount()
+
+        # Insert a new column at the end of the table
+        self.insertColumn(num_cols)
+
+        # Update the number of columns in the table
+        self.cols += 1
+        
+    def del_col(self):
+        # Get the selected row index
+        selected_col = self.currentRow()
+
+        # Remove the selected row from the table
+        self.removeColumn(selected_col)
+
+        # Update the number of rows in the table
+        self.cols -= 1
+         
+    def add_row(self):
+        # Get the current number of rows in the table
+        num_rows = self.rowCount()
+
+        # Insert a new row at the end of the table
+        self.insertRow(num_rows)
+
+        # Update the number of rows in the table
+        self.rows += 1
+        
+    def del_row(self):
+        # Get the selected row index
+        selected_row = self.currentRow()
+
+        # Remove the selected row from the table
+        self.removeRow(selected_row)
+
+        # Update the number of rows in the table
+        self.rows -= 1
 
 class TablePickleable():
     def __init__(self,name, x, y, w, h, rows, cols, t=[]):
