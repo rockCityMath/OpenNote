@@ -2,8 +2,7 @@ class Notebook:
     def __init__(self, title):
         self.path = None
         self.title = title
-        # NEW: changed this to pages
-        self.pages = []
+        self.pages = []  # PageModel[]
 
 # I'm leaving this because it's gonna be kinda how plugins work
 # Want to create a new Object to be used in the editor?

@@ -44,21 +44,34 @@ def build_ui(editor):
     editor.notebook_title = QTextEdit()
     editor.notebook_title.setText(editor.notebook.title)
     editor.notebook_title.setFixedHeight(40)
-    pages_title = QLabel()
-    pages_title.setFixedHeight(40)
-    editor.page_tabs = QVBoxLayout()
+    # pages_title = QLabel()
+    # pages_title.setFixedHeight(40)
+    # editor.page_tabs = QVBoxLayout()
     sidebar.setContentsMargins(0, 0, 0, 0)
-    editor.page_tabs.setContentsMargins(0, 0, 0, 0)
-    pages_frame = QFrame()
+    # editor.page_tabs.setContentsMargins(0, 0, 0, 0)
+    # pages_frame = QFrame()
 
     #sidebar.setStretchFactor(editor.pages, 1)
-    add_page = QPushButton("Create New Page")
-    add_page.clicked.connect(lambda: editor.addPage())
+    # add_page = QPushButton("Create New Page")
+    # add_page.clicked.connect(lambda: editor.addPage())
     sidebar.addWidget(editor.notebook_title)
-    sidebar.addWidget(pages_title)
-    sidebar.addLayout(editor.page_tabs)
-    sidebar.addWidget(pages_frame)
-    sidebar.addWidget(add_page)
+    # sidebar.addWidget(pages_title)
+    # sidebar.addLayout(editor.page_tabs)
+    # sidebar.addWidget(pages_frame)
+    # sidebar.addWidget(add_page)
+
+    # MOVE IMPORT, MOVE EDITOR ATTRIBUTES TO TOP OR SOMETHING
+    from Modules.Views.PageView import PageView
+    print("PAGEVIEWBUIILD")
+    editor.pageView = PageView(editor.notebook.pages)
+    pageViewLayout = QVBoxLayout()
+    pageViewLayout.addWidget(editor.pageView)
+    pageViewLayout.setContentsMargins(10, 0, 0, 0)
+    sidebar.addLayout(pageViewLayout)
+
+    # sidebar.addWidget(pageView)
+    editor.pageView.setStyleSheet('background-color: #f0f0f0;')
+
 
     # workspace widgets
     sections = QHBoxLayout()
@@ -86,10 +99,10 @@ def build_ui(editor):
     # stylesheet reference
     container.setObjectName("container")
     editor.notebook_title.setObjectName("notebook_title")
-    pages_title.setObjectName("pages_title")
-    editor.page_tabs.setObjectName("pages")
-    add_page.setObjectName("addPage")
-    pages_title.setText("Pages")
+    # pages_title.setObjectName("pages_title")
+    # pageView.setObjectName("pages")
+    # add_page.setObjectName("addPage")
+    # pages_title.setText("Pages")
 
 def build_window(editor):
     editor.setWindowTitle("OpenNote")
@@ -114,7 +127,7 @@ def build_menubar(editor):
 
     save_file = build_action(editor, 'assets/icons/svg_file_save', 'Save Notebook', 'Save Notebook', False)
     save_file.setShortcut(QKeySequence.StandardKey.Save)
-    save_file.triggered.connect(lambda: save(editor, editor.notebook))
+    save_file.triggered.connect(lambda: save(editor))
 
     save_fileAs = build_action(editor, 'assets/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
     save_fileAs.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))

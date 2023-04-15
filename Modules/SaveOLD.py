@@ -6,25 +6,22 @@ from datetime import datetime
 from copy import copy
 import os
 
-# Leaving this to take in editor in case we want to store state or something
-def save(editor):
-
-    print("SAVING")
-    for p in editor.notebook.pages:
-        print(p.uuid)
+# Dump models.notebook.Notebook into .on file
+def save(editor, notebook):
 
     # If user wants to save, make them choose a real filename
-    # if notebook.path.endswith(".ontemp"):
-    #     saveAs(editor, notebook)
+    if notebook.path.endswith(".ontemp"):
+        saveAs(editor, notebook)
 
     editor.notebook.title = editor.notebook_title.toPlainText()
-    if editor.notebook.path:       # If a file does not exist, call saveAs to create one
-        file = open(editor.notebook.path, "wb")
-        pickle.dump(editor.notebook, file)
+    store_section(editor)   # Add objects from user's current section to models.notebook.Notebook
+    if notebook.path:       # If a file does not exist, call saveAs to create one
+        file = open(notebook.path, "wb")
+        pickle.dump(notebook, file)
     else:
-        saveAs(editor)
+        saveAs(editor, notebook)
 
-def saveAs(editor): # debt: Make this open to the Saves folder
+def saveAs(editor, notebook): # debt: Make this open to the Saves folder
     path, accept = QFileDialog.getSaveFileName(
         editor,
         'Save notebook as',
@@ -32,23 +29,23 @@ def saveAs(editor): # debt: Make this open to the Saves folder
         'OpenNote (*.on)'
     )
     if accept:
-        # old_path = copy(editor.notebook.path)
-        editor.notebook.path = path
-        editor.notebook.autosaver = Autosaver(editor) # ????
-        save(editor)
+        old_path = copy(notebook.path)
+        notebook.path = path
+        editor.autosaver = Autosaver(editor)
+        save(editor, notebook)
 
-        # if old_path.endswith(".ontemp"):
-        #     os.remove(old_path) # Remove temp file when saved successfully
+        if old_path.endswith(".ontemp"):
+            os.remove(old_path) # Remove temp file when saved successfully
 
 # Autosave the program once every n seconds if a change has been made
 class Autosaver:
     saveInterval = 5 # Seconds
     enabled = False # For testing/debugging
 
-    def __init__(self, editor):
+    def __init__(self, editor, notebook):
         self.timer = None
         self.editor = editor
-        self.notebook = editor.notebook
+        self.notebook = notebook
         self.changeMade = False
 
     def onChangeMade(self):
@@ -74,14 +71,14 @@ class Autosaver:
         return None
 
 # Autosave saves to temp file if notebook hasn't been given a real name or path
-def saveToTempFile(editor):
+def saveToTempFile(editor, notebook):
     # Build and set file and path name
-    if editor.notebook.path == None:
+    if notebook.path == None:
         currentDatetime = datetime.now()
         tempFileName = currentDatetime.strftime("%d-%m-%Y_%H-%M-%S")
         editor.notebook.title = tempFileName
         editor.notebook.path = os.getcwd() + "\\Saves\\" + tempFileName + ".ontemp" # If this doesnt work on mac, use path.join()
     # Save
     store_section(editor)
-    file = open(editor.notebook.path, "wb")
-    pickle.dump(editor.notebook, file)
+    file = open(notebook.path, "wb")
+    pickle.dump(notebook, file)

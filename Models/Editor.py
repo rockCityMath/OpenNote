@@ -7,8 +7,10 @@ from Modules.BuildUI import *
 from Modules.Save import Autosaver
 from Modules.Screensnip import SnippingWidget
 from Models.Notebook import Notebook
+from Models.PageModel import PageModel
+from Modules.Views.PageView import PageView
 
-from Modules.EditorActions.PageActions import addPage, displayPage, goToPage, handlePageClick, renamePage, deletePage, getPageTabIndex
+from Modules.EditorActions.PageActions import addPage, goToPage, handlePageClick, renamePage, deletePage, getPageTabIndex
 
 class Editor(QMainWindow):
     def __init__(self):
@@ -16,18 +18,15 @@ class Editor(QMainWindow):
 
         self.notebook = Notebook('Untitled Notebook')    # Current notebook object
 
-        self.pageIndex = -1                              # Index of current Page (New notebook has no pages: set to -1)
-        self.sectionIndex = -1                           # Index of current Section (New notebook has no sections: set to -1)
         self.selected = None                             # Selected object (for font attributes of TextBox)
 
         # Attributes set in BuildUI
         self.notebook_title: QTextEdit   # Editable title of notebook
-        self.page_tabs: QVBoxLayout      # Layout for page tabs (which are qpushbuttons)
-        self.section_tabs: QHboxLayout   # Layout for section tabs (which are qpushbuttons)
         self.frame: EditorFrame
+        self.pageView: PageView
 
         # OLD STUFF
-        self.autosaver = Autosaver(self, self.notebook)  # Object with method for indicating changes and determining if we should autosave
+        self.autosaver = Autosaver(self)  # Object with method for indicating changes and determining if we should autosave
         self.undo_stack = [] #QUndoStack()
         self.temp_buffer = []
 
@@ -93,7 +92,6 @@ class Editor(QMainWindow):
 
 # Page methods
 Editor.addPage = addPage
-Editor.displayPage = displayPage
 Editor.goToPage = goToPage
 Editor.handlePageClick = handlePageClick
 Editor.renamePage = renamePage

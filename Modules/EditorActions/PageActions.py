@@ -69,16 +69,6 @@ def addPage(self):
         print("NEW PAGE COUNT: " + str(len(editor.notebook.pages)))
         print("NEW SECTION COUNT: " + str(len(editor.notebook.pages[editor.pageIndex].sections)))
 
-# # A page needs to be displayed on the notebook, thru the user adding it or loading it on startup
-# # Maybe call this addpage widget or something indicating its ui
-# # dont need now?
-# def displayPage(self, title):
-#     editor = self
-#     page = QPushButton(title)
-#     page.mousePressEvent = lambda event: editor.handlePageClick(page, event)
-#     page.setObjectName(title)
-#     editor.pages.addWidget(page)
-
 def goToPage(self, pageIndex):
     editor = self
 
@@ -120,7 +110,7 @@ def goToPage(self, pageIndex):
     print("NEW PAGE COUNT: " + str(len(editor.notebook.pages)))
     print("NEW SECTION COUNT: " + str(len(editor.notebook.pages[editor.pageIndex].sections)))
 
-def handlePageClick(self, pageTab, event):
+def handlePageClick(self, pageTab, page, event):
     editor = self
     pageTab.setFocus() #need?
 
@@ -132,6 +122,10 @@ def handlePageClick(self, pageTab, event):
     # Open Context Menu
     if event.buttons() == Qt.RightButton:
         pageMenu = QMenu(editor)
+
+        addPage = QAction("Add Page", editor)
+        addPage.triggered.connect(lambda: page.addChildPage(editor))
+        pageMenu.addAction(addPage)
 
         rename = QAction("Rename", editor)
         rename.triggered.connect(lambda: editor.renamePage(pageTab))
@@ -219,3 +213,129 @@ def getPageTabIndex(self, pageTab):
     else:
         print("GIVEN PAGE NOT FOUND IN NOTEBOOK")
         exit()
+
+
+from functools import partial
+from collections import deque
+
+# Should connect to a SectionView
+
+from Models.PageModel import PageModel
+
+# Needs to recieve data in constructor
+class PageView(QWidget):
+    def __init__(self):
+        super(PageView, self).__init__()
+
+        # The actual tree view
+        self.tree = QTreeView(self)
+        self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tree.customContextMenuRequested.connect(self.openMenu)
+
+        self.tree.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.tree.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        # The layout the tree view is in
+        # layout = QVBoxLayout()
+        # layout.setContentsMargins(100, 0, 0, 0)
+        # layout.addWidget(self.tree)
+
+        # The model the tree view is displaying
+        self.model = QStandardItemModel()
+        self.tree.setHeaderHidden(True)
+        self.tree.setIndentation(10)
+        self.tree.setModel(self.model)
+        self.tree.dataChanged = self.itemChanged
+        self.tree.setFixedHeight(1000) # Im sorry
+
+        childPage1 = PageModel("Child1")
+        childPage2 = PageModel("Child2")
+        childPage3 = PageModel("Child3")
+        pages = PageModel()
+
+        # Test data
+        data = [
+            {'unique_id': 1, 'parent_id': 0, 'page_name': 'Notebook Pages'},
+            {'unique_id': 2, 'parent_id': 1, 'page_name': 'Bio'},
+            {'unique_id': 3, 'parent_id': 2, 'page_name': 'Unit 2'},
+            {'unique_id': 4, 'parent_id': 2, 'page_name': 'Quiz'},
+            {'unique_id': 5, 'parent_id': 1, 'page_name': 'Math'},
+            {'unique_id': 6, 'parent_id': 5, 'page_name': 'Unit Circle'},
+            {'unique_id': 7, 'parent_id': 5, 'page_name': 'Formulas'},
+            {'unique_id': 8, 'parent_id': 1, 'page_name': 'PE'},
+            {'unique_id': 9, 'parent_id': 8, 'page_name': 'Running'},
+            {'unique_id': 10, 'parent_id': 8, 'page_name': 'Walking'},
+        ]
+
+        self.loadData(data)
+        self.tree.expandAll()
+
+    # Load a dict into treeview
+    def loadData(self, data):
+        self.model.setRowCount(0)
+        root = self.model.invisibleRootItem()
+
+        seen = {}
+        values = deque(data)
+
+        while values:
+            value = values.popleft()
+            if value['unique_id'] == 1:
+                parent = root
+            else:
+                pid = value['parent_id']
+                if pid not in seen:
+                    values.append(value)
+                    continue
+                parent = seen[pid]
+            unique_id = value['unique_id']
+            newPage = QStandardItem(value['page_name'])
+            parent.appendRow([newPage])
+            seen[unique_id] = parent.child(parent.rowCount() - 1)
+
+    # When right clicking on a treeview item
+    def openMenu(self, position):
+        indexes = self.sender().selectedIndexes()
+        clickedIndex = self.tree.indexAt(position)
+
+        # Calculates information about the clicked index, for adding things above, below etc??
+        if not clickedIndex.isValid():
+            return
+        item = self.model.itemFromIndex(clickedIndex)
+        if len(indexes) > 0:
+            level = 0
+            index = indexes[0]
+            while index.parent().isValid():
+                index = index.parent()
+                level += 1
+        else:
+            level = 0
+
+        menu = QMenu()
+        addChildAction = menu.addAction(self.tr("Add Page")) # self.tr???
+        addChildAction.triggered.connect(partial(self.addPage, level, clickedIndex))
+
+        if item.parent != None:
+            deletePageAction = menu.addAction(self.tr("Delete Page"))
+            deletePageAction.triggered.connect(partial(self.deletePage, item))
+        menu.exec_(self.sender().viewport().mapToGlobal(position))
+
+    def addPage(self, level, clickedIndex):
+        tempKey = QStandardItem('New Page')
+        tempVal = QStandardItem('yy')
+
+        parentPage = self.model.itemFromIndex(clickedIndex)
+        parentPage.appendRow([tempKey, tempVal])
+        self.tree.expand(clickedIndex)
+
+    def deletePage(self, page):
+        page.parent().removeRow(page.row())
+
+
+    def itemChanged(self, topLeftIndex, bottomRightIndex, roles):
+        print("TL : " + str(topLeftIndex.column()) + " " + str(topLeftIndex.row()))
+        print("ROLES: " + str(roles))
+        print("VAL: " + str(self.model.itemFromIndex(topLeftIndex).text()))
+
+
+
