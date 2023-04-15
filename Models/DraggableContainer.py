@@ -97,8 +97,6 @@ class DraggableContainer(QWidget):
         if self.child_object_type == WidgetType.IMAGE:
             self.childWidget.newGeometryEvent(e, self) # Give reference to this container to the child
 
-
-
     def focusInEvent(self, a0: QFocusEvent):
         if hasattr(self, 'childWidget'): # Widget not present on first focus
             if self.child_object_type == WidgetType.TEXT:
@@ -140,10 +138,15 @@ class DraggableContainer(QWidget):
     def mousePressEvent(self, e: QMouseEvent):
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
 
-        # Undo related
-        self.old_x = e.globalX()
-        self.old_y = e.globalY()
-        self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
+        #here
+        if self.mode == Mode.MOVE:
+            # Undo related
+            self.old_x = e.globalX()
+            self.old_y = e.globalY()
+            self.old_state = {'type':'object','action':'move','name':self.name,'geom':self.geometry()}
+        elif self.mode == Mode.RESIZEB or self.mode == Mode.RESIZEBL or self.mode == Mode.RESIZEBR or self.mode == Mode.RESIZEL or self.mode == Mode.RESIZER or self.mode == Mode.RESIZET or self.mode == Mode.RESIZETL or self.mode == Mode.RESIZETR:
+            self.old_state = {'type':'object','action':'resize','name':self.name,'geom':self.geometry()}
+
 
         if not self.m_isEditing:
             return
@@ -239,7 +242,10 @@ class DraggableContainer(QWidget):
             self.mode = Mode.MOVE
 
     def mouseReleaseEvent(self, e: QMouseEvent):
-        self.parentWidget().undo_stack.append(self.old_state)
+        if self.old_state:
+            self.parentWidget().undo_stack.append(self.old_state)
+            self.old_state = {}
+            
         self.parentWidget().autosaver.onChangeMade()
         QWidget.mouseReleaseEvent(self, e)
 
@@ -298,6 +304,7 @@ class DraggableContainer(QWidget):
             if self.mode == Mode.RESIZETL: # Left - Top
                 newwidth = e.globalX() - self.position.x() - self.geometry().x()
                 newheight = e.globalY() - self.position.y() - self.geometry().y()
+                
                 toMove = e.globalPos() - self.position
                 self.resize(self.geometry().width() - newwidth, self.geometry().height() - newheight)
                 self.move(toMove.x(), toMove.y())
