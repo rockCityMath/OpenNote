@@ -81,6 +81,10 @@ def add_object(editor, event, type):
         editor.notebook.page[editor.page].section[editor.section].object.append(ImagePickleable(undo_name, x, y, w, h, image_matrix))
         drag = DraggableContainer(editor, QPoint(x, y), image)
         editor.object.append(drag)
+        
+        # Undo related
+        cmd = {'type':'object','name':undo_name, 'action':'create'}
+        editor.undo_stack.append(cmd)
         editor.autosaver.onChangeMade()
 
     if type == WidgetType.TABLE:

@@ -74,21 +74,20 @@ class Editor(QMainWindow):
                         index=i
                 #TODO instead of object[0] i need to find object by name
                 if pop_item['action'] == 'move':
-                    params = self.notebook.page[self.page].section[self.section].object[index]
-                    params.x = pop_item['x']
-                    params.y = pop_item['y']
-                    self.notebook.page[self.page].section[self.section].object[index] = params
-
-                    self.object[index].deleteLater()
-
-                    self.object.pop(index)
-                    #deleting in old position
-                    build_object(self,params)
+                    self.notebook.page[self.page].section[self.section].object[index].x = pop_item['geom'].x()
+                    self.notebook.page[self.page].section[self.section].object[index].y = pop_item['geom'].y()
+                    self.object[index].setGeometry(pop_item['geom'])
                     self.autosaver.onChangeMade()
                 elif pop_item['action'] == 'create':
                     self.object[index].deleteLater()
                     self.object.pop(index)
                     self.notebook.page[self.page].section[self.section].object.pop(index)
+                    self.autosaver.onChangeMade()
+                elif pop_item['action']=='resize':
+                    geom = pop_item['geom']
+                    self.object[index].setGeometry(geom)
+                    self.notebook.page[self.page].section[self.section].object[index].w = geom.width()
+                    self.notebook.page[self.page].section[self.section].object[index].h = geom.height()   
                     self.autosaver.onChangeMade()
                 else:
                     # self.object.append(pop_item['data'])
