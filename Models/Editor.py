@@ -6,9 +6,13 @@ from Modules.ObjectActions import *
 from Modules.BuildUI import *
 from Modules.Save import Autosaver
 from Modules.Screensnip import SnippingWidget
-from Models.Notebook import Notebook
-from Models.PageModel import PageModel
+from Models.NotebookModel import NotebookModel
+from Models.SectionModel import SectionModel
+
 from Modules.Views.PageView import PageView
+from Modules.Views.EditorFrameView import EditorFrameView
+from Modules.Views.NotebookTitleView import NotebookTitleView
+from Modules.Views.SectionView import SectionView
 
 from Modules.EditorActions.PageActions import addPage, goToPage, handlePageClick, renamePage, deletePage, getPageTabIndex
 
@@ -16,14 +20,21 @@ class Editor(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.notebook = Notebook('Untitled Notebook')    # Current notebook object
+        self.notebook = NotebookModel('Untitled Notebook')    # Current notebook object
+        self.selected = None                                  # Selected object (for font attributes of TextBox)
 
-        self.selected = None                             # Selected object (for font attributes of TextBox)
+        sections = [
+            SectionModel("New Tab"),
+            SectionModel("Tab2"),
+            SectionModel("Tab3"),
+            SectionModel("Tab4")
+        ]
 
-        # Attributes set in BuildUI
-        self.notebook_title: QTextEdit   # Editable title of notebook
-        self.frame: EditorFrame
-        self.pageView: PageView
+        # View-Controllers that let the user interact with the underlying models
+        self.notebookTitleView = NotebookTitleView(self.notebook.title)
+        self.frameView = EditorFrameView(self)
+        self.pageView = PageView(self.notebook.pages)
+        self.sectionView = SectionView(sections)
 
         # OLD STUFF
         self.autosaver = Autosaver(self)  # Object with method for indicating changes and determining if we should autosave

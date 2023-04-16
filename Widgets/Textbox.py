@@ -5,10 +5,9 @@ from Modules.Enums import TextBoxStyles, WidgetType
 
 class TextboxWidget(QTextEdit):
     # NEW: Can either specify w, h, content or let it default
-    def __init__(self, editor, x, y, w = 10, h = 35, t = ''):
-        super().__init__(editor)
+    def __init__(self, x, y, w = 10, h = 35, t = ''):
+        super().__init__()
 
-        self.editor = editor
         self.type = 'text'
         self.setStyleSheet(TextBoxStyles.OUTFOCUS.value) # debt: this gets set all over the place
         self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject, I think
@@ -16,11 +15,11 @@ class TextboxWidget(QTextEdit):
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.show()
+        # self.show()
 
     # Set the textbox as selected so that the editor can change font attributes
     def mousePressEvent(self, event):
-        self.editor.selected = self
+        # self.editor.selected = self
         QTextEdit.mousePressEvent(self, event)
 
     def focusOutEvent(self, event):
@@ -47,9 +46,10 @@ class TextboxWidget(QTextEdit):
 
     # Called when loading a notebook to reinstantiate widget
     def loadWidget(self, editor):
-        self.editor = editor
-        self.setGeometry(self.__data['geometry'])
-        self.setText(self.__data['content'])
+        print("LOAD WIDGET CALLED")
+        # self.editor = editor
+        # self.setGeometry(self.__data['geometry'])
+        # self.setText(self.__data['content'])
 
 class TextboxPickleable():
     def __init__(self,name, x, y, w, h, t):

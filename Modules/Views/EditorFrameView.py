@@ -1,17 +1,29 @@
-from PySide6.QtWidgets import QFrame, QMenu, QVBoxLayout
-from PySide6.QtCore import Qt, QEvent
-from PySide6.QtGui import QAction
+from PySide6.QtWidgets import *
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+
 from Modules.Enums import WidgetType
 from Modules.ObjectActions import add_object, paste_object
 from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
+# from Models.NotebookModel import NotebookModel
 
-class EditorFrame(QFrame):
+# Ideally this would just interact with the NotebookModel but i dont have that in me rn
+class EditorFrameView(QWidget):
     def __init__(self, editor):
-        super().__init__(editor)
-        self.editor = editor
-        self.setStyleSheet("background-color: blue;")
+        super(EditorFrameView, self).__init__()
+
+        self.editor = editor # Reference to the editor (QMainWindow)
+        self.editorFrame = QFrame(editor)
+        self.editorFrame.setStyleSheet("background-color: white;")
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.editorFrame)
+        layout.setContentsMargins(0, 0, 0, 0)
+
         self.multiselector = Multiselector(self)
+
+        print("BUILT FRAMEVIEW")
 
     def eventFilter(self, object, event):
 

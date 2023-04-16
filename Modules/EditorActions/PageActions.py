@@ -1,42 +1,6 @@
-# HOW TO UPDATE AND DEAL WITH STATE AND UI
-# editor.sections, pages, etc* is UI
-# editor.notebook.* is state
-# maybe special case for widgets, which handle thier own state and UI
-
-# HOW TO SHOW AND HIDE WIDGETS ON SECTION NAV
-# between show() and hide() or deleteLater() and then adding them back on nav
-# do show() and hide(), might fuck with multiselect or something
-
-# New Page
-# create new page object
-# update to that page (ui and indexes (on sections too))
-# add a new section to that new page
-
-# Display Page
-# build the widget that gets added to the editor visually
-# this will be used by new page, and loading a notebook
-
-# Change Page
-# hide old sections widgets
-# update the page (ui and indexes ( on sections too))
-# show the new page's first sections widgets
-
-# Page menu
-# menu that gets shown when right clicked (delete, rename)
-
-# Rename page
-# change the page name
-# update visually
-
-# Delete page
-# remove page
-# make sure it removes the sections and widgets in those sections
-# handle deleting the current page
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
-
-from Models.Page import Page
 
 # User requests to add a new page to the notebook
 def addPage(self):
@@ -246,7 +210,7 @@ class PageView(QWidget):
         self.tree.setIndentation(10)
         self.tree.setModel(self.model)
         self.tree.dataChanged = self.itemChanged
-        self.tree.setFixedHeight(1000) # Im sorry
+        # self.tree.setFixedHeight(1000) # Im sorry
 
         childPage1 = PageModel("Child1")
         childPage2 = PageModel("Child2")

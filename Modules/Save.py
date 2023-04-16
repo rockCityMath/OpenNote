@@ -1,6 +1,5 @@
 import pickle
 from threading import Timer
-from Modules.SectionActions import store_section
 from PySide6.QtWidgets import QFileDialog
 from datetime import datetime
 from copy import copy
@@ -9,15 +8,14 @@ import os
 # Leaving this to take in editor in case we want to store state or something
 def save(editor):
 
-    print("SAVING")
     for p in editor.notebook.pages:
-        print(p.uuid)
+        print(p.title)
 
     # If user wants to save, make them choose a real filename
     # if notebook.path.endswith(".ontemp"):
     #     saveAs(editor, notebook)
 
-    editor.notebook.title = editor.notebook_title.toPlainText()
+    editor.notebook.title = editor.notebookTitleView.toPlainText()
     if editor.notebook.path:       # If a file does not exist, call saveAs to create one
         file = open(editor.notebook.path, "wb")
         pickle.dump(editor.notebook, file)

@@ -1,8 +1,6 @@
 import pickle
 import os
 
-from Modules.PageActions import build_page
-from Modules.SectionActions import build_section
 from Modules.ObjectActions import build_object
 from Modules.Save import Autosaver
 
@@ -10,19 +8,20 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
-from Models.Notebook import Notebook
+from Models.NotebookModel import NotebookModel
 from Modules.Views.PageView import PageView
+from Models.SectionModel import SectionModel
 
 # Creates a new notebook
 def new(editor):
+    print("RAN NEW")
     destroy(editor)
-    editor.notebook = Notebook('Untitled')
-    editor.notebook_title.setText(editor.notebook.title)
-    editor.page = -1
-    editor.section = -1
+
+    editor.notebook = NotebookModel('Untitled')
+    editor.notebookTitleView.setText(editor.notebook.title)
     editor.selected = None
-    editor.object = []
     editor.autosaver = Autosaver(editor)
+    build(editor) # should we build here, or should above be in build?
 
 # Loads models.notebook.Notebook class from file
 def load(editor):
@@ -43,8 +42,6 @@ def load(editor):
         #         o.restoreWidget(editor)
         #         o.hide() # NEW: Need this?
         print("LOADED")
-        for p in editor.notebook.pages:
-            print("LOAD PAGE: " + p.title)
     else:
         return
     build(editor)
@@ -52,7 +49,7 @@ def load(editor):
 # Try to find and open the most recent OpenNote related file
 def load_most_recent_notebook(editor):
 
-    print("LOADRECENT RAN")
+    print("LOAD RECENT RAN")
     files = []
     saves_directory = os.path.join(os.getcwd(), 'Saves')
     for file in os.listdir(saves_directory):
@@ -82,11 +79,11 @@ def load_most_recent_notebook(editor):
                 continue
 
 def build(editor):
-    print("BUILDING")
+    print("BUILDING FROM LOAD")
 
     # Display Notebook title
     editor.setWindowTitle(editor.notebook.title + " - OpenNote")
-    editor.notebook_title.setText(editor.notebook.title)
+    editor.notebookTitleView.setText(editor.notebook.title)
 
     # Initialize the autosaver
     editor.autosaver = Autosaver(editor)
@@ -96,10 +93,27 @@ def build(editor):
     # editor.object = []
     # editor.selected = None
 
+    sections = [
+        SectionModel("New Tab"),
+        SectionModel("Tab2"),
+        SectionModel("Tab3"),
+        SectionModel("Tab4")
+    ]
+
+    print("PREP TO LOAD VIEWS")
+
+    editor.pageView.loadPages(editor.notebook.pages)
+
+    print("LOADPAGES")
+    editor.sectionView.loadSections(sections)
+
+    print("RELOADED VIEWS ")
+
     if len(editor.notebook.pages) > 0:   # If pages exist
 
+        print("PAGES EXIST")
         # Show all Pages in Notebook
-        editor.pageView.loadPages(editor.notebook.pages)
+        # editor.pageView.loadPages(editor.notebook.pages)
         # for p in range(len(editor.notebook.page)):
         #     params = editor.notebook.page[p]
         #     build_page(editor, params.title)    # Build functions add widgets to editor

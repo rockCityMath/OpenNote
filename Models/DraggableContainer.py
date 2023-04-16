@@ -32,7 +32,7 @@ class DraggableContainer(QWidget):
     outFocus = Signal(bool)
     newGeometry = Signal(QRect)
 
-    def __init__(self, editor, p, cWidget):
+    def __init__(self, childWidget):
         super().__init__(parent=editor)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setVisible(True)
@@ -50,7 +50,7 @@ class DraggableContainer(QWidget):
         self.m_infocus = True
         self.m_showMenu = False
         self.m_isEditing = True
-        self.installEventFilter(editor.frame) # Send all events to EditorFrame for inspection before they get to the ones below
+        self.installEventFilter(editor.frameView) # Send all events to EditorFrame for inspection before they get to the ones below
         self.setGeometry(cWidget.geometry())
         self.old_state = {}
         self.newGeometry.connect(self.newGeometryEvent)

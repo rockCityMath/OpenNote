@@ -1,10 +1,8 @@
 from Modules.Enums import WidgetType
 from Modules.Save import save, saveAs
 from Modules.Load import new, load
-from Modules.PageActions import add_page
-from Modules.SectionActions import add_section
 from Modules.ObjectActions import add_object, paste_object
-from Models.EditorFrame import EditorFrame
+from Modules.Views.EditorFrameView import EditorFrameView
 
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -14,107 +12,61 @@ FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 #builds the application's UI
 def build_ui(editor):
-
-    #TODO: Finish UI refactor - Natalio
+    print("Building UI...")
 
     #editor.statusBar = editor.statusBar()
     build_window(editor)
     build_menubar(editor)
     build_toolbar(editor)
 
-    container = QWidget()
-    grid = QGridLayout()
-    editor.setCentralWidget(container)
-    container.setLayout(grid)
-    grid.setSpacing(0)
-    grid.setContentsMargins(0, 0, 0, 0)
+    # Application's main layout (grid)
+    gridLayout = QGridLayout()
+    gridContainerWidget = QWidget()
+    editor.setCentralWidget(gridContainerWidget)
+    gridContainerWidget.setLayout(gridLayout)
 
-    # sidebar and workspace layout
-    sidebar = QVBoxLayout()
-    sidebar_widget = QWidget()
-    sidebar_widget.setFixedWidth(250)
-    sidebar_widget.setLayout(sidebar)
-    workspace = QVBoxLayout()
-    grid.addWidget(sidebar_widget)
-    grid.addLayout(workspace, 0, 1, -1, 1)
-    grid.setColumnStretch(0, 1)
-    grid.setColumnStretch(1, 4)
+    gridLayout.setSpacing(3)
+    gridLayout.setContentsMargins(6, 6, 0, 0)
 
-    # sidebar widgets
-    editor.notebook_title = QTextEdit()
-    editor.notebook_title.setText(editor.notebook.title)
-    editor.notebook_title.setFixedHeight(40)
-    # pages_title = QLabel()
-    # pages_title.setFixedHeight(40)
-    # editor.page_tabs = QVBoxLayout()
-    sidebar.setContentsMargins(0, 0, 0, 0)
-    # editor.page_tabs.setContentsMargins(0, 0, 0, 0)
-    # pages_frame = QFrame()
+    gridLayout.setColumnStretch(0, 1) # The left side (index 0) will take up 1/7? of the space of the right
+    gridLayout.setColumnStretch(1, 7)
 
-    #sidebar.setStretchFactor(editor.pages, 1)
-    # add_page = QPushButton("Create New Page")
-    # add_page.clicked.connect(lambda: editor.addPage())
-    sidebar.addWidget(editor.notebook_title)
-    # sidebar.addWidget(pages_title)
-    # sidebar.addLayout(editor.page_tabs)
-    # sidebar.addWidget(pages_frame)
-    # sidebar.addWidget(add_page)
+    # Left side of the app's layout
+    leftSideLayout = QVBoxLayout()
+    leftSideContainerWidget = QWidget()
+    leftSideContainerWidget.setLayout(leftSideLayout)
+    leftSideLayout.setContentsMargins(0, 0, 0, 0)
+    leftSideLayout.setSpacing(0)
 
-    # MOVE IMPORT, MOVE EDITOR ATTRIBUTES TO TOP OR SOMETHING
-    from Modules.Views.PageView import PageView
-    print("PAGEVIEWBUIILD")
-    editor.pageView = PageView(editor.notebook.pages)
-    pageViewLayout = QVBoxLayout()
-    pageViewLayout.addWidget(editor.pageView)
-    pageViewLayout.setContentsMargins(10, 0, 0, 0)
-    sidebar.addLayout(pageViewLayout)
+    # Right side of the app's layout
+    rightSideLayout = QVBoxLayout()
+    rightSideContainerWidget = QWidget()
+    rightSideContainerWidget.setLayout(rightSideLayout)
+    rightSideLayout.setContentsMargins(0, 0, 0, 0)
+    rightSideLayout.setSpacing(0)
+    rightSideLayout.setStretch(0, 0)
+    rightSideLayout.setStretch(1, 1)
 
-    # sidebar.addWidget(pageView)
-    editor.pageView.setStyleSheet('background-color: #f0f0f0;')
+    print(type(editor.notebookTitleView))
 
+    # Add appropriate widgets (ideally just view controllers) to their layouts
+    leftSideLayout.addWidget(editor.notebookTitleView, 0)
+    leftSideLayout.addWidget(editor.pageView, 1) # Page view has max stretch factor
+    rightSideLayout.addWidget(editor.sectionView, 0)
+    rightSideLayout.addWidget(editor.frameView, 1) # Frame view has max stretch factor
 
-    # workspace widgets
-    sections = QHBoxLayout()
-    sections_widget = QWidget()
-    sections_widget.setFixedHeight(40)
-    sections_widget.setLayout(sections)
-
-    editor.section_tabs = QHBoxLayout()
-    sections_frame = QFrame()
-
-    add_section = QPushButton("+")
-    add_section.setFixedWidth(50)
-    add_section.setStyleSheet("background-color: #c2c2c2;")
-    add_section.clicked.connect(lambda: editor.addSection())
-    sections.addWidget(add_section)
-    sections.addLayout(editor.section_tabs)
-    sections.addWidget(sections_frame)
-    sections.setContentsMargins(0, 0, 0, 0)
-    editor.section_tabs.setContentsMargins(0, 0, 0, 0)
-    workspace.addWidget(sections_widget)
-
-    editor.frame = EditorFrame(editor)
-    workspace.addWidget(editor.frame)
-
-    # stylesheet reference
-    container.setObjectName("container")
-    editor.notebook_title.setObjectName("notebook_title")
-    # pages_title.setObjectName("pages_title")
-    # pageView.setObjectName("pages")
-    # add_page.setObjectName("addPage")
-    # pages_title.setText("Pages")
+    # Add L+R containers widget's to the main grid
+    gridLayout.addWidget(leftSideContainerWidget, 0, 0)
+    gridLayout.addWidget(rightSideContainerWidget, 0, 1)
 
 def build_window(editor):
     editor.setWindowTitle("OpenNote")
-    # editor.screen_width, editor.screen_height = editor.geometry().width(), editor.geometry().height()
-    # editor.resize(editor.screen_width * 2, editor.screen_height * 2)
     editor.setAcceptDrops(True)
     with open('styles/styles.qss',"r") as fh:
         editor.setStyleSheet(fh.read())
 
 def build_menubar(editor):
     file = editor.menuBar().addMenu('&File')
-    #edit = editor.menuBar().addMenu('&edit')
     plugins = editor.menuBar().addMenu('&Plugins')
 
     new_file = build_action(editor, 'assets/icons/svg_file_open', 'New Notebook...', 'New Notebook', False)
