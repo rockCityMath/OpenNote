@@ -6,7 +6,7 @@ from Modules.Enums import WidgetType
 from Modules.ObjectActions import add_object, paste_object
 from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
-# from Models.NotebookModel import NotebookModel
+from Modules.EditorSignals import editorSignalsInstance
 
 # Ideally this would just interact with the NotebookModel but i dont have that in me rn
 class EditorFrameView(QWidget):
@@ -20,10 +20,16 @@ class EditorFrameView(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(self.editorFrame)
         layout.setContentsMargins(0, 0, 0, 0)
+        editorSignalsInstance.sectionChanged.connect(self.sectionChangedEvent)
 
         self.multiselector = Multiselector(self)
 
         print("BUILT FRAMEVIEW")
+
+    def sectionChangedEvent(self, sectionModel):
+        print("FRAME KNOWS SECTION CHANGED")
+        print(sectionModel.title)
+        print(len(sectionModel.widgets))
 
     def eventFilter(self, object, event):
 

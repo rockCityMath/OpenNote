@@ -7,6 +7,8 @@ from typing import List
 from collections import deque
 from functools import partial
 
+from Modules.EditorSignals import editorSignalsInstance
+
 # Should connect to a SectionView, or emit event or something so we can show section tabs
 
 # Page view and controller
@@ -183,12 +185,13 @@ class PageView(QWidget):
 
         # Make sure the selected item actually looks selected - improve this
         # I think it just needs to make sure the real selected item is highlighted and all others are not
-        # def dont need to set cur i think
         prev = self.model.itemFromIndex(previous)
         cur = self.model.itemFromIndex(current)
         cur.setBackground(QColor(193,220,243))
-        prev.setBackground(QColor('#f0f0f0'))
+        prev.setBackground(QColor('white'))
         self.update()
 
         newPage = self.model.itemFromIndex(current) # could save selected page
-        print(newPage.data().title)
+        print("NEW PAGE: " + newPage.data().title)
+
+        editorSignalsInstance.pageChanged.emit(newPage.data())

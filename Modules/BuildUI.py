@@ -47,8 +47,6 @@ def build_ui(editor):
     rightSideLayout.setStretch(0, 0)
     rightSideLayout.setStretch(1, 1)
 
-    print(type(editor.notebookTitleView))
-
     # Add appropriate widgets (ideally just view controllers) to their layouts
     leftSideLayout.addWidget(editor.notebookTitleView, 0)
     leftSideLayout.addWidget(editor.pageView, 1) # Page view has max stretch factor

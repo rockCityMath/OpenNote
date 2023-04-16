@@ -6,6 +6,8 @@ from Models.SectionModel import SectionModel
 from typing import List
 from functools import partial
 
+from Modules.EditorSignals import editorSignalsInstance
+
 # Page view and controller
 class SectionView(QWidget):
     def __init__(self, sectionModels: List[SectionModel]):
@@ -24,10 +26,15 @@ class SectionView(QWidget):
         self.tabs.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tabs.customContextMenuRequested.connect(self.openMenu)
         self.tabs.currentChanged.connect(self.changeSection)
+        editorSignalsInstance.pageChanged.connect(self.pageChangedEvent)
         self.isLoading = False
 
         self.loadSections(sectionModels)
         print("BUILT SECTIONVIEW")
+
+    def pageChangedEvent(self, pageModel):
+        print("SECTION KNOWS PAGE CHANGE")
+        print(pageModel.title)
 
     def loadSections(self, sectionModels: List[SectionModel]):
         print("LOADING SECTIONS")
@@ -92,6 +99,5 @@ class SectionView(QWidget):
         sectionModel = self.tabs.tabData(sectionIndex)
         print("NEW SECTION :", sectionModel.title)
 
-        sectionModel.showWidgets()
-
+        editorSignalsInstance.sectionChanged.emit(sectionModel)
 
