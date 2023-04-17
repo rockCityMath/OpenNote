@@ -47,8 +47,9 @@ class PageView(QWidget):
         self.model.setRowCount(0)
         root = self.model.invisibleRootItem()
 
-        # If no data was passed in (new notebook), create the root page
+        # If no data was passed in (new notebook), create the root page, and a first page
         if not pageModels:
+            print("CREATING ROOT AND FIRST PAGE")
             rootPageModel = PageModel.newRootPage()
             rootPage = QStandardItem(rootPageModel.title)
             rootPage.setData(rootPageModel)
@@ -56,8 +57,18 @@ class PageView(QWidget):
             rootPage.setSelectable(False)
             root.appendRow([rootPage])
 
-            self.pageModels = pageModels
+            # Create a first page (MOVE THIS)
+            newPageModel = PageModel('New Page', 0)
+            newPage = QStandardItem(newPageModel.title)
+            newPage.setData(newPageModel)
+            newPage.setEditable(False)
+            rootPage.appendRow([newPage])       # Add to UI
+
+            pageModels.append(newPageModel)     # Add to array of PageModel
+            self.pageModels = pageModels        # Update reference to array of PageModel
             self.pageModels.append(rootPageModel)
+
+            self.tree.expandAll()
             return
 
         seen: List[QStandardItemModel] = {}
@@ -89,6 +100,8 @@ class PageView(QWidget):
             newPage.setEditable(False)
             parent.appendRow([newPage])
             seen[unique_id] = parent.child(parent.rowCount() - 1)
+
+        print(self.tree.model())
 
         self.tree.expandAll()
         self.pageModels = pageModels    # Update the view's stored reference to the pageModels (in case we are loading new pages)
@@ -172,13 +185,16 @@ class PageView(QWidget):
             self.update()
 
     def changePage(self, current: QModelIndex, previous: QModelIndex):
+        print("ATTEMPT CHANGE PAGE")
 
         # Dont select invalid pages
         if not current.isValid() or not previous.isValid():
+            print("INVALID PAGE")
             return
 
         # Dont select root page
         if self.model.itemFromIndex(current).data().isRoot():
+            print("ROOT PAGE SELECTED")
             selection = self.tree.selectionModel()
             selection.setCurrentIndex(previous, QItemSelectionModel.SelectCurrent)
             return
@@ -192,6 +208,7 @@ class PageView(QWidget):
         self.update()
 
         newPage = self.model.itemFromIndex(current) # could save selected page
-        print("NEW PAGE: " + newPage.data().title)
+        newPageModel = newPage.data()
+        print("CHANGED PAGE TO: " + newPage.data().title)
 
-        editorSignalsInstance.pageChanged.emit(newPage.data())
+        editorSignalsInstance.pageChanged.emit(newPageModel) # Tell the sectionView that the page has changed

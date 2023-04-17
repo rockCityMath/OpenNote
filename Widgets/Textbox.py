@@ -5,7 +5,7 @@ from Modules.Enums import TextBoxStyles, WidgetType
 
 class TextboxWidget(QTextEdit):
     # NEW: Can either specify w, h, content or let it default
-    def __init__(self, x, y, w = 10, h = 35, t = ''):
+    def __init__(self, x, y, w = 100, h = 100, t = 'new text!'):
         super().__init__()
 
         self.type = 'text'

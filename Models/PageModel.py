@@ -3,7 +3,7 @@ import uuid
 class PageModel:
     def __init__(self, title: str, parentUuid: int = 0):
         self.title = title
-        self.sections = []
+        self.sections = []  # SectionModel[]
 
         # These are used to represent the tree structure, the model is not actually concerned with parent and children
         # The tree structure lets us build a view that we can interact with as if there were really nested pages

@@ -27,33 +27,53 @@ class SectionView(QWidget):
         self.tabs.customContextMenuRequested.connect(self.openMenu)
         self.tabs.currentChanged.connect(self.changeSection)
         editorSignalsInstance.pageChanged.connect(self.pageChangedEvent)
+        editorSignalsInstance.widgetAdded.connect(self.widgetAddedEvent)
         self.isLoading = False
 
         self.loadSections(sectionModels)
         print("BUILT SECTIONVIEW")
 
+    def widgetAddedEvent(self, draggableContainer):
+        print("SECTIONVIEW KNOWS WIDGET ADDED")
+        print("WIDGET TEXT: " + draggableContainer.childWidget.toPlainText())
+
+        # Add the new widget to the current section's list of widgets
+        currentSectionIndex = self.tabs.currentIndex()
+        currentSectionModel = self.sectionModels[currentSectionIndex]
+        currentSectionModelWidgets = currentSectionModel.widgets
+        currentSectionModelWidgets.append(draggableContainer)
+
+    # When the page is changed, load that pages sections
     def pageChangedEvent(self, pageModel):
         print("SECTION KNOWS PAGE CHANGE")
-        print(pageModel.title)
+        self.loadSections(pageModel.sections)
 
     def loadSections(self, sectionModels: List[SectionModel]):
         print("LOADING SECTIONS")
-        self.isLoading = True
+        self.isLoading = True   # Because when tabs are removed (i think) it triggers a currentChanged event
 
+        # Remove any old tabs
         for i in range(self.tabs.count()):
             self.tabs.removeTab(0)
 
+        # If no sections are found, add one (not superr ideal)
+        if len(sectionModels) < 1:
+            print("NO SECTIONS FOUND, GIVING A NEW ONE")
+            newSectionModel = SectionModel("New Section")
+            sectionModels.append(newSectionModel)   # Add a new section to the local list of SectionModels
+
+        # Load the sections into the tabview
         for s in sectionModels:
             addedTabIndex = self.tabs.addTab(s.title)
             self.tabs.setTabData(addedTabIndex, s)
 
         self.isLoading = False
-        self.tabs.setCurrentIndex(0)
-        self.changeSection(0)
-        self.sectionModels = sectionModels  # Update the view's stored reference to the tabModels
+        self.sectionModels = sectionModels  # Update the view's stored reference to the section models
+
+        self.tabs.setCurrentIndex(0)        # Update the current index in the UI
+        self.changeSection(0)               # After loading new sections, select the first one
 
     def openMenu(self, position: QPoint):
-
         clickedSectionIndex = self.tabs.tabAt(position)
         sectionModel = self.tabs.tabData(clickedSectionIndex)
 
@@ -70,13 +90,14 @@ class SectionView(QWidget):
         menu.exec(self.tabs.mapToGlobal(position))
 
     def addSection(self, sectionModel: SectionModel, clickedSectionIndex: int):
-        print("ADD TAB")
+        print("ADD SECTION")
 
         addedSectionIndex = self.tabs.addTab("New Section")                  # Add section to UI
-        self.tabs.moveTab(addedSectionIndex, clickedSectionIndex + 1)        # Move to right of right clicked section
+        rightOfClickedSectionIndex = clickedSectionIndex + 1
+        self.tabs.moveTab(addedSectionIndex, rightOfClickedSectionIndex)     # Move to right of right clicked section
 
         newSectionModel = SectionModel("New Section")                        # Create new SectionModel
-        self.tabs.setTabData(addedSectionIndex, newSectionModel)             # Set new SectionModel as section data
+        self.tabs.setTabData(rightOfClickedSectionIndex, newSectionModel)    # Set new SectionModel as section data
 
         self.sectionModels.insert(clickedSectionIndex + 1, newSectionModel)  # Insert new SectionModel into list of section models
 
@@ -93,11 +114,10 @@ class SectionView(QWidget):
             self.sectionModels[clickedSectionIndex].title = newName   # Rename section in SectionModel
 
     def changeSection(self, sectionIndex: int):
-        if self.isLoading:  # Dont change sections while loading in new tabs
+        if self.isLoading:  # Dont change sections while loading in new tabs (it will keep emitting the sectionChanged signal)
             return
 
+        print("CHANGED SECTION")
         sectionModel = self.tabs.tabData(sectionIndex)
-        print("NEW SECTION :", sectionModel.title)
-
-        editorSignalsInstance.sectionChanged.emit(sectionModel)
+        editorSignalsInstance.sectionChanged.emit(sectionModel)       # Notify editorframe that section has changed
 

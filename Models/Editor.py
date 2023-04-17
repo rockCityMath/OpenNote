@@ -14,7 +14,6 @@ from Modules.Views.EditorFrameView import EditorFrameView
 from Modules.Views.NotebookTitleView import NotebookTitleView
 from Modules.Views.SectionView import SectionView
 
-from Modules.EditorActions.PageActions import addPage, goToPage, handlePageClick, renamePage, deletePage, getPageTabIndex
 
 class Editor(QMainWindow):
     def __init__(self):
@@ -34,7 +33,7 @@ class Editor(QMainWindow):
         self.notebookTitleView = NotebookTitleView(self.notebook.title)
         self.frameView = EditorFrameView(self)
         self.pageView = PageView(self.notebook.pages)
-        self.sectionView = SectionView(sections)
+        self.sectionView = SectionView(self.notebook.pages[0].sections)
 
         # OLD STUFF
         self.autosaver = Autosaver(self)  # Object with method for indicating changes and determining if we should autosave
@@ -100,11 +99,3 @@ class Editor(QMainWindow):
                     self.notebook.page[self.page].section[self.section].object.append(pop_item['data'])
                     build_object(self,pop_item['data'])
                     self.autosaver.onChangeMade()
-
-# Page methods
-Editor.addPage = addPage
-Editor.goToPage = goToPage
-Editor.handlePageClick = handlePageClick
-Editor.renamePage = renamePage
-Editor.deletePage = deletePage
-Editor.getPageTabIndex = getPageTabIndex

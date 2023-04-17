@@ -22,7 +22,7 @@ class Mode(Enum):
     RESIZEBL = 8,
     RESIZEL = 9
 
-# Object that wraps a child widget and makes it draggable/resizable
+# Object that wraps a child widget and makes it draggable/resizable (read: manages geometry)
 # Based off https://wiki.qt.io/Widget-moveable-and-resizeable <3
 class DraggableContainer(QWidget):
     menu = None
@@ -32,26 +32,26 @@ class DraggableContainer(QWidget):
     outFocus = Signal(bool)
     newGeometry = Signal(QRect)
 
-    def __init__(self, childWidget):
-        super().__init__(parent=editor)
+    def __init__(self, childWidget, editorFrame):
+        super().__init__(parent=editorFrame)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setVisible(True)
         self.setAutoFillBackground(False)
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.ClickFocus)
         self.setFocus()
-        self.move(p)
+        self.move(childWidget.x(), childWidget.y())
         self.old_x = 0
         self.old_y = 0
-        self.name = cWidget.objectName()
+        self.name = childWidget.objectName()
         self.vLayout = QVBoxLayout(self)
-        self.setChildWidget(cWidget)
-        self.childWidget = cWidget # Probably better to findChildren()...
+        self.setChildWidget(childWidget)
         self.m_infocus = True
         self.m_showMenu = False
         self.m_isEditing = True
-        self.installEventFilter(editor.frameView) # Send all events to EditorFrame for inspection before they get to the ones below
-        self.setGeometry(cWidget.geometry())
+        self.installEventFilter(editorFrame) # Send all events to EditorFrame for inspection before they get to the ones below
+        # self.setGeometry(childWidget.geometry())
+        self.setGeometry(childWidget.geometry())
         self.old_state = {}
         self.newGeometry.connect(self.newGeometryEvent)
 
@@ -60,15 +60,16 @@ class DraggableContainer(QWidget):
         # The container should have functionality "modes" eg: visual (images), editable (text, tables) | (or something similar)
         # Or, the signals from this container get passed to the child widget, and it can do what it wants with them?
         # Meaning we probably shouldnt tie anymore widget-specific logic into here because it will have to merge into a "mode" or come out
-        if isinstance(cWidget, ImageWidget):
+        if isinstance(childWidget, ImageWidget):
             self.child_object_type = WidgetType.IMAGE
             self.menu = get_object_menu(self.parentWidget())
 
-        elif isinstance(cWidget, TextboxWidget):
+        elif isinstance(childWidget, TextboxWidget):
+            print("DC IS INSTANCE OF TEXT")
             self.child_object_type = WidgetType.TEXT
-            self.menu = get_object_menu(self.parentWidget())
+            # self.menu = get_object_menu(self.parentWidget())
 
-        elif isinstance(cWidget, TableWidget):
+        elif isinstance(childWidget, TableWidget):
             self.child_object_type = WidgetType.TABLE
             self.menu = table_object_menu(self.parentWidget())
             self.childWidget.setEditTriggers(QTableWidget.DoubleClicked) # Connect the itemDoubleClicked signal of the table widget to the mouseDoubleClickEvent slot
@@ -76,6 +77,10 @@ class DraggableContainer(QWidget):
         else:
             print("An unsupported widget was added to the editor, this will break things.")
             quit()
+
+    def mouseReleaseEvent(self, event):
+        print("DC MOUSE RELEASE")
+        return True
 
     def setChildWidget(self, cWidget):
         if cWidget:
@@ -100,6 +105,7 @@ class DraggableContainer(QWidget):
 
 
     def focusInEvent(self, a0: QFocusEvent):
+        print("DC FOCUS IN ")
         if hasattr(self, 'childWidget'): # Widget not present on first focus
             if self.child_object_type == WidgetType.TEXT:
                 self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
@@ -111,6 +117,7 @@ class DraggableContainer(QWidget):
         self.inFocus.emit(True)
 
     def focusOutEvent(self, a0: QFocusEvent):
+        print("DC FOCUS OUT")
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True) # Events start going to parent when user focuses elsewhere
 
         self.setCursor(QCursor(Qt.ArrowCursor)) # This could be a open hand or other cursor also
@@ -138,6 +145,7 @@ class DraggableContainer(QWidget):
 #            painter.drawRect(rect)
 
     def mousePressEvent(self, e: QMouseEvent):
+        print("DC MOUSE PRESS")
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
 
         # Undo related
@@ -146,12 +154,15 @@ class DraggableContainer(QWidget):
         self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
 
         if not self.m_isEditing:
+            print("NOT EDIT")
             return
         if not self.m_infocus:
+            print("NOT FOCUS")
             return
         if not e.buttons() and Qt.LeftButton:
+            print("DC GOT MOUSE PRESS")
             self.setCursorShape(e.pos())
-            return
+            return True
         if e.button() == Qt.RightButton:
             self.popupShow(e.pos())
             e.accept()
@@ -239,8 +250,8 @@ class DraggableContainer(QWidget):
             self.mode = Mode.MOVE
 
     def mouseReleaseEvent(self, e: QMouseEvent):
-        self.parentWidget().undo_stack.append(self.old_state)
-        self.parentWidget().autosaver.onChangeMade()
+        # self.parentWidget().undo_stack.append(self.old_state)
+        # self.parentWidget().autosaver.onChangeMade()
         QWidget.mouseReleaseEvent(self, e)
 
     def leaveEvent(self, e: QMouseEvent):
@@ -256,6 +267,7 @@ class DraggableContainer(QWidget):
 
         # Dont need mouse move events on empty textbox
         if self.child_object_type == WidgetType.TEXT and self.childWidget.toPlainText() == '':
+            print("EMPTY TB")
             return
 
         # Dont show border on images
@@ -279,18 +291,17 @@ class DraggableContainer(QWidget):
             if toMove.x() > self.parentWidget().width() - self.width(): return
 
             # Dont move outside the editor frame
-            if(toMove.x() < self.parentWidget().width() - self.parentWidget().frame.width()):
-                return
-            if(toMove.y() < self.parentWidget().height() - self.parentWidget().frame.height()):
-                return
-            if(toMove.y() > self.parentWidget().frame.height() + 20):
-                return
+            # if(toMove.x() < self.parentWidget().width() - self.parentWidget().frame.width()):
+            #     return
+            # if(toMove.y() < self.parentWidget().height() - self.parentWidget().frame.height()):
+            #     return
+            # if(toMove.y() > self.parentWidget().frame.height() + 20):
+            #     return
 
             self.move(toMove)
             self.newGeometry.emit(self.geometry())
             self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
             self.parentWidget().repaint()
-            return
 
         # debt: To make images resize better, ImageWidget should probaly implement this and setCursorShape
         # So that it can make the cursor move with the corners of pixmap and not corners of this container

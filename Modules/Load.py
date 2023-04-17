@@ -93,19 +93,12 @@ def build(editor):
     # editor.object = []
     # editor.selected = None
 
-    sections = [
-        SectionModel("New Tab"),
-        SectionModel("Tab2"),
-        SectionModel("Tab3"),
-        SectionModel("Tab4")
-    ]
-
     print("PREP TO LOAD VIEWS")
 
     editor.pageView.loadPages(editor.notebook.pages)
 
     print("LOADPAGES")
-    editor.sectionView.loadSections(sections)
+    editor.sectionView.loadSections(editor.notebook.pages[0].sections)
 
     print("RELOADED VIEWS ")
 

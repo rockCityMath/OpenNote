@@ -43,7 +43,7 @@ def build_ui(editor):
     rightSideContainerWidget = QWidget()
     rightSideContainerWidget.setLayout(rightSideLayout)
     rightSideLayout.setContentsMargins(0, 0, 0, 0)
-    rightSideLayout.setSpacing(0)
+    rightSideLayout.setSpacing(3)
     rightSideLayout.setStretch(0, 0)
     rightSideLayout.setStretch(1, 1)
 
@@ -53,7 +53,7 @@ def build_ui(editor):
     rightSideLayout.addWidget(editor.sectionView, 0)
     rightSideLayout.addWidget(editor.frameView, 1) # Frame view has max stretch factor
 
-    # Add L+R containers widget's to the main grid
+    # Add L+R container's widgets to the main grid
     gridLayout.addWidget(leftSideContainerWidget, 0, 0)
     gridLayout.addWidget(rightSideContainerWidget, 0, 1)
 
