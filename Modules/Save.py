@@ -2,14 +2,10 @@ import pickle
 from threading import Timer
 from PySide6.QtWidgets import QFileDialog
 from datetime import datetime
-from copy import copy
 import os
 
 # Leaving this to take in editor in case we want to store state or something
 def save(editor):
-
-    for p in editor.notebook.pages:
-        print(p.title)
 
     # If user wants to save, make them choose a real filename
     # if notebook.path.endswith(".ontemp"):

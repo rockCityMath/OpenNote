@@ -35,7 +35,7 @@ class SectionView(QWidget):
 
     def widgetAddedEvent(self, draggableContainer):
         print("SECTIONVIEW KNOWS WIDGET ADDED")
-        print("WIDGET TEXT: " + draggableContainer.childWidget.toPlainText())
+        # print("WIDGET TEXT: " + draggableContainer.childWidget.toPlainText())
 
         # Add the new widget to the current section's list of widgets
         currentSectionIndex = self.tabs.currentIndex()

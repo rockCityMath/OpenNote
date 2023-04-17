@@ -21,7 +21,7 @@ class SectionModel:
         widgetModels = state['widgetModels']
 
         for wm in widgetModels:
-            editorSignalsInstance.widgetShouldLoad.emit(wm)
+            editorSignalsInstance.widgetShouldLoad.emit(wm, self)  # Tell the editorframe to load the widget model into this section
 
 
     # setgetstate to save widgets array as models, then load them as dragcontainers

@@ -1,14 +1,15 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
-from typing import Any
 
 class EditorSignals(QObject):
 
     # Cant be statically typed because importing the classes causes circular imports
 
-    pageChanged = Signal(Any) # Recieves PageModel
-    sectionChanged = Signal(Any) # Receives SectionModel
-    widgetAdded = Signal(Any) # Receives DraggableContainer
-    widgetShouldLoad = Signal(Any) # Recieves any widget model
+    pageChanged = Signal(object) # Recieves PageModel
+    sectionChanged = Signal(object) # Receives SectionModel
+    widgetAdded = Signal(object) # Receives DraggableContainer
+
+    # Recieves any widget model, and the section model to add the instance of DraggableContainer to
+    widgetShouldLoad = Signal(object, object)
 
 editorSignalsInstance = EditorSignals()

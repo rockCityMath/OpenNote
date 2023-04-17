@@ -57,7 +57,7 @@ class PageView(QWidget):
             rootPage.setSelectable(False)
             root.appendRow([rootPage])
 
-            # Create a first page (MOVE THIS)
+            # Create a first page
             newPageModel = PageModel('New Page', 0)
             newPage = QStandardItem(newPageModel.title)
             newPage.setData(newPageModel)
@@ -69,6 +69,8 @@ class PageView(QWidget):
             self.pageModels.append(rootPageModel)
 
             self.tree.expandAll()
+
+            root.child(0).child(0).setBackground(QColor(193,220,243)) # Highlight first page (its selected), fix
             return
 
         seen: List[QStandardItemModel] = {}
@@ -101,7 +103,8 @@ class PageView(QWidget):
             parent.appendRow([newPage])
             seen[unique_id] = parent.child(parent.rowCount() - 1)
 
-        self.tree.expandAll()
+        root.child(0).child(0).setBackground(QColor(193,220,243)) # Highlight first page (its selected)
+        self.tree.expandAll() # Mb dont
         self.pageModels = pageModels    # Update the view's stored reference to the pageModels (in case we are loading new pages)
 
     def openMenu(self, position: QModelIndex):
@@ -186,9 +189,15 @@ class PageView(QWidget):
         print("ATTEMPT CHANGE PAGE")
 
         # Dont select invalid pages
-        if not current.isValid() or not previous.isValid():
+        # I think the first time a page is selected (on load or new), theres no previous causing this to be invalid first click
+        if not current.isValid():
             print("INVALID PAGE")
             return
+
+        # Means this is probably the first page change, so prev was first page, have to fix this
+        if not previous.isValid():
+            previous = self.model.invisibleRootItem().child(0).child(0).index()
+
 
         # Dont select root page
         if self.model.itemFromIndex(current).data().isRoot():
@@ -196,6 +205,8 @@ class PageView(QWidget):
             selection = self.tree.selectionModel()
             selection.setCurrentIndex(previous, QItemSelectionModel.SelectCurrent)
             return
+
+        # if not previous.isValid():
 
         # Make sure the selected item actually looks selected - improve this
         # I think it just needs to make sure the real selected item is highlighted and all others are not

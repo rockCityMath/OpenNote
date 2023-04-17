@@ -35,7 +35,7 @@ class DraggableContainer(QWidget):
     def __init__(self, childWidget, editorFrame):
         super().__init__(parent=editorFrame)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
-        self.setVisible(True)
+        # self.setVisible(True)
         self.setAutoFillBackground(False)
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.ClickFocus)
@@ -54,6 +54,7 @@ class DraggableContainer(QWidget):
         self.setGeometry(childWidget.geometry())
         self.old_state = {}
         self.newGeometry.connect(self.newGeometryEvent)
+        self.hide()
 
         # ***** Pls read before adding anything here  ****
         # In the interest of plugins (especially) and further modularity the DraggableContainer probably shouldnt be concerned with what widget type exactly is in it's child
@@ -64,19 +65,19 @@ class DraggableContainer(QWidget):
             self.child_object_type = WidgetType.IMAGE
             self.menu = get_object_menu(self.parentWidget())
 
-        elif isinstance(childWidget, TextboxWidget):
-            print("DC IS INSTANCE OF TEXT")
-            self.child_object_type = WidgetType.TEXT
-            # self.menu = get_object_menu(self.parentWidget())
+        # elif isinstance(childWidget, TextboxWidget):
+        #     print("DC IS INSTANCE OF TEXT")
+        #     # self.child_object_type = WidgetType.TEXT
+        #     # self.menu = get_object_menu(self.parentWidget())
 
         elif isinstance(childWidget, TableWidget):
             self.child_object_type = WidgetType.TABLE
             self.menu = table_object_menu(self.parentWidget())
             self.childWidget.setEditTriggers(QTableWidget.DoubleClicked) # Connect the itemDoubleClicked signal of the table widget to the mouseDoubleClickEvent slot
 
-        else:
-            print("An unsupported widget was added to the editor, this will break things.")
-            quit()
+        # else:
+        #     print("An unsupported widget was added to the editor, this will break things.")
+        #     quit()
 
     def mouseReleaseEvent(self, event):
         print("DC MOUSE RELEASE")
@@ -98,17 +99,19 @@ class DraggableContainer(QWidget):
         self.m_showMenu = False
 
     # This is probably sort of how we should let objects handle events (but without caring about child object type)
+    # CAN JUST CONNECT THIS DIRECTLY TO CHILD
     def newGeometryEvent(self, e):
-        if self.child_object_type == WidgetType.IMAGE:
-            self.childWidget.newGeometryEvent(e, self) # Give reference to this container to the child
-
+        # if self.child_object_type == WidgetType.IMAGE:
+        #     self.childWidget.newGeometryEvent(e, self) # Give reference to this container to the child
+        # FIX CHANGES FROM THE ABOVE ON IMAGES
+        self.childWidget.newGeometryEvent(self.geometry())
 
 
     def focusInEvent(self, a0: QFocusEvent):
         print("DC FOCUS IN ")
-        if hasattr(self, 'childWidget'): # Widget not present on first focus
-            if self.child_object_type == WidgetType.TEXT:
-                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+        # if hasattr(self, 'childWidget'): # Widget not present on first focus
+        #     if self.child_object_type == WidgetType.TEXT:
+        #         self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
         self.m_infocus = True
         p = self.parentWidget()
@@ -169,22 +172,23 @@ class DraggableContainer(QWidget):
 
     # On double click, send events to child and move cursor to end
     def mouseDoubleClickEvent(self, e: QMouseEvent):
-        if self.child_object_type == WidgetType.TEXT and self.childWidget.toPlainText() == '': # debt: What does this do
-            self.parentWidget().setFocus()
-        else:
-            self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
-            self.childWidget.setFocus()
+        # if self.child_object_type == WidgetType.TEXT and self.childWidget.toPlainText() == '': # debt: What does this do
+        #     self.parentWidget().setFocus()
+        # else:
 
-            # Tables need doubleclick, text needs single? Not sure if thats how it works though
-            if self.child_object_type == WidgetType.TEXT:
-                self.childWidget.mousePressEvent(e)
-            elif self.child_object_type == WidgetType.TABLE:
-                self.childWidget.mouseDoubleClickEvent(e)
+        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.childWidget.setFocus()
 
-            # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
-            if self.child_object_type == WidgetType.TEXT:
-                self.childWidget.moveCursor(QTextCursor.End)
-                self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+        # Tables need doubleclick, text needs single? Not sure if thats how it works though
+        # if self.child_object_type == WidgetType.TEXT:
+        #     self.childWidget.mousePressEvent(e)
+        # elif self.child_object_type == WidgetType.TABLE:
+        #     self.childWidget.mouseDoubleClickEvent(e)
+
+        # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
+        # if self.child_object_type == WidgetType.TEXT:
+        #     self.childWidget.moveCursor(QTextCursor.End)
+        #     self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
 
     def keyPressEvent(self, e: QKeyEvent):
         if not self.m_isEditing: return
@@ -265,14 +269,16 @@ class DraggableContainer(QWidget):
     def mouseMoveEvent(self, e: QMouseEvent):
         QWidget.mouseMoveEvent(self, e)
 
-        # Dont need mouse move events on empty textbox
-        if self.child_object_type == WidgetType.TEXT and self.childWidget.toPlainText() == '':
-            print("EMPTY TB")
-            return
+        # # Dont need mouse move events on empty textbox
+        # if self.child_object_type == WidgetType.TEXT and self.childWidget.toPlainText() == '':
+        #     print("EMPTY TB")
+        #     return
 
-        # Dont show border on images
-        if self.child_object_type != WidgetType.IMAGE:
-            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+        # # Dont show border on images
+        # if self.child_object_type != WidgetType.IMAGE:
+        #     self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+
+        self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value) # Show border on hover
 
         if not self.m_isEditing:
             return

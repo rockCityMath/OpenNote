@@ -5,9 +5,6 @@ import random
 import cv2
 
 from Models.DraggableContainer import DraggableContainer
-from Widgets.Textbox import TextboxWidget, TextboxPickleable
-from Widgets.Image import ImageWidget, ImagePickleable
-from Widgets.Table import TableWidget, TablePickleable
 from Modules.Enums import TextBoxStyles, WidgetType
 
 class CreateTableDialog(QDialog):

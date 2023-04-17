@@ -8,13 +8,14 @@ from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
 from Widgets.Textbox import TextboxWidget
 from Modules.EditorSignals import editorSignalsInstance
+from Widgets.Image import ImageWidget
 
 # Handles all widget display (could be called widget view, but so could draggablecontainer)
 class EditorFrameView(QWidget):
     def __init__(self, editor):
         super(EditorFrameView, self).__init__()
 
-        self.editor = editor # Reference to the editor (QMainWindow)
+        self.editor = editor # Store reference to the editor (QMainWindow)
         self.editorFrame = QFrame(editor)
         self.editorFrame.setStyleSheet("background-color: white;")
 
@@ -23,12 +24,6 @@ class EditorFrameView(QWidget):
         layout.addWidget(self.editorFrame)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        # Layout where widgets are displayed
-        # self.widgetsLayout = QVBoxLayout(self.editorFrame)
-        # widgetsLayoutContainerWidget = QWidget()
-        # self.widgetsLayout.addWidget(widgetsLayoutContainerWidget)
-        # self.widgetsLayout.setContentsMargins(0, 0, 0, 0)
-
         editorSignalsInstance.sectionChanged.connect(self.sectionChangedEvent)
         editorSignalsInstance.widgetShouldLoad.connect(self.loadWidget)
 
@@ -36,18 +31,19 @@ class EditorFrameView(QWidget):
 
         print("BUILT FRAMEVIEW")
 
-    # Loading a preexisting widget from its model into the frame
-    def loadWidget(self, widgetModel):
-        print("WILL LOAD WIDGET TYPE: " + str(type(widgetModel)))
+    # Loading a preexisting widget from its model into the frame as a DraggableContainer
+    def loadWidget(self, widgetModel, sectionModel):
+        dc = DraggableContainer(widgetModel, self)
+        sectionModel.widgets.append(dc)
+        print("LOADED CONTENT: ", widgetModel)
 
     def sectionChangedEvent(self, sectionModel):
-        print("FRAME KNOWS SECTION CHANGED")
         print("FRAME: NEW SECTION TITLE: " + sectionModel.title)
         print("FRAME: SECTION'S WIDGET COUNT: ", len(sectionModel.widgets))
 
         # Hide all old widgets (DraggableContainers)
         for c in self.children():
-            if isinstance(c, DraggableContainer) and c.isVisible():
+            if isinstance(c, DraggableContainer):
                 print(c)
                 c.hide()
 
@@ -55,8 +51,6 @@ class EditorFrameView(QWidget):
         for widget in sectionModel.widgets:
             print(widget)
             widget.show()
-
-
 
     def eventFilter(self, object, event):
         if event.type() == QEvent.MouseButtonRelease:
@@ -103,10 +97,10 @@ class EditorFrameView(QWidget):
             # Releasing the mouse after clicking to add text
             else:
                 # They shouldnt show on construction
-                text = TextboxWidget(event.pos().x(), event.pos().y())
-                dc = DraggableContainer(text, self)
-
-                editorSignalsInstance.widgetAdded.emit(dc)  # Notify the section view that this widget was added to the current section
+                # text = TextboxWidget(event.pos().x(), event.pos().y()) # use TextboxWidget.new()
+                # dc = DraggableContainer(text, self)
+                self.addWidget(TextboxWidget, event.pos())
+                # editorSignalsInstance.widgetAdded.emit(dc)  # Notify the section view that this widget was added to the current section
                 # dc.show()
                 # text.show()
 
@@ -130,8 +124,8 @@ class EditorFrameView(QWidget):
             # editor.setFocus()
             frame_menu = QMenu(self)
 
-            add_image = QAction("Add Image", editor)
-            add_image.triggered.connect(lambda: print("ADD IMAGE"))
+            add_image = QAction("Add Image", self)
+            add_image.triggered.connect(lambda: self.addWidget(ImageWidget, event.pos()))
             frame_menu.addAction(add_image)
 
             add_table = QAction("Add Table", editor)
@@ -147,6 +141,18 @@ class EditorFrameView(QWidget):
             frame_menu.addAction(take_screensnip)
 
             frame_menu.exec(event.globalPos())
+
+    # When adding a widget, call the .new() static method on the requested class, and add it to the section
+    def addWidget(self, widgetClass, clickPos):
+        try:
+            widgetModel = widgetClass.new(clickPos)
+
+            dc = DraggableContainer(widgetModel, self)
+            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the section view that a widget was added (so it can add it to the current section)
+            dc.show()
+
+        except Exception as e:
+            print("Error adding widget: ", e)
 
     def mouseMoveEvent(self, event): # This event is only called after clicking down on the frame and dragging
         return

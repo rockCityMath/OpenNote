@@ -4,10 +4,13 @@ from PySide6.QtWidgets import *
 
 from Modules.Enums import WidgetType
 
+import random
+import cv2
+
 class ImageWidget(QLabel):
-    def __init__(self, editor, x, y, w, h, image_matrix):
-        super().__init__(editor)
-        self.type = WidgetType.IMAGE
+    def __init__(self, x, y, w, h, image_matrix):
+        super().__init__()
+        # self.type = WidgetType.IMAGE
         self.image_matrix = image_matrix
         self.w = w
         self.h = h
@@ -19,28 +22,45 @@ class ImageWidget(QLabel):
         self.q_pixmap = QPixmap(q_image)
         self.setPixmap(self.q_pixmap.scaled(w, h, Qt.KeepAspectRatio, Qt.SmoothTransformation)) # Scale to widget geometry
 
-        self.setGeometry(x, y, w, h)
-    
+        self.setGeometry(x, y, w, h) # this should get fixed
+        self.persistantGeometry = self.geometry()
+
     # Handle resize
-    def newGeometryEvent(self, e, parent):
-        new_w = e.width()
-        new_h = e.height()
-        if (self.w != new_w) or (self.h != new_h): # Not exactly sure how object's width and height attribute gets updated but this works 
+    def newGeometryEvent(self, newGeometry):
+        new_w = newGeometry.width()
+        new_h = newGeometry.height()
+        if (self.w != new_w) or (self.h != new_h): # Not exactly sure how object's width and height attribute gets updated but this works
             self.setPixmap(self.q_pixmap.scaled(new_w, new_h, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
             pixmap_rect = self.pixmap().rect()
             w = pixmap_rect.width()
             h = pixmap_rect.height()
-            parent.resize(w, h) # Set container to the size of the new scaled pixmap 
-            
+            # parent.resize(w, h) # Set container to the size of the new scaled pixmap
 
-class ImagePickleable():
-    def __init__(self,name, x, y, w, h, image_matrix):
-        self.name = name
-        self.x = x                         
-        self.y = y
-        self.w = w
-        self.h = h
-        self.image_matrix = image_matrix   
-        self.type = WidgetType.IMAGE        
+        self.persistantGeometry = newGeometry
 
+    @staticmethod
+    def new(clickPos):
+
+        # Get path from user
+        path, _ = QFileDialog.getOpenFileName(QWidget(), 'Add Image')
+        if path == "": return
+
+        # Get image size
+        image_matrix = cv2.imread(path)
+        h, w, _ = image_matrix.shape
+
+        # Create image and add to notebook
+        h, w, _ = image_matrix.shape
+        image = ImageWidget(clickPos.x(), clickPos.y(), w, h, image_matrix) # Note: the editorframe will apply pos based on event
+
+        return image
+
+    def __getstate__(self):
+        state = {}
+        state['geometry'] = self.persistantGeometry
+        state['image_matrix'] = self.image_matrix
+        return state
+
+    def __setstate__(self, state):
+        self.__init__(state['geometry'].x(), state['geometry'].y(), state['geometry'].width(), state['geometry'].height(), state['image_matrix'])

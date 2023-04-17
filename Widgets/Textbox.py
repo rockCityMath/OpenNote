@@ -8,7 +8,7 @@ class TextboxWidget(QTextEdit):
     def __init__(self, x, y, w = 100, h = 100, t = 'new text!'):
         super().__init__()
 
-        self.type = 'text'
+        # self.type = 'text'
         self.setStyleSheet(TextBoxStyles.OUTFOCUS.value) # debt: this gets set all over the place
         self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject, I think
         self.setText(t)
@@ -16,6 +16,8 @@ class TextboxWidget(QTextEdit):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # self.show()
+
+        self.persistGeometry = self.geometry()
 
     # Set the textbox as selected so that the editor can change font attributes
     def mousePressEvent(self, event):
@@ -33,30 +35,20 @@ class TextboxWidget(QTextEdit):
             self.setStyleSheet(TextBoxStyles.INFOCUS.value)
         QTextEdit.keyPressEvent(self, event)
 
-    # NEW: Save and load widget info from pickle methods
+    # all widgets implement? needed?
+    def newGeometryEvent(self, newGeometry):
+        self.persistGeometry = newGeometry
+
+    # also all widgets implement? and move this
+    @staticmethod
+    def new(clickPos: QPoint):
+        return TextboxWidget(clickPos.x(), clickPos.y())
+
     def __getstate__(self):
         data = {}
-        data['geometry'] = self.geometry()
+        data['geometry'] = self.persistGeometry # this is wierd
         data['content'] = self.toHtml()
-
         return data
 
     def __setstate__(self, data):
-        self.__data = data
-
-    # Called when loading a notebook to reinstantiate widget
-    def loadWidget(self, editor):
-        print("LOAD WIDGET CALLED")
-        # self.editor = editor
-        # self.setGeometry(self.__data['geometry'])
-        # self.setText(self.__data['content'])
-
-class TextboxPickleable():
-    def __init__(self,name, x, y, w, h, t):
-        self.name=name
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.text = t
-        self.type = WidgetType.TEXT
+        self.__init__(data['geometry'].x(), data['geometry'].y(), data['geometry'].width(), data['geometry'].height(), data['content'])
