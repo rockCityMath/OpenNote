@@ -1,10 +1,10 @@
-PageView {
-    background-color: rgb(0, 0, 0)
-}
+/* PageView { */
+/*     background-color: rgb(0, 0, 0) */
+/* } */
 
-SectionView {
-    background-color: rgb(0, 0, 0)
-}
+/* SectionView { */
+/*     background-color: rgb(0, 0, 0) */
+/* } */
 
 /* * { */
 /*     border: none; */

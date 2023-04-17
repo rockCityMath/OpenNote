@@ -101,8 +101,6 @@ class PageView(QWidget):
             parent.appendRow([newPage])
             seen[unique_id] = parent.child(parent.rowCount() - 1)
 
-        print(self.tree.model())
-
         self.tree.expandAll()
         self.pageModels = pageModels    # Update the view's stored reference to the pageModels (in case we are loading new pages)
 
