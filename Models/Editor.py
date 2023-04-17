@@ -22,13 +22,6 @@ class Editor(QMainWindow):
         self.notebook = NotebookModel('Untitled Notebook')    # Current notebook object
         self.selected = None                                  # Selected object (for font attributes of TextBox)
 
-        sections = [
-            SectionModel("New Tab"),
-            SectionModel("Tab2"),
-            SectionModel("Tab3"),
-            SectionModel("Tab4")
-        ]
-
         # View-Controllers that let the user interact with the underlying models
         self.notebookTitleView = NotebookTitleView(self.notebook.title)
         self.frameView = EditorFrameView(self)
@@ -45,25 +38,8 @@ class Editor(QMainWindow):
         self.shortcut.activated.connect(self.undo_event)
 
         self.setFocus()
-        self.snippingWidget = SnippingWidget(app=QApplication.instance())
-        self.snippingWidget.onSnippingCompleted = self.onSnippingCompleted
 
         build_ui(self)
-
-    # When user finishes screensnip, bring back main window and add image to notebook
-    # This should move to the SnippingWidget class prob
-    def onSnippingCompleted(self, image_matrix):
-        self.setWindowState(Qt.WindowActive)
-        self.showMaximized()
-        if image_matrix is None:
-            return
-
-        pos = self.snippingWidget.event_pos
-        add_snip(self, pos, image_matrix)
-
-    def snipArea(self, event_pos):
-        self.setWindowState(Qt.WindowMinimized)
-        self.snippingWidget.start(event_pos)
 
     def focusInEvent(self, event):
         self.repaint()

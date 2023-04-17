@@ -9,8 +9,6 @@ from functools import partial
 
 from Modules.EditorSignals import editorSignalsInstance
 
-# Should connect to a SectionView, or emit event or something so we can show section tabs
-
 # Page view and controller
 class PageView(QWidget):
     def __init__(self, pageModels: List[PageModel]):

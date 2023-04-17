@@ -9,6 +9,7 @@ from Models.DraggableContainer import DraggableContainer
 from Widgets.Textbox import TextboxWidget
 from Modules.EditorSignals import editorSignalsInstance
 from Widgets.Image import ImageWidget
+from Modules.Screensnip import SnippingWidget
 
 # Handles all widget display (could be called widget view, but so could draggablecontainer)
 class EditorFrameView(QWidget):
@@ -96,24 +97,7 @@ class EditorFrameView(QWidget):
 
             # Releasing the mouse after clicking to add text
             else:
-                # They shouldnt show on construction
-                # text = TextboxWidget(event.pos().x(), event.pos().y()) # use TextboxWidget.new()
-                # dc = DraggableContainer(text, self)
                 self.addWidget(TextboxWidget, event.pos())
-                # editorSignalsInstance.widgetAdded.emit(dc)  # Notify the section view that this widget was added to the current section
-                # dc.show()
-                # text.show()
-
-                # o = len(editor.object) - 1
-                # if len(editor.object) > 0:
-                #     if editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.TEXT:
-                #         if editor.object[o].childWidget.toPlainText() == '':
-                #             editor.object[o].deleteLater()
-                #             editor.object.pop(o)
-                #             editor.notebook.page[editor.page].section[editor.section].object.pop(o)
-                #             editor.autosaver.onChangeMade()
-                # add_object(editor, event, WidgetType.TEXT)
-                # editor.object[len(editor.object) - 1].childWidget.setFocus()
 
     def mousePressEvent(self, event):
         print("EDITORFRAME MOUSEPRESS")
@@ -137,16 +121,32 @@ class EditorFrameView(QWidget):
             frame_menu.addAction(paste)
 
             take_screensnip = QAction("Snip Screen", editor)
-            take_screensnip.triggered.connect(lambda: print("SNIP SCREEN"))
+            take_screensnip.triggered.connect(lambda: self.snipScreen(event.pos()))
             frame_menu.addAction(take_screensnip)
 
             frame_menu.exec(event.globalPos())
+
+    def snipScreen(self, clickPos):
+        def onSnippingCompleted(imageMatrix):
+            self.editor.setWindowState(Qt.WindowActive)
+            self.editor.showMaximized()
+            if imageMatrix is None:
+                return
+
+            widgetModel = ImageWidget.newFromMatrix(clickPos, imageMatrix)
+            dc = DraggableContainer(widgetModel, self)
+            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the section view that a widget was added (so it can add it to the current section)
+            dc.show()
+
+        self.editor.setWindowState(Qt.WindowMinimized)
+        self.snippingWidget = SnippingWidget()
+        self.snippingWidget.onSnippingCompleted = onSnippingCompleted
+        self.snippingWidget.start(clickPos)
 
     # When adding a widget, call the .new() static method on the requested class, and add it to the section
     def addWidget(self, widgetClass, clickPos):
         try:
             widgetModel = widgetClass.new(clickPos)
-
             dc = DraggableContainer(widgetModel, self)
             editorSignalsInstance.widgetAdded.emit(dc)  # Notify the section view that a widget was added (so it can add it to the current section)
             dc.show()

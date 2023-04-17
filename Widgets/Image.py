@@ -56,6 +56,13 @@ class ImageWidget(QLabel):
 
         return image
 
+    @staticmethod
+    def newFromMatrix(clickPos, imageMatrix):
+        h, w, _ = imageMatrix.shape
+        image = ImageWidget(clickPos.x(), clickPos.y(), w, h, imageMatrix)
+
+        return image
+
     def __getstate__(self):
         state = {}
         state['geometry'] = self.persistantGeometry

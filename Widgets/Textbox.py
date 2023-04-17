@@ -8,14 +8,12 @@ class TextboxWidget(QTextEdit):
     def __init__(self, x, y, w = 100, h = 100, t = 'new text!'):
         super().__init__()
 
-        # self.type = 'text'
-        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value) # debt: this gets set all over the place
-        self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject, I think
+        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)   # debt: this gets set all over the place
+        self.setGeometry(x, y, w, h)                       # This sets geometry of DraggableObject
         self.setText(t)
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        # self.show()
 
         self.persistGeometry = self.geometry()
 
@@ -35,14 +33,12 @@ class TextboxWidget(QTextEdit):
             self.setStyleSheet(TextBoxStyles.INFOCUS.value)
         QTextEdit.keyPressEvent(self, event)
 
-    # all widgets implement? needed?
-    def newGeometryEvent(self, newGeometry):
-        self.persistGeometry = newGeometry
-
-    # also all widgets implement? and move this
     @staticmethod
     def new(clickPos: QPoint):
         return TextboxWidget(clickPos.x(), clickPos.y())
+
+    def newGeometryEvent(self, newGeometry):
+        self.persistGeometry = newGeometry
 
     def __getstate__(self):
         data = {}
