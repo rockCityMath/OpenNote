@@ -1,11 +1,12 @@
 from Widgets.Textbox import TextboxWidget
 from Models.DraggableContainer import DraggableContainer
 from Modules.EditorSignals import editorSignalsInstance
+from typing import List
 
 class SectionModel:
     def __init__(self, title: str):
         self.title = title
-        self.widgets = [] # DraggableContainer[]
+        self.widgets: List[DraggableContainer] = []
 
     # When saving, convert the list of DraggableContainers to a list of their child widget's models
     def __getstate__(self):
@@ -22,6 +23,3 @@ class SectionModel:
 
         for wm in widgetModels:
             editorSignalsInstance.widgetShouldLoad.emit(wm, self)  # Tell the editorframe to load the widget model into this section
-
-
-    # setgetstate to save widgets array as models, then load them as dragcontainers

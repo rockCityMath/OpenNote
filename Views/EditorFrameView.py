@@ -3,13 +3,13 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 from Modules.Enums import WidgetType
-from Modules.ObjectActions import add_object, paste_object
 from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
 from Widgets.Textbox import TextboxWidget
 from Modules.EditorSignals import editorSignalsInstance
 from Widgets.Image import ImageWidget
 from Modules.Screensnip import SnippingWidget
+from Widgets.Table import TableWidget
 
 # Handles all widget display (could be called widget view, but so could draggablecontainer)
 class EditorFrameView(QWidget):
@@ -32,7 +32,8 @@ class EditorFrameView(QWidget):
 
         print("BUILT FRAMEVIEW")
 
-    # Loading a preexisting widget from its model into the frame as a DraggableContainer
+    # Loading a preexisting (saved) widget into the frame inside a DraggableContainer
+    # Then add that DC instance reference to the sectionModel's widgets[] for runtime
     def loadWidget(self, widgetModel, sectionModel):
         dc = DraggableContainer(widgetModel, self)
         sectionModel.widgets.append(dc)
@@ -40,24 +41,25 @@ class EditorFrameView(QWidget):
 
     def sectionChangedEvent(self, sectionModel):
         print("FRAME: NEW SECTION TITLE: " + sectionModel.title)
-        print("FRAME: SECTION'S WIDGET COUNT: ", len(sectionModel.widgets))
 
-        # Hide all old widgets (DraggableContainers)
+        # Hide all old widgets
         for c in self.children():
             if isinstance(c, DraggableContainer):
                 print(c)
                 c.hide()
 
-        # Show all new widgets (DraggableContainers)
+        # Show all new widgets
         for widget in sectionModel.widgets:
             print(widget)
             widget.show()
 
     def eventFilter(self, object, event):
         if event.type() == QEvent.MouseButtonRelease:
-            print("EAT MOUSE RELEASE FROM DC")
+            # print("EAT MOUSE RELEASE FROM DC")
             return True
         return False
+
+        # probably move this to a multiselector class
         # Only recieves events from DraggableContainers rn, but may need to recieve others at some point
         # if isinstance(object, DraggableContainer):
         #     multiselector = self.multiselector
@@ -113,7 +115,7 @@ class EditorFrameView(QWidget):
             frame_menu.addAction(add_image)
 
             add_table = QAction("Add Table", editor)
-            add_table.triggered.connect(lambda: print("ADD TABLE"))
+            add_table.triggered.connect(lambda: self.addWidget(TableWidget, event.pos()))
             frame_menu.addAction(add_table)
 
             paste = QAction("Paste", editor)
@@ -135,7 +137,7 @@ class EditorFrameView(QWidget):
 
             widgetModel = ImageWidget.newFromMatrix(clickPos, imageMatrix)
             dc = DraggableContainer(widgetModel, self)
-            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the section view that a widget was added (so it can add it to the current section)
+            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section and editorFrame that a widget was added
             dc.show()
 
         self.editor.setWindowState(Qt.WindowMinimized)
@@ -143,12 +145,14 @@ class EditorFrameView(QWidget):
         self.snippingWidget.onSnippingCompleted = onSnippingCompleted
         self.snippingWidget.start(clickPos)
 
-    # When adding a widget, call the .new() static method on the requested class, and add it to the section
     def addWidget(self, widgetClass, clickPos):
+        print("ADDWIDGET: ", widgetClass)
         try:
-            widgetModel = widgetClass.new(clickPos)
-            dc = DraggableContainer(widgetModel, self)
-            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the section view that a widget was added (so it can add it to the current section)
+            widget = widgetClass.new(clickPos)     # All widget classes implement .new() static method
+            print("NEW CALLED")
+            dc = DraggableContainer(widget, self)
+            print("DC CALLED")
+            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section and editorFrame that a widget was added
             dc.show()
 
         except Exception as e:

@@ -1,16 +1,11 @@
 import pickle
 import os
 
-from Modules.ObjectActions import build_object
 from Modules.Save import Autosaver
 
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
-
-from Models.NotebookModel import NotebookModel
-from Modules.Views.PageView import PageView
-from Models.SectionModel import SectionModel
 
 # Creates a new notebook
 def new(editor):

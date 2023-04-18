@@ -10,7 +10,6 @@ import cv2
 class ImageWidget(QLabel):
     def __init__(self, x, y, w, h, image_matrix):
         super().__init__()
-        # self.type = WidgetType.IMAGE
         self.image_matrix = image_matrix
         self.w = w
         self.h = h
@@ -56,7 +55,7 @@ class ImageWidget(QLabel):
 
         return image
 
-    @staticmethod
+    @staticmethod # Special staticmethod that screensnip uses
     def newFromMatrix(clickPos, imageMatrix):
         h, w, _ = imageMatrix.shape
         image = ImageWidget(clickPos.x(), clickPos.y(), w, h, imageMatrix)

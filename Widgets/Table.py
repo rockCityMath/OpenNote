@@ -3,35 +3,65 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from Modules.Enums import TextBoxStyles, WidgetType
 
-class TableWidget(QTableWidget):
-    def __init__(self, editor, x, y,w,h, rows, cols):
-            super().__init__(rows, cols, editor)
-            #self.setEditTriggers(QTableWidget.DoubleClicked) # debt: What is this
-            self.rows=rows
-            self.cols=cols
-            self.editor = editor
-            self.type = WidgetType.TABLE
-            self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-            self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject
-            self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.show()
+class TableWidget(QWidget):
+    def __init__(self, x, y, w, h, rows, cols):
+        super(TableWidget, self).__init__()
 
-    # Clicking into the cells is offset for some reason, correcting it
-    def mouseDoubleClickEvent(self, e):
-        corrected_pos = QPoint(e.pos().x()-25, e.pos().y()-35)
-        new_event = QMouseEvent(QEvent.MouseButtonDblClick, corrected_pos, e.button(), e.buttons(), e.modifiers())
-        self.setFocus()
-        self.setStyleSheet(TextBoxStyles.INFOCUS.value) # Not ideal
-        QTableWidget.mouseDoubleClickEvent(self, new_event)
+        # # The actual table widget
+        self.table = QTableWidget(rows, cols, self)
 
-class TablePickleable():
-    def __init__(self,name, x, y, w, h, rows, cols):
-        self.name=name
-        self.x = x          
-        self.y = y
-        self.w = w
-        self.h = h
-        self.type = WidgetType.TABLE
-        self.rows = rows
-        self.cols = cols
+        self.setGeometry(x, y, w, h)
+        self.table.setGeometry(0, 0, w, h)
+        self.resize(w, h)
+        self.persistantGeometry = self.geometry()
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, True) # If extending a qwidget to insert something else, dont receive mouse events
+
+    # Child widget not concerned with pos but is with w, h
+    def newGeometryEvent(self, newGeometry: QRect):
+        self.table.resize(newGeometry.width(), newGeometry.height())
+        self.persistantGeometry = newGeometry
+        self.isfocusonme = False
+        return
+
+    def addRow(self):
+        self.table.insertRow(self.table.rowCount())
+
+    def addCol(self):
+        self.table.insertColumn(self.table.columnCount())
+
+    @staticmethod
+    def new(clickPos: QPoint):
+        return TableWidget(clickPos.x(), clickPos.y(), 200, 200, 2, 2)
+
+    def customMenuItems(self):
+        addRow = QAction("Add Row", self)
+        addRow.triggered.connect(self.addRow)
+
+        addCol = QAction("Add Column", self)
+        addCol.triggered.connect(self.addCol)
+
+        return [addRow, addCol]
+
+    def __getstate__(self):
+        state = {}
+
+        t = self.table
+        rowCnt = t.rowCount()
+        colCnt = t.columnCount()
+        tableData = [["" if t.item(i, j) == None else t.item(i, j).text() for j in range(rowCnt)] for i in range(colCnt)] # :)
+
+        state['tableData'] = tableData
+        state['geometry'] = self.persistantGeometry
+        return state
+
+    def __setstate__(self, state):
+        self.__init__(state['geometry'].x(),
+                      state['geometry'].y(),
+                      state['geometry'].width(),
+                      state['geometry'].height(),
+                      len(state['tableData'][0]),
+                      len(state['tableData']))
+
+        for i in range(len(state['tableData'])):
+            for j in range(len(state['tableData'][i])):
+                self.table.setItem(i, j, QTableWidgetItem(state['tableData'][i][j]))

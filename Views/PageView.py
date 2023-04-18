@@ -68,7 +68,7 @@ class PageView(QWidget):
 
             self.tree.expandAll()
 
-            root.child(0).child(0).setBackground(QColor(193,220,243)) # Highlight first page (its selected), fix
+            root.child(0).child(0).setBackground(QColor(193,220,243)) # Highlight first page (it's already selected)
             return
 
         seen: List[QStandardItemModel] = {}
@@ -133,8 +133,7 @@ class PageView(QWidget):
             renamePageAction.triggered.connect(partial(self.renamePage, page))
         menu.exec_(self.sender().viewport().mapToGlobal(position))
 
-    # Event filter for the tree view's viewport
-    # So that we can stop it from selecting items on right click, but still allow click events to pass to the collapse button
+    # Dont let the right click reach the viewport, context menu will still open but this will stop the page from being selected
     def eventFilter(self, source, event):
         if event.type() == QMouseEvent.MouseButtonPress:
             if(event.button() == Qt.RightButton):
@@ -186,16 +185,9 @@ class PageView(QWidget):
     def changePage(self, current: QModelIndex, previous: QModelIndex):
         print("ATTEMPT CHANGE PAGE")
 
-        # Dont select invalid pages
-        # I think the first time a page is selected (on load or new), theres no previous causing this to be invalid first click
-        if not current.isValid():
-            print("INVALID PAGE")
-            return
-
-        # Means this is probably the first page change, so prev was first page, have to fix this
+        # Means this is probably the first page change, so prev was first page
         if not previous.isValid():
             previous = self.model.invisibleRootItem().child(0).child(0).index()
-
 
         # Dont select root page
         if self.model.itemFromIndex(current).data().isRoot():
@@ -204,10 +196,7 @@ class PageView(QWidget):
             selection.setCurrentIndex(previous, QItemSelectionModel.SelectCurrent)
             return
 
-        # if not previous.isValid():
-
-        # Make sure the selected item actually looks selected - improve this
-        # I think it just needs to make sure the real selected item is highlighted and all others are not
+        # Make sure the selected item actually looks selected - should improve this
         prev = self.model.itemFromIndex(previous)
         cur = self.model.itemFromIndex(current)
         cur.setBackground(QColor(193,220,243))

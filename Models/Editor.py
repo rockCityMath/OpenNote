@@ -2,17 +2,16 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
-from Modules.ObjectActions import *
 from Modules.BuildUI import *
 from Modules.Save import Autosaver
 from Modules.Screensnip import SnippingWidget
 from Models.NotebookModel import NotebookModel
 from Models.SectionModel import SectionModel
 
-from Modules.Views.PageView import PageView
-from Modules.Views.EditorFrameView import EditorFrameView
-from Modules.Views.NotebookTitleView import NotebookTitleView
-from Modules.Views.SectionView import SectionView
+from Views.PageView import PageView
+from Views.EditorFrameView import EditorFrameView
+from Views.NotebookTitleView import NotebookTitleView
+from Views.SectionView import SectionView
 
 
 class Editor(QMainWindow):

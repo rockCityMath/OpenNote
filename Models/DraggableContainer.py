@@ -4,7 +4,6 @@ from PySide6.QtWidgets import *
 from enum import Enum
 
 from Modules.Enums import *
-from Modules.ObjectMenus import *
 from Widgets.Table import TableWidget
 from Widgets.Textbox import TextboxWidget
 from Widgets.Image import ImageWidget
@@ -28,69 +27,46 @@ class DraggableContainer(QWidget):
     menu = None
     mode = Mode.NONE
     position = None
-    inFocus = Signal(bool)
     outFocus = Signal(bool)
     newGeometry = Signal(QRect)
 
     def __init__(self, childWidget, editorFrame):
         super().__init__(parent=editorFrame)
+
         self.setAttribute(Qt.WA_DeleteOnClose, True)
-        # self.setVisible(True)
         self.setAutoFillBackground(False)
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.ClickFocus)
         self.setFocus()
-        self.move(childWidget.x(), childWidget.y())
         self.old_x = 0
         self.old_y = 0
-        self.name = childWidget.objectName()
         self.vLayout = QVBoxLayout(self)
         self.setChildWidget(childWidget)
-        self.m_infocus = True
         self.m_showMenu = False
         self.m_isEditing = True
-        self.installEventFilter(editorFrame) # Send all events to EditorFrame for inspection before they get to the ones below
-        # self.setGeometry(childWidget.geometry())
+        self.installEventFilter(editorFrame)
         self.setGeometry(childWidget.geometry())
         self.old_state = {}
-        self.newGeometry.connect(self.newGeometryEvent)
-        self.hide()
+        self.newGeometry.connect(self.childWidget.newGeometryEvent)
+        self.childWidgetActive = False
+        self.menu = self.buildDragContainerMenu()
 
-        # ***** Pls read before adding anything here  ****
-        # In the interest of plugins (especially) and further modularity the DraggableContainer probably shouldnt be concerned with what widget type exactly is in it's child
-        # The container should have functionality "modes" eg: visual (images), editable (text, tables) | (or something similar)
-        # Or, the signals from this container get passed to the child widget, and it can do what it wants with them?
-        # Meaning we probably shouldnt tie anymore widget-specific logic into here because it will have to merge into a "mode" or come out
-        if isinstance(childWidget, ImageWidget):
-            self.child_object_type = WidgetType.IMAGE
-            self.menu = get_object_menu(self.parentWidget())
-
-        # elif isinstance(childWidget, TextboxWidget):
-        #     print("DC IS INSTANCE OF TEXT")
-        #     # self.child_object_type = WidgetType.TEXT
-        #     # self.menu = get_object_menu(self.parentWidget())
-
-        elif isinstance(childWidget, TableWidget):
-            self.child_object_type = WidgetType.TABLE
-            self.menu = table_object_menu(self.parentWidget())
-            self.childWidget.setEditTriggers(QTableWidget.DoubleClicked) # Connect the itemDoubleClicked signal of the table widget to the mouseDoubleClickEvent slot
-
-        # else:
-        #     print("An unsupported widget was added to the editor, this will break things.")
-        #     quit()
+    def newGeometryEvent(self, newGeometry: QRect):
+        print("NEW GEO EVENT")
+        self.childWidget.newGeometryEvent(self.geometry())
 
     def mouseReleaseEvent(self, event):
-        print("DC MOUSE RELEASE")
-        return True
+        return False
 
-    def setChildWidget(self, cWidget):
-        if cWidget:
-            self.childWidget = cWidget
+    def setChildWidget(self, childWidget):
+        if childWidget:
+            self.childWidget = childWidget
             self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
             self.childWidget.setParent(self)
             self.childWidget.releaseMouse()
-            self.vLayout.addWidget(cWidget)
+            self.vLayout.addWidget(childWidget)
             self.vLayout.setContentsMargins(0,0,0,0)
+            self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
 
     def popupShow(self, pt: QPoint):
         global_ = self.mapToGlobal(pt)
@@ -98,69 +74,16 @@ class DraggableContainer(QWidget):
         self.menu.exec(global_)
         self.m_showMenu = False
 
-    # This is probably sort of how we should let objects handle events (but without caring about child object type)
-    # CAN JUST CONNECT THIS DIRECTLY TO CHILD
-    def newGeometryEvent(self, e):
-        # if self.child_object_type == WidgetType.IMAGE:
-        #     self.childWidget.newGeometryEvent(e, self) # Give reference to this container to the child
-        # FIX CHANGES FROM THE ABOVE ON IMAGES
-        self.childWidget.newGeometryEvent(self.geometry())
-
-
-    def focusInEvent(self, a0: QFocusEvent):
-        print("DC FOCUS IN ")
-        # if hasattr(self, 'childWidget'): # Widget not present on first focus
-        #     if self.child_object_type == WidgetType.TEXT:
-        #         self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-
-        self.m_infocus = True
-        p = self.parentWidget()
-        p.installEventFilter(self)
-        p.repaint()
-        self.inFocus.emit(True)
-
-    def focusOutEvent(self, a0: QFocusEvent):
-        print("DC FOCUS OUT")
-        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True) # Events start going to parent when user focuses elsewhere
-
-        self.setCursor(QCursor(Qt.ArrowCursor)) # This could be a open hand or other cursor also
-        self.mode = Mode.MOVE # Not 100% sure this is correct
-
-        if not self.m_isEditing:
-            return
-        if self.m_showMenu:
-            return
-        self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value) # debt: Needs some kind of state manager or something
-        self.outFocus.emit(False)
-        self.m_infocus = False
-
-    # Called on resize, was used to fill rectangle's background, leaving in case we want
-    def paintEvent(self, e: QPaintEvent):
-        return
-#        painter = QPainter(self)
-#        color = (r, g, b, a) = (255, 0, 0, 16)
-#        painter.fillRect(e.rect(), QColor(r, g, b, a))
-#
-#        if self.m_infocus:
-#            rect = e.rect()
-#            rect.adjust(0,0,-1,-1)
-#            painter.setPen(QColor(r, g, b))
-#            painter.drawRect(rect)
-
     def mousePressEvent(self, e: QMouseEvent):
-        print("DC MOUSE PRESS")
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
 
         # Undo related
-        self.old_x = e.globalX()
-        self.old_y = e.globalY()
-        self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
+        # self.old_x = e.globalX()
+        # self.old_y = e.globalY()
+        # self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
 
         if not self.m_isEditing:
             print("NOT EDIT")
-            return
-        if not self.m_infocus:
-            print("NOT FOCUS")
             return
         if not e.buttons() and Qt.LeftButton:
             print("DC GOT MOUSE PRESS")
@@ -172,27 +95,44 @@ class DraggableContainer(QWidget):
 
     # On double click, send events to child and move cursor to end
     def mouseDoubleClickEvent(self, e: QMouseEvent):
-        # if self.child_object_type == WidgetType.TEXT and self.childWidget.toPlainText() == '': # debt: What does this do
-        #     self.parentWidget().setFocus()
-        # else:
-
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.childWidget.setFocus()
-
-        # Tables need doubleclick, text needs single? Not sure if thats how it works though
-        # if self.child_object_type == WidgetType.TEXT:
-        #     self.childWidget.mousePressEvent(e)
-        # elif self.child_object_type == WidgetType.TABLE:
-        #     self.childWidget.mouseDoubleClickEvent(e)
-
-        # Would be ideal if the user could click in the textbox to move the cursor, but the focus events are tricky...
-        # if self.child_object_type == WidgetType.TEXT:
-        #     self.childWidget.moveCursor(QTextCursor.End)
-        #     self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
-
-    def keyPressEvent(self, e: QKeyEvent):
-        if not self.m_isEditing: return
         return
+
+    def mouseReleaseEvent(self, e: QMouseEvent):
+        # self.parentWidget().undo_stack.append(self.old_state)
+        # self.parentWidget().autosaver.onChangeMade()
+        QWidget.mouseReleaseEvent(self, e)
+
+    def leaveEvent(self, e: QMouseEvent):
+        self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        self.childWidgetActive = False
+        QWidget.leaveEvent(self, e) # Need?
+        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+
+    def buildDragContainerMenu(self):
+        menu = QMenu()
+
+        delete = QAction("Delete", self)
+        delete.triggered.connect(lambda: print("DELETE"))
+        menu.addAction(delete)
+
+        copy = QAction("Copy", self)
+        copy.triggered.connect(lambda: print("COPY"))
+        menu.addAction(copy)
+
+        cut = QAction("Cut", self)
+        cut.triggered.connect(lambda: print("CUT"))
+        menu.addAction(cut)
+
+        # Append widget specific menu items
+        widgetCustomMenu = getattr(self.childWidget, "customMenuItems", None)
+        if callable(widgetCustomMenu):
+            widgetSpecificItems = self.childWidget.customMenuItems()
+            for item in widgetSpecificItems:
+                menu.addAction(item)
+
+        return menu
 
     # Determine which cursor to show and which mode to be in when user is interacting with the box
     def setCursorShape(self, e_pos: QPoint):
@@ -253,37 +193,16 @@ class DraggableContainer(QWidget):
             self.setCursor(QCursor(Qt. ArrowCursor))
             self.mode = Mode.MOVE
 
-    def mouseReleaseEvent(self, e: QMouseEvent):
-        # self.parentWidget().undo_stack.append(self.old_state)
-        # self.parentWidget().autosaver.onChangeMade()
-        QWidget.mouseReleaseEvent(self, e)
-
-    def leaveEvent(self, e: QMouseEvent):
-        QWidget.leaveEvent(self, e)
-
-        # debt: Comparison after the "and" is an attempt to keep the border when the focus is on a table's qlineedit cell
-        if self.parentWidget().focusWidget() != self.childWidget and (type(self.parentWidget().focusWidget()) != QLineEdit):
-            self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-
     # Determine how to handle the mouse being moved inside the box
     def mouseMoveEvent(self, e: QMouseEvent):
-        QWidget.mouseMoveEvent(self, e)
-
-        # # Dont need mouse move events on empty textbox
-        # if self.child_object_type == WidgetType.TEXT and self.childWidget.toPlainText() == '':
-        #     print("EMPTY TB")
-        #     return
-
-        # # Dont show border on images
-        # if self.child_object_type != WidgetType.IMAGE:
-        #     self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
+        # QWidget.mouseMoveEvent(self, e)
 
         self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value) # Show border on hover
 
         if not self.m_isEditing:
             return
-        if not self.m_infocus:
-            return
+        # if not self.m_infocus:
+        #     return
         if not e.buttons() and Qt.LeftButton:
             p = QPoint(e.x() + self.geometry().x(), e.y() + self.geometry().y())
             self.setCursorShape(p)
@@ -296,17 +215,8 @@ class DraggableContainer(QWidget):
             if toMove.y() < 0:return
             if toMove.x() > self.parentWidget().width() - self.width(): return
 
-            # Dont move outside the editor frame
-            # if(toMove.x() < self.parentWidget().width() - self.parentWidget().frame.width()):
-            #     return
-            # if(toMove.y() < self.parentWidget().height() - self.parentWidget().frame.height()):
-            #     return
-            # if(toMove.y() > self.parentWidget().frame.height() + 20):
-            #     return
-
             self.move(toMove)
             self.newGeometry.emit(self.geometry())
-            self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value)
             self.parentWidget().repaint()
 
         # debt: To make images resize better, ImageWidget should probaly implement this and setCursorShape
@@ -346,3 +256,5 @@ class DraggableContainer(QWidget):
                 self.resize(e.x(), e.y())
             self.parentWidget().repaint()
         self.newGeometry.emit(self.geometry())
+
+
