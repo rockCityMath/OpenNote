@@ -24,7 +24,10 @@ class TextboxWidget(QTextEdit):
 
     def __getstate__(self):
         data = {}
-        data['geometry'] = self.persistGeometry # this is wierd
+
+        # this is wierd, but dragcontainer position is seperate from this one, but we want that position
+        # this widgets pos can be set in newGeometryEvent I think but it flickers too much
+        data['geometry'] = self.persistGeometry
         data['content'] = self.toHtml()
         return data
 

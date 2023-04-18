@@ -2,7 +2,6 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
-from Modules.Enums import WidgetType
 from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
 from Widgets.Textbox import TextboxWidget
@@ -26,15 +25,19 @@ class EditorFrameView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         editorSignalsInstance.sectionChanged.connect(self.sectionChangedEvent)
-        editorSignalsInstance.widgetShouldLoad.connect(self.loadWidget)
+        editorSignalsInstance.widgetShouldLoad.connect(self.loadWidgetEvent)
+        editorSignalsInstance.widgetRemoved.connect(self.removeWidgetEvent)
 
         self.multiselector = Multiselector(self)
 
         print("BUILT FRAMEVIEW")
 
+    def removeWidgetEvent(self, draggableContainer):
+        draggableContainer.deleteLater()
+
     # Loading a preexisting (saved) widget into the frame inside a DraggableContainer
     # Then add that DC instance reference to the sectionModel's widgets[] for runtime
-    def loadWidget(self, widgetModel, sectionModel):
+    def loadWidgetEvent(self, widgetModel, sectionModel):
         dc = DraggableContainer(widgetModel, self)
         sectionModel.widgets.append(dc)
         print("LOADED CONTENT: ", widgetModel)

@@ -8,6 +8,8 @@ from Widgets.Table import TableWidget
 from Widgets.Textbox import TextboxWidget
 from Widgets.Image import ImageWidget
 
+from Modules.EditorSignals import editorSignalsInstance
+
 # Draggable object modes
 class Mode(Enum):
     NONE = 0,
@@ -114,7 +116,7 @@ class DraggableContainer(QWidget):
         menu = QMenu()
 
         delete = QAction("Delete", self)
-        delete.triggered.connect(lambda: print("DELETE"))
+        delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
         menu.addAction(delete)
 
         copy = QAction("Copy", self)

@@ -1,13 +1,12 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
-from Modules.Enums import TextBoxStyles, WidgetType
 
 class TableWidget(QWidget):
     def __init__(self, x, y, w, h, rows, cols):
         super(TableWidget, self).__init__()
 
-        # # The actual table widget
+        # The actual table widget
         self.table = QTableWidget(rows, cols, self)
 
         self.setGeometry(x, y, w, h)
@@ -20,7 +19,6 @@ class TableWidget(QWidget):
     def newGeometryEvent(self, newGeometry: QRect):
         self.table.resize(newGeometry.width(), newGeometry.height())
         self.persistantGeometry = newGeometry
-        self.isfocusonme = False
         return
 
     def addRow(self):

@@ -28,10 +28,16 @@ class SectionView(QWidget):
         self.tabs.currentChanged.connect(self.changeSection)
         editorSignalsInstance.pageChanged.connect(self.pageChangedEvent)
         editorSignalsInstance.widgetAdded.connect(self.widgetAddedEvent)
+        editorSignalsInstance.widgetRemoved.connect(self.widgetRemovedEvent)
         self.isLoading = False
 
         self.loadSections(sectionModels)
         print("BUILT SECTIONVIEW")
+
+    def widgetRemovedEvent(self, draggableContainer):
+        currentSectionIndex = self.tabs.currentIndex()
+        currentSectionModel = self.sectionModels[currentSectionIndex]
+        currentSectionModel.widgets.remove(draggableContainer)
 
     def widgetAddedEvent(self, draggableContainer):
         print("SECTIONVIEW KNOWS WIDGET ADDED")

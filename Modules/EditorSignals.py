@@ -8,6 +8,7 @@ class EditorSignals(QObject):
     pageChanged = Signal(object) # Recieves PageModel
     sectionChanged = Signal(object) # Receives SectionModel
     widgetAdded = Signal(object) # Receives DraggableContainer
+    widgetRemoved = Signal(object) # Receives DraggableContainer
 
     # Recieves any widget model, and the section model to add the instance of DraggableContainer to
     widgetShouldLoad = Signal(object, object)
