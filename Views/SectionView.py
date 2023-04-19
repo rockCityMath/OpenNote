@@ -24,6 +24,10 @@ class SectionView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.tabs.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tabs.setExpanding(False)
+        # self.tabs.setShape(QTabBar.TriangularNorth)
+        # self.setStyleSheet("QTabBar::pane { border: 0; }")
+
         self.tabs.customContextMenuRequested.connect(self.openMenu)
         self.tabs.currentChanged.connect(self.changeSection)
         editorSignalsInstance.pageChanged.connect(self.pageChangedEvent)
@@ -31,8 +35,17 @@ class SectionView(QWidget):
         editorSignalsInstance.widgetRemoved.connect(self.widgetRemovedEvent)
         self.isLoading = False
 
+        self.tabs.tabSizeHint = self.tabSizeHint
+        self.tabs.minimumTabSizeHint = self.minimumTabSizeHint
+
         self.loadSections(sectionModels)
         print("BUILT SECTIONVIEW")
+
+    def tabSizeHint(self, index):
+        return QSize(300, 25)
+
+    def minimumTabSizeHint(self, index):
+        return QSize(300, 25)
 
     def widgetRemovedEvent(self, draggableContainer):
         currentSectionIndex = self.tabs.currentIndex()

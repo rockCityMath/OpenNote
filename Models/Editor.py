@@ -17,7 +17,7 @@ from Views.SectionView import SectionView
 class Editor(QMainWindow):
     def __init__(self):
         super().__init__()
-
+        self.setWindowFlag(Qt.FramelessWindowHint)
         self.notebook = NotebookModel('Untitled Notebook')    # Current notebook object
         self.selected = None                                  # Selected object (for font attributes of TextBox)
 

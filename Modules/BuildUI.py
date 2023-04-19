@@ -40,7 +40,7 @@ def build_ui(editor):
     rightSideContainerWidget = QWidget()
     rightSideContainerWidget.setLayout(rightSideLayout)
     rightSideLayout.setContentsMargins(0, 0, 0, 0)
-    rightSideLayout.setSpacing(3)
+    rightSideLayout.setSpacing(0)
     rightSideLayout.setStretch(0, 0)
     rightSideLayout.setStretch(1, 1)
 
@@ -93,6 +93,7 @@ def build_toolbar(editor):
 
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
+    # size.setStyleSheet("margin-left: 10px;")
 
     # debt: The second lambda function is unclear and not good ux, it unselects the highlighted text after setting the font
     # size.currentIndexChanged.connect(lambda x: editor.selected.setFontPointSize(int(size.currentText()) if x else editor.selected.fontPointSize()))
@@ -106,13 +107,13 @@ def build_toolbar(editor):
         editor.selected.setTextCursor(cursor)
 
 
-    bold = build_action(toolbar, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
+    bold = build_action(toolbar, 'assets/icons/', "Bold", "Bold", True)
     bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
 
-    italic = build_action(toolbar, 'assets/icons/svg_font_italic', "Italic", "Italic", True)
+    italic = build_action(toolbar, 'assets/icons/', "Italic", "Italic", True)
     italic.toggled.connect(lambda x: editor.selected.setFontItalic(True if x else False))
 
-    underline = build_action(toolbar, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
+    underline = build_action(toolbar, 'assets/icons/', "Underline", "Underline", True)
     underline.toggled.connect(lambda x: editor.selected.setFontUnderline(True if x else False))
 
     toolbar.addWidget(font)

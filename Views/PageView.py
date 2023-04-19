@@ -68,7 +68,7 @@ class PageView(QWidget):
 
             self.tree.expandAll()
 
-            root.child(0).child(0).setBackground(QColor(193,220,243)) # Highlight first page (it's already selected)
+            # root.child(0).child(0).setBackground(QColor(193,220,243)) # Highlight first page (it's already selected)
             return
 
         seen: List[QStandardItemModel] = {}
@@ -101,7 +101,7 @@ class PageView(QWidget):
             parent.appendRow([newPage])
             seen[unique_id] = parent.child(parent.rowCount() - 1)
 
-        root.child(0).child(0).setBackground(QColor(193,220,243)) # Highlight first page (its selected)
+        # root.child(0).child(0).setBackground(QColor(193,220,243)) # Highlight first page (its selected)
         self.tree.expandAll() # Mb dont
         self.pageModels = pageModels    # Update the view's stored reference to the pageModels (in case we are loading new pages)
 
@@ -199,8 +199,8 @@ class PageView(QWidget):
         # Make sure the selected item actually looks selected - should improve this
         prev = self.model.itemFromIndex(previous)
         cur = self.model.itemFromIndex(current)
-        cur.setBackground(QColor(193,220,243))
-        prev.setBackground(QColor('white'))
+        # cur.setBackground(QColor(193,220,243))
+        # prev.setBackground(QColor('white'))
         self.update()
 
         newPage = self.model.itemFromIndex(current) # could save selected page
