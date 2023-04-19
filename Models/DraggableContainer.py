@@ -120,7 +120,7 @@ class DraggableContainer(QWidget):
         menu.addAction(delete)
 
         copy = QAction("Copy", self)
-        copy.triggered.connect(lambda: print("COPY"))
+        copy.triggered.connect(lambda: editorSignalsInstance.widgetCopied.emit(self))
         menu.addAction(copy)
 
         cut = QAction("Cut", self)

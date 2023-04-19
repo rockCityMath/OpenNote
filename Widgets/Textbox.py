@@ -33,5 +33,6 @@ class TextboxWidget(QTextEdit):
 
     def __setstate__(self, data):
         self.__init__(data['geometry'].x(), data['geometry'].y(), data['geometry'].width(), data['geometry'].height(), data['content'])
+        # print(type(self.__init__(data['geometry'].x(), data['geometry'].y(), data['geometry'].width(), data['geometry'].height(), data['content'])))
 
 

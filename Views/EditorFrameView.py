@@ -9,6 +9,7 @@ from Modules.EditorSignals import editorSignalsInstance
 from Widgets.Image import ImageWidget
 from Modules.Screensnip import SnippingWidget
 from Widgets.Table import TableWidget
+from Modules.Clipboard import Clipboard
 
 # Handles all widget display (could be called widget view, but so could draggablecontainer)
 class EditorFrameView(QWidget):
@@ -29,6 +30,7 @@ class EditorFrameView(QWidget):
         editorSignalsInstance.widgetRemoved.connect(self.removeWidgetEvent)
 
         self.multiselector = Multiselector(self)
+        self.clipboard = Clipboard()
 
         print("BUILT FRAMEVIEW")
 
@@ -41,6 +43,8 @@ class EditorFrameView(QWidget):
         dc = DraggableContainer(widgetModel, self)
         sectionModel.widgets.append(dc)
         print("LOADED CONTENT: ", widgetModel)
+
+        # AFTER PASTE DOES IT SAVE POSITION BEFORE MOVING
 
     def sectionChangedEvent(self, sectionModel):
         print("FRAME: NEW SECTION TITLE: " + sectionModel.title)
@@ -102,7 +106,7 @@ class EditorFrameView(QWidget):
 
             # Releasing the mouse after clicking to add text
             else:
-                self.addWidget(TextboxWidget, event.pos())
+                self.newWidgetOnSection(TextboxWidget, event.pos())
 
     def mousePressEvent(self, event):
         print("EDITORFRAME MOUSEPRESS")
@@ -114,15 +118,15 @@ class EditorFrameView(QWidget):
             frame_menu = QMenu(self)
 
             add_image = QAction("Add Image", self)
-            add_image.triggered.connect(lambda: self.addWidget(ImageWidget, event.pos()))
+            add_image.triggered.connect(lambda: self.newWidgetOnSection(ImageWidget, event.pos()))
             frame_menu.addAction(add_image)
 
             add_table = QAction("Add Table", editor)
-            add_table.triggered.connect(lambda: self.addWidget(TableWidget, event.pos()))
+            add_table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, event.pos()))
             frame_menu.addAction(add_table)
 
             paste = QAction("Paste", editor)
-            paste.triggered.connect(lambda: print("PASTE"))
+            paste.triggered.connect(lambda: self.pasteWidget(event.pos()))
             frame_menu.addAction(paste)
 
             take_screensnip = QAction("Snip Screen", editor)
@@ -131,8 +135,17 @@ class EditorFrameView(QWidget):
 
             frame_menu.exec(event.globalPos())
 
+    def pasteWidget(self, clickPos):
+        widgetOnClipboard = self.clipboard.getWidgetToPaste()
+        widgetOnClipboard.newGeometryEvent(QRect(clickPos.x(), clickPos.y(), widgetOnClipboard.width(), widgetOnClipboard.height()))
+
+        dc = DraggableContainer(widgetOnClipboard, self)
+        editorSignalsInstance.widgetAdded.emit(dc)  # Notify section that widget was added
+        dc.move(clickPos.x(), clickPos.y())
+        dc.show()
+
     def snipScreen(self, clickPos):
-        def onSnippingCompleted(imageMatrix):
+        def onSnippingCompleted(imageMatrix):            # Called after screensnipper gets image
             self.editor.setWindowState(Qt.WindowActive)
             self.editor.showMaximized()
             if imageMatrix is None:
@@ -140,23 +153,23 @@ class EditorFrameView(QWidget):
 
             widgetModel = ImageWidget.newFromMatrix(clickPos, imageMatrix)
             dc = DraggableContainer(widgetModel, self)
-            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section and editorFrame that a widget was added
+            editorSignalsInstance.widgetAdded.emit(dc)   # Notify the current section and editorFrame that a widget was added
             dc.show()
 
+        # Begin screensnip
         self.editor.setWindowState(Qt.WindowMinimized)
         self.snippingWidget = SnippingWidget()
         self.snippingWidget.onSnippingCompleted = onSnippingCompleted
         self.snippingWidget.start(clickPos)
 
-    def addWidget(self, widgetClass, clickPos):
+    def newWidgetOnSection(self, widgetClass, clickPos):
         print("ADDWIDGET: ", widgetClass)
         try:
-            widget = widgetClass.new(clickPos)     # All widget classes implement .new() static method
-            print("NEW CALLED")
+            widget = widgetClass.new(clickPos)          # All widget classes implement .new() static method
             dc = DraggableContainer(widget, self)
-            print("DC CALLED")
-            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section and editorFrame that a widget was added
             dc.show()
+
+            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section that a widget was added
 
         except Exception as e:
             print("Error adding widget: ", e)
