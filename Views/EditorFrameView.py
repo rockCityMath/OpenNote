@@ -29,6 +29,7 @@ class EditorFrameView(QWidget):
         editorSignalsInstance.widgetShouldLoad.connect(self.loadWidgetEvent)
         editorSignalsInstance.widgetRemoved.connect(self.removeWidgetEvent)
 
+
         self.multiselector = Multiselector(self)
         self.clipboard = Clipboard()
 
@@ -43,8 +44,6 @@ class EditorFrameView(QWidget):
         dc = DraggableContainer(widgetModel, self)
         sectionModel.widgets.append(dc)
         print("LOADED CONTENT: ", widgetModel)
-
-        # AFTER PASTE DOES IT SAVE POSITION BEFORE MOVING
 
     def sectionChangedEvent(self, sectionModel):
         print("FRAME: NEW SECTION TITLE: " + sectionModel.title)

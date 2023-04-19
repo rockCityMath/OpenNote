@@ -14,6 +14,35 @@ class TextboxWidget(QTextEdit):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.persistGeometry = self.geometry()
+        # self.setBackgroundColor(QColor.Red)
+
+    def changeBackgroundColorEvent(self, color: QColor):
+        print("NEW COLOR: ", color)
+        # self.setStyleSheet()
+        print(color.getRgb())
+        rgb = color.getRgb()
+        self.setStyleSheet(f'background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});')
+
+    def changeFontColorEvent(self, color: QColor):
+        print("NEW COLOR: ", color)
+        self.setTextColor(color)
+
+    def changeFontEvent(self, font: QFont):
+        print("NEW FONT: ", font)
+        self.setCurrentFont(font)
+
+    def changeFontSizeEvent(self, size: int):
+        print("CHANGEFONT: " + str(size))
+        self.setFontPointSize(size)
+
+    def changeFontBoldEvent(self):
+        self.setFontWeight(QFont.Bold)
+
+    def changeFontItalicEvent(self):
+        self.setFontItalic(True)
+
+    def changeFontUnderlineEvent(self):
+        self.setFontUnderline(True)
 
     @staticmethod
     def new(clickPos: QPoint):

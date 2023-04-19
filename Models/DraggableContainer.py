@@ -1,14 +1,9 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
-from enum import Enum
-
 from Modules.Enums import *
-from Widgets.Table import TableWidget
-from Widgets.Textbox import TextboxWidget
-from Widgets.Image import ImageWidget
-
-from Modules.EditorSignals import editorSignalsInstance
+from Modules.EditorSignals import editorSignalsInstance, ChangedWidgetAttribute
+from enum import Enum
 
 # Draggable object modes
 class Mode(Enum):
@@ -49,13 +44,12 @@ class DraggableContainer(QWidget):
         self.installEventFilter(editorFrame)
         self.setGeometry(childWidget.geometry())
         self.old_state = {}
-        self.newGeometry.connect(self.childWidget.newGeometryEvent)
+
         self.childWidgetActive = False
         self.menu = self.buildDragContainerMenu()
 
-    def newGeometryEvent(self, newGeometry: QRect):
-        print("NEW GEO EVENT")
-        self.childWidget.newGeometryEvent(self.geometry())
+        self.newGeometry.connect(childWidget.newGeometryEvent)
+        editorSignalsInstance.widgetAttributeChanged.connect(self.widgetAttributeChanged)
 
     def mouseReleaseEvent(self, event):
         return False
@@ -106,11 +100,15 @@ class DraggableContainer(QWidget):
         # self.parentWidget().autosaver.onChangeMade()
         QWidget.mouseReleaseEvent(self, e)
 
+    # This is not ideal
     def leaveEvent(self, e: QMouseEvent):
+
+        # Need only add/remove this specfic style, not the whole stylesheet
         self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-        self.childWidgetActive = False
-        QWidget.leaveEvent(self, e) # Need?
-        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+
+        if self.childWidget.hasFocus():
+            self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+            self.setFocus()
 
     def buildDragContainerMenu(self):
         menu = QMenu()
@@ -259,4 +257,29 @@ class DraggableContainer(QWidget):
             self.parentWidget().repaint()
         self.newGeometry.emit(self.geometry())
 
+    # Pass the event to the child widget if this container is focuesd, and childwidget implements the method to receive it
+    def widgetAttributeChanged(self, changedWidgetAttribute, value):
+        if self.hasFocus():
 
+            cw = self.childWidget
+
+            if hasattr(cw, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
+                cw.changeFontSizeEvent(value)
+
+            if hasattr(cw, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
+                cw.changeFontBoldEvent()
+
+            if hasattr(cw, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
+                cw.changeFontItalicEvent()
+
+            if hasattr(cw, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
+                cw.changeFontUnderlineEvent()
+
+            if hasattr(cw, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
+                cw.changeFontEvent(value)
+
+            if hasattr(cw, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
+                cw.changeFontColorEvent(value)
+
+            if hasattr(cw, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
+                cw.changeBackgroundColorEvent(value)
