@@ -44,6 +44,7 @@ class DraggableContainer(QWidget):
         self.installEventFilter(editorFrame)
         self.setGeometry(childWidget.geometry())
         self.old_state = {}
+        self.isSelected = True
 
         self.childWidgetActive = False
         self.menu = self.buildDragContainerMenu()
@@ -105,9 +106,10 @@ class DraggableContainer(QWidget):
 
         # Need only add/remove this specfic style, not the whole stylesheet
         self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
+        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
 
         if self.childWidget.hasFocus():
-            self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+
             self.setFocus()
 
     def buildDragContainerMenu(self):
@@ -123,6 +125,10 @@ class DraggableContainer(QWidget):
 
         cut = QAction("Cut", self)
         cut.triggered.connect(lambda: print("CUT"))
+        menu.addAction(cut)
+
+        cut = QAction("Select", self)
+        cut.triggered.connect(lambda: self.select)
         menu.addAction(cut)
 
         # Append widget specific menu items
@@ -259,27 +265,28 @@ class DraggableContainer(QWidget):
 
     # Pass the event to the child widget if this container is focuesd, and childwidget implements the method to receive it
     def widgetAttributeChanged(self, changedWidgetAttribute, value):
-        if self.hasFocus():
 
-            cw = self.childWidget
 
-            if hasattr(cw, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
-                cw.changeFontSizeEvent(value)
+        cw = self.childWidget
 
-            if hasattr(cw, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
-                cw.changeFontBoldEvent()
+        if hasattr(cw, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
+            cw.changeFontSizeEvent(value)
 
-            if hasattr(cw, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
-                cw.changeFontItalicEvent()
+        if hasattr(cw, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
+            cw.changeFontBoldEvent()
 
-            if hasattr(cw, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
-                cw.changeFontUnderlineEvent()
+        if hasattr(cw, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
+            cw.changeFontItalicEvent()
 
-            if hasattr(cw, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
-                cw.changeFontEvent(value)
+        if hasattr(cw, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
+            cw.changeFontUnderlineEvent()
 
-            if hasattr(cw, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
-                cw.changeFontColorEvent(value)
+        if hasattr(cw, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
+            cw.changeFontEvent(value)
 
-            if hasattr(cw, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
-                cw.changeBackgroundColorEvent(value)
+        if hasattr(cw, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
+            cw.changeFontColorEvent(value)
+
+        if hasattr(cw, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
+            cw.changeBackgroundColorEvent(value)
+

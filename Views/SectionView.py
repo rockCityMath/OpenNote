@@ -2,6 +2,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from Models.SectionModel import SectionModel
+from Modules.Undo import UndoHandler
 
 from typing import List
 from functools import partial
@@ -42,10 +43,10 @@ class SectionView(QWidget):
         print("BUILT SECTIONVIEW")
 
     def tabSizeHint(self, index):
-        return QSize(300, 25)
+        return QSize(300, 35)
 
     def minimumTabSizeHint(self, index):
-        return QSize(300, 25)
+        return QSize(300, 35)
 
     def widgetRemovedEvent(self, draggableContainer):
         currentSectionIndex = self.tabs.currentIndex()
@@ -54,7 +55,6 @@ class SectionView(QWidget):
 
     def widgetAddedEvent(self, draggableContainer):
         print("SECTIONVIEW KNOWS WIDGET ADDED")
-        # print("WIDGET TEXT: " + draggableContainer.childWidget.toPlainText())
 
         # Add the new widget to the current section's list of widgets
         currentSectionIndex = self.tabs.currentIndex()

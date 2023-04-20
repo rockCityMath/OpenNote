@@ -91,11 +91,11 @@ def build_toolbar(editor):
     editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
 
     font = QFontComboBox()
-    font.currentFontChanged.connect(lambda x: editorSignalsInstance.changeFont.emit(ChangedWidgetAttribute.Font, font.currentFont()))
+    font.currentFontChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font.currentFont()))
 
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
-    size.currentIndexChanged.connect(lambda x: editorSignalsInstance.changeFontSize.emit(ChangedWidgetAttribute.FontSize, int(size.currentText())))
+    size.currentIndexChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(size.currentText())))
 
     fontColor = build_action(toolbar, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
     fontColor.triggered.connect(lambda x: openGetColorDialog(purpose = "font"))

@@ -23,6 +23,7 @@ class PageView(QWidget):
 
         self.tree.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.tree.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.tree.setStyleSheet("padding-left: 10px;")
 
         # The layout that holds the view
         layout = QVBoxLayout(self)

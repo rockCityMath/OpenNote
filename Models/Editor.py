@@ -7,6 +7,7 @@ from Modules.Save import Autosaver
 from Modules.Screensnip import SnippingWidget
 from Models.NotebookModel import NotebookModel
 from Models.SectionModel import SectionModel
+from Modules.Undo import UndoHandler
 
 from Views.PageView import PageView
 from Views.EditorFrameView import EditorFrameView
@@ -17,7 +18,7 @@ from Views.SectionView import SectionView
 class Editor(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowFlag(Qt.FramelessWindowHint)
+        # self.setWindowFlag(Qt.FramelessWindowHint)
         self.notebook = NotebookModel('Untitled Notebook')    # Current notebook object
         self.selected = None                                  # Selected object (for font attributes of TextBox)
 
@@ -32,9 +33,7 @@ class Editor(QMainWindow):
         self.undo_stack = [] #QUndoStack()
         self.temp_buffer = []
 
-        self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
-        self.shortcut.setContext(Qt.ApplicationShortcut)
-        self.shortcut.activated.connect(self.undo_event)
+
 
         self.setFocus()
 

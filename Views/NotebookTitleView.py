@@ -11,7 +11,7 @@ class NotebookTitleView(QWidget):
 
         self.titleWidget = QTextEdit()
         self.titleWidget.setText(self.notebookTitle)
-        self.titleWidget.setFixedHeight(20)
+        self.titleWidget.setFixedHeight(30)
         self.titleWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.titleWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 

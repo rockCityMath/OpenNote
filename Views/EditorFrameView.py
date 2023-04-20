@@ -10,6 +10,7 @@ from Widgets.Image import ImageWidget
 from Modules.Screensnip import SnippingWidget
 from Widgets.Table import TableWidget
 from Modules.Clipboard import Clipboard
+from Modules.Undo import UndoHandler
 
 # Handles all widget display (could be called widget view, but so could draggablecontainer)
 class EditorFrameView(QWidget):
@@ -29,11 +30,15 @@ class EditorFrameView(QWidget):
         editorSignalsInstance.widgetShouldLoad.connect(self.loadWidgetEvent)
         editorSignalsInstance.widgetRemoved.connect(self.removeWidgetEvent)
 
-
         self.multiselector = Multiselector(self)
         self.clipboard = Clipboard()
+        self.undoHandler = UndoHandler()
 
         print("BUILT FRAMEVIEW")
+
+        self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
+        self.shortcut.setContext(Qt.ApplicationShortcut)
+        self.shortcut.activated.connect(self.undoHandler.undo)
 
     def removeWidgetEvent(self, draggableContainer):
         draggableContainer.deleteLater()
