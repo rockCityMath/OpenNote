@@ -266,7 +266,6 @@ class DraggableContainer(QWidget):
     # Pass the event to the child widget if this container is focuesd, and childwidget implements the method to receive it
     def widgetAttributeChanged(self, changedWidgetAttribute, value):
 
-
         cw = self.childWidget
 
         if hasattr(cw, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):

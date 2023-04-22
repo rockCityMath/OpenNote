@@ -26,23 +26,34 @@ class TextboxWidget(QTextEdit):
     def changeFontColorEvent(self, color: QColor):
         print("NEW COLOR: ", color)
         self.setTextColor(color)
+        self.removeSelection()
 
     def changeFontEvent(self, font: QFont):
         print("NEW FONT: ", font)
         self.setCurrentFont(font)
+        self.removeSelection()
 
     def changeFontSizeEvent(self, size: int):
         print("CHANGEFONT: " + str(size))
         self.setFontPointSize(size)
+        self.removeSelction()
 
     def changeFontBoldEvent(self):
         self.setFontWeight(QFont.Bold)
+        self.removeSelection()
 
     def changeFontItalicEvent(self):
         self.setFontItalic(True)
+        self.removeSelection()
 
     def changeFontUnderlineEvent(self):
         self.setFontUnderline(True)
+        self.removeSelection()
+
+    def removeSelection(self):
+        cursor = self.textCursor()
+        cursor.clearSelection()
+        self.setTextCursor(cursor)
 
     @staticmethod
     def new(clickPos: QPoint):
