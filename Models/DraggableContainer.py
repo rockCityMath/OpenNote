@@ -41,19 +41,18 @@ class DraggableContainer(QWidget):
         self.setChildWidget(childWidget)
         self.m_showMenu = False
         self.m_isEditing = True
-        self.installEventFilter(editorFrame)
+        # self.installEventFilter(editorFrame)
         self.setGeometry(childWidget.geometry())
         self.old_state = {}
-        self.isSelected = True
+        self.isSelected = False
+
+        self.previousGeometry = self.geometry() # for undo
 
         self.childWidgetActive = False
         self.menu = self.buildDragContainerMenu()
 
         self.newGeometry.connect(childWidget.newGeometryEvent)
         editorSignalsInstance.widgetAttributeChanged.connect(self.widgetAttributeChanged)
-
-    def mouseReleaseEvent(self, event):
-        return False
 
     def setChildWidget(self, childWidget):
         if childWidget:
@@ -63,7 +62,6 @@ class DraggableContainer(QWidget):
             self.childWidget.releaseMouse()
             self.vLayout.addWidget(childWidget)
             self.vLayout.setContentsMargins(0,0,0,0)
-            self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
 
     def popupShow(self, pt: QPoint):
         global_ = self.mapToGlobal(pt)
@@ -74,10 +72,14 @@ class DraggableContainer(QWidget):
     def mousePressEvent(self, e: QMouseEvent):
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
 
+        print("DC MOUSE PRESS")
+
         # Undo related
         # self.old_x = e.globalX()
         # self.old_y = e.globalY()
         # self.old_state = {'type':'object','action':'move','name':self.name,'x':self.old_x,'y':self.old_y}
+
+        self.previousGeometry = self.geometry()
 
         if not self.m_isEditing:
             print("NOT EDIT")
@@ -90,7 +92,7 @@ class DraggableContainer(QWidget):
             self.popupShow(e.pos())
             e.accept()
 
-    # On double click, send events to child and move cursor to end
+    # On double click, focus on child and make mouse events pass through this container to child
     def mouseDoubleClickEvent(self, e: QMouseEvent):
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.childWidget.setFocus()
@@ -99,17 +101,16 @@ class DraggableContainer(QWidget):
     def mouseReleaseEvent(self, e: QMouseEvent):
         # self.parentWidget().undo_stack.append(self.old_state)
         # self.parentWidget().autosaver.onChangeMade()
-        QWidget.mouseReleaseEvent(self, e)
 
-    # This is not ideal
+        print("MOURSE release")
+        self.parentWidget().newGeometryOnDCEvent(self)
+        return True # Dont let the release go to the editor frame
+
     def leaveEvent(self, e: QMouseEvent):
-
-        # Need only add/remove this specfic style, not the whole stylesheet
-        self.childWidget.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self.setStyleSheet("border: none;")
 
         if self.childWidget.hasFocus():
-
             self.setFocus()
 
     def buildDragContainerMenu(self):
@@ -201,14 +202,11 @@ class DraggableContainer(QWidget):
 
     # Determine how to handle the mouse being moved inside the box
     def mouseMoveEvent(self, e: QMouseEvent):
-        # QWidget.mouseMoveEvent(self, e)
-
-        self.childWidget.setStyleSheet(TextBoxStyles.INFOCUS.value) # Show border on hover
+        self.setStyleSheet("border: 1px dashed rgba(0, 0, 0, 0.5)")
+        # QWidget.mouseMoveEvent(self, e) need??
 
         if not self.m_isEditing:
             return
-        # if not self.m_infocus:
-        #     return
         if not e.buttons() and Qt.LeftButton:
             p = QPoint(e.x() + self.geometry().x(), e.y() + self.geometry().y())
             self.setCursorShape(p)

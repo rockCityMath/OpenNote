@@ -13,7 +13,6 @@ class Clipboard:
         self.copiedWidgetClass = type(widget)
         self.copiedWidgetState = widget.__getstate__()
 
-
     def getWidgetToPaste(self):
         widgetState = self.copiedWidgetState
         widgetClass = self.copiedWidgetClass
