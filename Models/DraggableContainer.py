@@ -134,7 +134,8 @@ class DraggableContainer(QWidget):
         # Append widget specific menu items
         widgetCustomMenu = getattr(self.childWidget, "customMenuItems", None)
         if callable(widgetCustomMenu):
-            widgetSpecificItems = self.childWidget.customMenuItems()
+            #creation of QWidgetAction requires the parent menu, so we must pass it to child widget.
+            widgetSpecificItems = self.childWidget.customMenuItems(menu)
             for item in widgetSpecificItems:
                 menu.addAction(item)
 
