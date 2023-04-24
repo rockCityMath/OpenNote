@@ -29,4 +29,7 @@ class EditorSignals(QObject):
     # Receives (ChangedWidgetAttribute, value)
     widgetAttributeChanged = Signal(object, object)
 
+    # Recieves nothing, used by autosaver
+    changeMade = Signal()
+
 editorSignalsInstance = EditorSignals()

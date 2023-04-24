@@ -49,6 +49,7 @@ class EditorFrameView(QWidget):
         dc = DraggableContainer(widgetOnClipboard, self)
         self.undoHandler.pushCreate(dc)
         editorSignalsInstance.widgetAdded.emit(dc)  # Notify section that widget was added
+        editorSignalsInstance.changeMade.emit()
         dc.move(clickPos.x(), clickPos.y())
         dc.show()
 
@@ -80,6 +81,7 @@ class EditorFrameView(QWidget):
 
             self.undoHandler.pushCreate(dc)             # Push to undo stack
             editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section that a widget was added
+            editorSignalsInstance.changeMade.emit()
             dc.mouseDoubleClickEvent(None)              # Enter the child widget after adding
 
         except Exception as e:
@@ -88,6 +90,7 @@ class EditorFrameView(QWidget):
     # When the DC geometry is changed, tell the undoHandler
     def newGeometryOnDCEvent(self, dc):
         self.undoHandler.pushGeometryChange(dc, dc.previousGeometry)
+        editorSignalsInstance.changeMade.emit()
 
     # Special case for adding a widget by undoing a delete, since position is already set
     def undoWidgetDeleteEvent(self, widget):
@@ -102,6 +105,7 @@ class EditorFrameView(QWidget):
 
     def removeWidgetEvent(self, draggableContainer):
         self.undoHandler.pushDelete(draggableContainer)
+        editorSignalsInstance.changeMade.emit()
         draggableContainer.deleteLater()
 
     # Loading a preexisting (saved) widget into the frame inside a DraggableContainer
@@ -192,8 +196,6 @@ class EditorFrameView(QWidget):
             frame_menu.addAction(take_screensnip)
 
             frame_menu.exec(event.globalPos())
-
-
 
     def mouseMoveEvent(self, event): # This event is only called after clicking down on the frame and dragging
         return

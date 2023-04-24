@@ -80,7 +80,7 @@ def build_menubar(editor):
 
     save_fileAs = build_action(editor, 'assets/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
     save_fileAs.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
-    save_fileAs.triggered.connect(lambda: saveAs(editor, editor.notebook))
+    save_fileAs.triggered.connect(lambda: saveAs(editor))
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
 
