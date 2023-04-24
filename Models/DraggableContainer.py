@@ -51,7 +51,7 @@ class DraggableContainer(QWidget):
         self.childWidgetActive = False
         self.menu = self.buildDragContainerMenu()
 
-        self.newGeometry.connect(childWidget.newGeometryEvent)
+        if hasattr(self.childWidget, "newGeometryEvent"): self.newGeometry.connect(childWidget.newGeometryEvent)
         editorSignalsInstance.widgetAttributeChanged.connect(self.widgetAttributeChanged)
 
     def setChildWidget(self, childWidget):
@@ -60,8 +60,16 @@ class DraggableContainer(QWidget):
             self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
             self.childWidget.setParent(self)
             self.childWidget.releaseMouse()
+            self.childWidget.installEventFilter(self)
             self.vLayout.addWidget(childWidget)
             self.vLayout.setContentsMargins(0,0,0,0)
+
+    def eventFilter(self, obj, event):
+
+        # If child widget resized itsself, resize this drag container, not ideal bc child resizes on hover
+        if isinstance(event, QResizeEvent):
+            self.resize(self.childWidget.size())
+        return False
 
     def popupShow(self, pt: QPoint):
         global_ = self.mapToGlobal(pt)
@@ -102,7 +110,6 @@ class DraggableContainer(QWidget):
         # self.parentWidget().undo_stack.append(self.old_state)
         # self.parentWidget().autosaver.onChangeMade()
 
-        print("MOURSE release")
         self.parentWidget().newGeometryOnDCEvent(self)
         return True # Dont let the release go to the editor frame
 
@@ -110,6 +117,12 @@ class DraggableContainer(QWidget):
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setStyleSheet("border: none;")
 
+        # Delete this DC if childWidget says it's empty
+        if hasattr(self.childWidget, "checkEmpty"):
+            if self.childWidget.checkEmpty():
+                editorSignalsInstance.widgetRemoved.emit(self)
+
+        # ???
         if self.childWidget.hasFocus():
             self.setFocus()
 

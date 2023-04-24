@@ -3,7 +3,7 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
 class TextboxWidget(QTextEdit):
-    def __init__(self, x, y, w = 100, h = 100, t = 'new text!'):
+    def __init__(self, x, y, w = 15, h = 30, t = ''):
         super().__init__()
 
         self.setGeometry(x, y, w, h)                       # This sets geometry of DraggableObject
@@ -11,8 +11,12 @@ class TextboxWidget(QTextEdit):
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.textChanged.connect(self.textChangedEvent)
 
-        self.persistGeometry = self.geometry()
+    def textChangedEvent(self):
+        if len(self.toPlainText()) < 2:
+            print("RESIZE TEXT")
+            self.resize(100, 100)
 
     def changeBackgroundColorEvent(self, color: QColor):
         print("NEW COLOR: ", color)
@@ -54,9 +58,6 @@ class TextboxWidget(QTextEdit):
     def new(clickPos: QPoint):
         return TextboxWidget(clickPos.x(), clickPos.y())
 
-    def newGeometryEvent(self, newGeometry: QRect):
-        self.persistGeometry = newGeometry
-
     def __getstate__(self):
         data = {}
 
@@ -66,5 +67,10 @@ class TextboxWidget(QTextEdit):
 
     def __setstate__(self, data):
         self.__init__(data['geometry'].x(), data['geometry'].y(), data['geometry'].width(), data['geometry'].height(), data['content'])
+
+    def checkEmpty(self):
+        if len(self.toPlainText()) < 1:
+            return True
+        return False
 
 

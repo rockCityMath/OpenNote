@@ -45,7 +45,6 @@ class EditorFrameView(QWidget):
 
     def pasteWidget(self, clickPos):
         widgetOnClipboard = self.clipboard.getWidgetToPaste()
-        widgetOnClipboard.newGeometryEvent(QRect(clickPos.x(), clickPos.y(), widgetOnClipboard.width(), widgetOnClipboard.height()))
 
         dc = DraggableContainer(widgetOnClipboard, self)
         self.undoHandler.pushCreate(dc)
@@ -81,6 +80,7 @@ class EditorFrameView(QWidget):
 
             self.undoHandler.pushCreate(dc)             # Push to undo stack
             editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section that a widget was added
+            dc.mouseDoubleClickEvent(None)              # Enter the child widget after adding
 
         except Exception as e:
             print("Error adding widget: ", e)
