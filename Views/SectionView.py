@@ -14,7 +14,7 @@ class SectionView(QWidget):
     def __init__(self, sectionModels: List[SectionModel]):
         super(SectionView, self).__init__()
 
-        self.sectionModels: List[SectionModel] # Reference to the current section models
+        self.sectionModels: List[SectionModel] # Reference to the current section models (draggableContainer in runtime)
 
         # The tabbed section widget
         self.tabs = QTabBar(self)

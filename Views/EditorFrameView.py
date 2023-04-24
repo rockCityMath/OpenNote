@@ -31,9 +31,11 @@ class EditorFrameView(QWidget):
         editorSignalsInstance.widgetRemoved.connect(self.removeWidgetEvent)
 
         # Modularized functionality for the editorFrame and its widgets
-        self.multiselector = Multiselector(self)
         self.clipboard = Clipboard()
         self.undoHandler = UndoHandler()
+        self.multiselector = Multiselector(self)
+
+        self.installEventFilter(self.multiselector)
 
         # Undo setup
         self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
@@ -129,37 +131,6 @@ class EditorFrameView(QWidget):
             print(widget)
             widget.show()
 
-        # probably move this to a multiselector class
-        # Only recieves events from DraggableContainers rn, but may need to recieve others at some point
-        # if isinstance(object, DraggableContainer):
-        #     multiselector = self.multiselector
-
-        #     # If clicking on an object
-        #     if event.type() == QEvent.MouseButtonPress:
-        #         print("EVENTFILTER TOOK EVENT")
-        #         if multiselector.mode == MultiselectMode.HAS_SELECTED_OBJECTS:
-        #             multiselector.beginDragIfObjectSelected(object, event)
-
-        #     if event.type() == QEvent.MouseMove:
-        #         if multiselector.mode == MultiselectMode.IS_DRAGGING_OBJECTS:
-        #             multiselector.dragObjects(event)
-        #             return True # Keep the event from going to the draggablecontainer so it doesnt have that mousemoveevent run on it too
-
-        #     # If in object-moving mode, and the mouse is released, reset all multiselecting
-        #     if event.type() == QEvent.MouseButtonRelease and isinstance(object, DraggableContainer):
-        #         if multiselector.mode == MultiselectMode.IS_DRAGGING_OBJECTS:
-        #             multiselector.finishDraggingObjects()
-
-        #     # After the selection is made, its possible that the user moves in and out of selected textboxes,
-        #     # This will remove their focus border, this mitigates that. Note: Do not let this run when the object is moving, its too expensive bc too many paint events
-        #     if multiselector.mode != MultiselectMode.NONE and multiselector.mode != MultiselectMode.IS_DRAGGING_OBJECTS and event.type() == QEvent.Paint:
-        #         multiselector.focusObjectIfInMultiselect()
-
-        #     return False
-
-        # else:
-        #     return False
-
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
 
@@ -198,11 +169,11 @@ class EditorFrameView(QWidget):
             frame_menu.exec(event.globalPos())
 
     def mouseMoveEvent(self, event): # This event is only called after clicking down on the frame and dragging
-        return
-        # Set up multi-select on first move of mouse drag
-        # if self.multiselector.mode != MultiselectMode.IS_DRAWING_AREA:
-        #     self.multiselector.beginDrawingArea(event)
 
-        # # Resize multi-select widget on mouse every proceeding mouse movement (dragging)
-        # else:
-        #     self.multiselector.continueDrawingArea(event)
+        # Set up multi-select on first move of mouse drag
+        if self.multiselector.mode != MultiselectMode.IS_DRAWING_AREA:
+            self.multiselector.beginDrawingArea(event)
+
+        # Resize multi-select widget on mouse every proceeding mouse movement (dragging)
+        else:
+            self.multiselector.continueDrawingArea(event)

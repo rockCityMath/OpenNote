@@ -41,7 +41,7 @@ class DraggableContainer(QWidget):
         self.setChildWidget(childWidget)
         self.m_showMenu = False
         self.m_isEditing = True
-        # self.installEventFilter(editorFrame)
+        self.installEventFilter(editorFrame.multiselector)
         self.setGeometry(childWidget.geometry())
         self.old_state = {}
         self.isSelected = False
