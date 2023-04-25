@@ -141,10 +141,6 @@ class DraggableContainer(QWidget):
         cut.triggered.connect(lambda: print("CUT"))
         menu.addAction(cut)
 
-        cut = QAction("Select", self)
-        cut.triggered.connect(lambda: self.select)
-        menu.addAction(cut)
-
         # Append widget specific menu items
         widgetCustomMenu = getattr(self.childWidget, "customMenuItems", None)
         if callable(widgetCustomMenu):

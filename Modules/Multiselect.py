@@ -129,7 +129,9 @@ class Multiselector(QObject):
 
             # For some reason it will kind of attempt to move the objects as if the last object in the array was selected by the user
             # So offset that, then add a y offset becase it does something weird with that too
+
             toMove = toMove - self.dragOffset - QPoint(0, 20)
+            toMove = self.editorFrame.mapFromGlobal(toMove)
 
             # If an object wants to move out of bounds, quit the loop and eat the event
             if toMove.x() < 0: return True
