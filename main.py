@@ -10,6 +10,7 @@ if __name__ == "__main__":
 
     editor = Editor()
     load_most_recent_notebook(editor)
+
     editor.showMaximized()
 
     sys.exit(app.exec())

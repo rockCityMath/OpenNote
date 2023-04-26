@@ -1,53 +1,76 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
-from Modules.Enums import TextBoxStyles, WidgetType
 
 class TextboxWidget(QTextEdit):
-    def __init__(self, editor, x, y, w, h, t):
-        super().__init__(editor)
+    def __init__(self, x, y, w = 15, h = 30, t = ''):
+        super().__init__()
 
-        self.editor = editor
-        self.type = WidgetType.TEXT
-        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value) # debt: this gets set all over the place
-        self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject, I think
+        self.setGeometry(x, y, w, h)                       # This sets geometry of DraggableObject
         self.setText(t)
+
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.show()
+        self.textChanged.connect(self.textChangedEvent)
 
-    # Set the textbox as selected so that the editor can change font attributes
-    def mousePressEvent(self, event):
-        self.editor.selected = self
-        QTextEdit.mousePressEvent(self, event)
-
-    def focusOutEvent(self, event):
-        editor = self.parentWidget().parentWidget()
-        self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-        if self.toPlainText() == '':
-            for o in range(len(editor.object) - 1):
-                if editor.notebook.page[editor.page].section[editor.section].object[o].type == WidgetType.TEXT:
-                    if editor.object[o].childWidget.toPlainText() == '':
-                        editor.object[o].deleteLater()
-                        editor.object.pop(o)
-                        editor.notebook.page[editor.page].section[editor.section].object.pop(o)
-                        editor.autosaver.onChangeMade()
-        QTextEdit.focusOutEvent(self, event)
-
-    # When user starts typing in new box, expand its size
-    def keyPressEvent(self, event):
-        if len(self.toPlainText()) == 0:
+    def textChangedEvent(self):
+        if len(self.toPlainText()) < 2:
+            print("RESIZE TEXT")
             self.resize(100, 100)
-            self.parentWidget().resize(100, 100)
-            self.setStyleSheet(TextBoxStyles.INFOCUS.value)
-        QTextEdit.keyPressEvent(self, event)
 
-class TextboxPickleable():
-    def __init__(self,name, x, y, w, h, t):
-        self.name=name
-        self.x = x         
-        self.y = y
-        self.w = w
-        self.h = h
-        self.text = t    
-        self.type = WidgetType.TEXT
+    def changeBackgroundColorEvent(self, color: QColor):
+        print("NEW COLOR: ", color)
+        # self.setStyleSheet()
+        print(color.getRgb())
+        rgb = color.getRgb()
+        self.setStyleSheet(f'background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});')
+
+    def changeFontColorEvent(self, color: QColor):
+        self.setTextColor(color)
+        self.removeSelection()
+
+    def changeFontEvent(self, font: QFont):
+        self.setCurrentFont(font)
+        self.removeSelection()
+
+    def changeFontSizeEvent(self, size: int):
+        self.setFontPointSize(size)
+        self.removeSelction()
+
+    def changeFontBoldEvent(self):
+        self.setFontWeight(QFont.Bold)
+        self.removeSelection()
+
+    def changeFontItalicEvent(self):
+        self.setFontItalic(True)
+        self.removeSelection()
+
+    def changeFontUnderlineEvent(self):
+        self.setFontUnderline(True)
+        self.removeSelection()
+
+    def removeSelection(self):
+        cursor = self.textCursor()
+        cursor.clearSelection()
+        self.setTextCursor(cursor)
+
+    @staticmethod
+    def new(clickPos: QPoint):
+        return TextboxWidget(clickPos.x(), clickPos.y())
+
+    def __getstate__(self):
+        data = {}
+
+        data['geometry'] = self.parentWidget().geometry()
+        data['content'] = self.toHtml()
+        return data
+
+    def __setstate__(self, data):
+        self.__init__(data['geometry'].x(), data['geometry'].y(), data['geometry'].width(), data['geometry'].height(), data['content'])
+
+    def checkEmpty(self):
+        if len(self.toPlainText()) < 1:
+            return True
+        return False
+
+

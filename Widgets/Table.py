@@ -1,85 +1,68 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
-from Modules.Enums import TextBoxStyles, WidgetType
 
-class TableWidget(QTableWidget):
-    def __init__(self, editor, x, y,w,h, rows, cols,t=[]):
-            super().__init__(rows, cols, editor)
-            #self.setEditTriggers(QTableWidget.DoubleClicked) # debt: What is this
-            self.rows=rows
-            self.cols=cols
-            self.editor = editor
-            self.t = [[0 for j in range(cols)] for i in range(rows)]
-            self.type = WidgetType.TABLE
-            self.setStyleSheet(TextBoxStyles.OUTFOCUS.value)
-            self.setGeometry(x, y, w, h) # This sets geometry of DraggableObject
-            self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.show()
-            self.cellChanged.connect(self.on_cell_changed)
-            
-    # Clicking into the cells is offset for some reason, correcting it
-    def mouseDoubleClickEvent(self, e):
-        corrected_pos = QPoint(e.pos().x()-25, e.pos().y()-35)
-        new_event = QMouseEvent(QEvent.MouseButtonDblClick, corrected_pos, e.button(), e.buttons(), e.modifiers())
-        self.setFocus()
-        self.setStyleSheet(TextBoxStyles.INFOCUS.value) # Not ideal
-        QTableWidget.mouseDoubleClickEvent(self, new_event)
-    
-    def on_cell_changed(self, row, col):
-        value = self.item(row, col).text()
-        self.t[row][col] = value
-        
-    def add_column(self):
-        # Get the current number of columns in the table
-        num_cols = self.columnCount()
+class TableWidget(QWidget):
+    def __init__(self, x, y, w, h, rows, cols):
+        super(TableWidget, self).__init__()
 
-        # Insert a new column at the end of the table
-        self.insertColumn(num_cols)
+        # The actual table widget
+        self.table = QTableWidget(rows, cols, self)
 
-        # Update the number of columns in the table
-        self.cols += 1
-        
-    def del_col(self):
-        # Get the selected row index
-        selected_col = self.currentRow()
+        self.setGeometry(x, y, w, h)
+        self.table.setGeometry(0, 0, w, h)
+        self.resize(w, h)
+        self.persistantGeometry = self.geometry()
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, True) # If extending a qwidget to insert something else, dont receive mouse events
 
-        # Remove the selected row from the table
-        self.removeColumn(selected_col)
+    # Child widget not concerned with pos but is with w, h
+    def newGeometryEvent(self, newGeometry: QRect):
+        self.table.resize(newGeometry.width(), newGeometry.height())
+        self.persistantGeometry = newGeometry
+        return
 
-        # Update the number of rows in the table
-        self.cols -= 1
-         
-    def add_row(self):
-        # Get the current number of rows in the table
-        num_rows = self.rowCount()
+    def addRow(self):
+        self.table.insertRow(self.table.rowCount())
 
-        # Insert a new row at the end of the table
-        self.insertRow(num_rows)
+    def addCol(self):
+        self.table.insertColumn(self.table.columnCount())
 
-        # Update the number of rows in the table
-        self.rows += 1
-        
-    def del_row(self):
-        # Get the selected row index
-        selected_row = self.currentRow()
+    @staticmethod
+    def new(clickPos: QPoint):
+        return TableWidget(clickPos.x(), clickPos.y(), 200, 200, 2, 2)
 
-        # Remove the selected row from the table
-        self.removeRow(selected_row)
+    def customMenuItems(self):
+        addRow = QAction("Add Row", self)
+        addRow.triggered.connect(self.addRow)
 
-        # Update the number of rows in the table
-        self.rows -= 1
+        addCol = QAction("Add Column", self)
+        addCol.triggered.connect(self.addCol)
 
-class TablePickleable():
-    def __init__(self,name, x, y, w, h, rows, cols, t=[]):
-        self.name=name
-        self.x = x          
-        self.y = y
-        self.w = w
-        self.h = h
-        
-        self.t = [[0 for j in range(cols)] for i in range(rows)]
-        self.type = WidgetType.TABLE
-        self.rows = rows
-        self.cols = cols
+        return [addRow, addCol]
+
+    def __getstate__(self):
+        state = {}
+
+        t = self.table
+        rowCnt = t.rowCount()
+        colCnt = t.columnCount()
+        tableData = [["" if t.item(i, j) == None else t.item(i, j).text() for i in range(rowCnt)] for j in range(colCnt)] # :)
+
+        state['tableData'] = tableData
+        state['geometry'] = self.parentWidget().geometry() # Can get whole geometry from parent, or just the pos
+        return state
+
+    def __setstate__(self, state):
+        self.__init__(state['geometry'].x(),
+                      state['geometry'].y(),
+                      state['geometry'].width(),
+                      state['geometry'].height(),
+                      len(state['tableData'][0]),
+                      len(state['tableData']))
+
+        rowCnt = len(state['tableData'][0])
+        colCnt = len(state['tableData'])
+
+        for i in range(colCnt):
+            for j in range(rowCnt):
+                self.table.setItem(j, i, QTableWidgetItem(state['tableData'][i][j]))

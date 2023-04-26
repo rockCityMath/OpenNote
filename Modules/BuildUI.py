@@ -1,108 +1,69 @@
-from Modules.Enums import WidgetType
 from Modules.Save import save, saveAs
 from Modules.Load import new, load
-from Modules.PageActions import add_page
-from Modules.SectionActions import add_section
-from Modules.ObjectActions import add_object, paste_object
-from Models.EditorFrame import EditorFrame
 
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
+from Modules.EditorSignals import editorSignalsInstance, ChangedWidgetAttribute
+
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 #builds the application's UI
 def build_ui(editor):
-
-    #TODO: Finish UI refactor - Natalio
+    print("Building UI...")
 
     #editor.statusBar = editor.statusBar()
     build_window(editor)
     build_menubar(editor)
     build_toolbar(editor)
 
-    container = QWidget()
-    grid = QGridLayout()
-    editor.setCentralWidget(container)
-    container.setLayout(grid)
-    grid.setSpacing(0)
-    grid.setContentsMargins(0, 0, 0, 0)
+    # Application's main layout (grid)
+    gridLayout = QGridLayout()
+    gridContainerWidget = QWidget()
+    editor.setCentralWidget(gridContainerWidget)
+    gridContainerWidget.setLayout(gridLayout)
 
-    # sidebar and workspace layout
-    sidebar = QVBoxLayout()
-    sidebar_widget = QWidget()
-    sidebar_widget.setFixedWidth(250)
-    sidebar_widget.setLayout(sidebar)
-    workspace = QVBoxLayout()
-    grid.addWidget(sidebar_widget)
-    grid.addLayout(workspace, 0, 1, -1, 1)
-    grid.setColumnStretch(0, 1)
-    grid.setColumnStretch(1, 4)
+    gridLayout.setSpacing(3)
+    gridLayout.setContentsMargins(6, 6, 0, 0)
 
-    # sidebar widgets
-    editor.notebook_title = QTextEdit()
-    editor.notebook_title.setText(editor.notebook.title)
-    editor.notebook_title.setFixedHeight(40)
-    editor.pages_title = QLabel()
-    editor.pages_title.setFixedHeight(40)
-    editor.pages = QVBoxLayout()
-    sidebar.setContentsMargins(0, 0, 0, 0)
-    editor.pages.setContentsMargins(0, 0, 0, 0)
-    editor.pages_frame = QFrame()
+    gridLayout.setColumnStretch(0, 1) # The left side (index 0) will take up 1/7? of the space of the right
+    gridLayout.setColumnStretch(1, 7)
 
-    #sidebar.setStretchFactor(editor.pages, 1)
-    addPage = QPushButton("Create New Page")
-    addPage.clicked.connect(lambda: add_page(editor))
-    sidebar.addWidget(editor.notebook_title)
-    sidebar.addWidget(editor.pages_title)
-    sidebar.addLayout(editor.pages)
-    sidebar.addWidget(editor.pages_frame)
-    sidebar.addWidget(addPage)
+    # Left side of the app's layout
+    leftSideLayout = QVBoxLayout()
+    leftSideContainerWidget = QWidget()
+    leftSideContainerWidget.setLayout(leftSideLayout)
+    leftSideLayout.setContentsMargins(0, 0, 0, 0)
+    leftSideLayout.setSpacing(0)
 
-    # workspace widgets
-    sections = QHBoxLayout()
-    sections_widget = QWidget()
-    sections_widget.setFixedHeight(40)
-    sections_widget.setLayout(sections)
+    # Right side of the app's layout
+    rightSideLayout = QVBoxLayout()
+    rightSideContainerWidget = QWidget()
+    rightSideContainerWidget.setLayout(rightSideLayout)
+    rightSideLayout.setContentsMargins(0, 0, 0, 0)
+    rightSideLayout.setSpacing(0)
+    rightSideLayout.setStretch(0, 0)
+    rightSideLayout.setStretch(1, 1)
 
-    editor.sections = QHBoxLayout()
-    editor.sections_frame = QFrame()
+    # Add appropriate widgets (ideally just view controllers) to their layouts
+    leftSideLayout.addWidget(editor.notebookTitleView, 0)
+    leftSideLayout.addWidget(editor.pageView, 1) # Page view has max stretch factor
+    rightSideLayout.addWidget(editor.sectionView, 0)
+    rightSideLayout.addWidget(editor.frameView, 1) # Frame view has max stretch factor
 
-    editor.add_section = QPushButton("+")
-    editor.add_section.setFixedWidth(50)
-    editor.add_section.setStyleSheet("background-color: #c2c2c2;")
-    editor.add_section.clicked.connect(lambda: add_section(editor))
-    sections.addWidget(editor.add_section)
-    sections.addLayout(editor.sections)
-    sections.addWidget(editor.sections_frame)
-    sections.setContentsMargins(0, 0, 0, 0)
-    editor.sections.setContentsMargins(0, 0, 0, 0)
-    workspace.addWidget(sections_widget)
-
-    editor.frame = EditorFrame(editor)
-    workspace.addWidget(editor.frame)
-
-    # stylesheet reference
-    container.setObjectName("container")
-    editor.notebook_title.setObjectName("notebook_title")
-    editor.pages_title.setObjectName("pages_title")
-    editor.pages.setObjectName("pages")
-    addPage.setObjectName("addPage")
-    editor.pages_title.setText("Pages")
+    # Add L+R container's widgets to the main grid
+    gridLayout.addWidget(leftSideContainerWidget, 0, 0)
+    gridLayout.addWidget(rightSideContainerWidget, 0, 1)
 
 def build_window(editor):
     editor.setWindowTitle("OpenNote")
-    editor.screen_width, editor.screen_height = editor.geometry().width(), editor.geometry().height()
-    editor.resize(editor.screen_width * 2, editor.screen_height * 2)
-    editor.setAcceptDrops(True)
     editor.setAcceptDrops(True)
     with open('styles/styles.qss',"r") as fh:
         editor.setStyleSheet(fh.read())
 
 def build_menubar(editor):
     file = editor.menuBar().addMenu('&File')
-    #edit = editor.menuBar().addMenu('&edit')
     plugins = editor.menuBar().addMenu('&Plugins')
 
     new_file = build_action(editor, 'assets/icons/svg_file_open', 'New Notebook...', 'New Notebook', False)
@@ -115,71 +76,55 @@ def build_menubar(editor):
 
     save_file = build_action(editor, 'assets/icons/svg_file_save', 'Save Notebook', 'Save Notebook', False)
     save_file.setShortcut(QKeySequence.StandardKey.Save)
-    save_file.triggered.connect(lambda: save(editor, editor.notebook))
+    save_file.triggered.connect(lambda: save(editor))
 
     save_fileAs = build_action(editor, 'assets/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
     save_fileAs.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
-    save_fileAs.triggered.connect(lambda: saveAs(editor, editor.notebook))
+    save_fileAs.triggered.connect(lambda: saveAs(editor))
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
 
 def build_toolbar(editor):
     toolbar = QToolBar()
-    toolbar.setIconSize(QSize(25, 25))
+    toolbar.setIconSize(QSize(15, 15))
     toolbar.setMovable(False)
     editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
 
     font = QFontComboBox()
-    font.currentFontChanged.connect(lambda x: editor.selected.setCurrentFont(font.currentFont() if x else editor.selected.currentFont()))
+    font.currentFontChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font.currentFont()))
 
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
-
-    # debt: The second lambda function is unclear and not good ux, it unselects the highlighted text after setting the font
-    # size.currentIndexChanged.connect(lambda x: editor.selected.setFontPointSize(int(size.currentText()) if x else editor.selected.fontPointSize()))
-    size.currentIndexChanged.connect(lambda x: changeFontSize(x))
-
-    def changeFontSize(x):
-        editor.selected.setFontPointSize(int(size.currentText()) if x else editor.selected.fontPointSize())
-
-        cursor = editor.selected.textCursor()
-        cursor.clearSelection()
-        editor.selected.setTextCursor(cursor)
+    size.currentIndexChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(size.currentText())))
 
     fontColor = build_action(toolbar, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
-    fontColor.triggered.connect(lambda x: openFGColorDialog(editor))
+    fontColor.triggered.connect(lambda x: openGetColorDialog(purpose = "font"))
 
     bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
-    bgColor.triggered.connect(lambda x: openBGColorDialog(editor))
+    bgColor.triggered.connect(lambda x: openGetColorDialog(purpose = "background"))
 
-    bold = build_action(toolbar, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
-    bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
+    bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
+    bold.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
 
-    italic = build_action(toolbar, 'assets/icons/svg_font_italic', "Italic", "Italic", True)
-    italic.toggled.connect(lambda x: editor.selected.setFontItalic(True if x else False))
+    italic = build_action(toolbar, 'assets/icons/italic.svg', "Italic", "Italic", True)
+    italic.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))
 
-    underline = build_action(toolbar, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
-    underline.toggled.connect(lambda x: editor.selected.setFontUnderline(True if x else False))
+    underline = build_action(toolbar, 'assets/icons/underline.svg', "Underline", "Underline", True)
+    underline.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontUnderline, None))
 
     toolbar.addWidget(font)
     toolbar.addWidget(size)
-    toolbar.addActions([fontColor, bgColor, bold, italic, underline])
+    toolbar.addActions([bgColor, fontColor, bold, italic, underline])
+
+def openGetColorDialog(purpose):
+    color = QColorDialog.getColor()
+    if color.isValid():
+        if purpose == "font":
+            editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontColor, color)
+        elif purpose == "background":
+            editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BackgroundColor, color)
 
 def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action = QAction(QIcon(icon_path), action_name, parent)
     action.setStatusTip(set_status_tip)
-    action.setCheckable(set_checkable)
     return action
-
-def openFGColorDialog(editor):
-    color = QColorDialog.getColor()
-    if editor.selected != None:
-        editor.selected.setTextColor(color)
-    return
-
-def openBGColorDialog(editor):
-    color = QColorDialog.getColor()
-    if editor.selected != None:
-        editor.selected.parentWidget().setStyleSheet("background-color: %s" % color.name())
-    return
-

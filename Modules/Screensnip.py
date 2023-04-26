@@ -10,12 +10,11 @@ from PySide6.QtWidgets import *
 class SnippingWidget(QWidget):
     is_snipping = False
 
-    def __init__(self, parent=None, app=None):
+    def __init__(self):
         super(SnippingWidget, self).__init__()
-        self.parent = parent
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-
-        self.screen = app.primaryScreen()
+        self.parent = None
+        self.screen = QApplication.instance().primaryScreen()
         self.setGeometry(0, 0, self.screen.size().width(), self.screen.size().height())
         self.begin = QPoint()
         self.end = QPoint()
@@ -23,11 +22,13 @@ class SnippingWidget(QWidget):
         self.event_pos = None
 
     def start(self, event_pos):
+        print("SnippingWidget.start")
         SnippingWidget.is_snipping = True
         self.setWindowOpacity(0.3)
         QApplication.setOverrideCursor(QCursor(Qt.CrossCursor))
         self.event_pos = event_pos
         self.show()
+        print("SnippingWidget.start done")
 
     def paintEvent(self, event):
         if SnippingWidget.is_snipping:
