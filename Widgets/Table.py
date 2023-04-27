@@ -14,6 +14,7 @@ class TableWidget(QWidget):
         self.resize(w, h)
         self.persistantGeometry = self.geometry()
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True) # If extending a qwidget to insert something else, dont receive mouse events
+        self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
 
     # Child widget not concerned with pos but is with w, h
     def newGeometryEvent(self, newGeometry: QRect):
@@ -31,15 +32,14 @@ class TableWidget(QWidget):
     def new(clickPos: QPoint):
         return TableWidget(clickPos.x(), clickPos.y(), 200, 200, 2, 2)
 
-    def customMenuItems(self,actions,menu):
+    def customMenuItems(self):
         addRow = QAction("Add Row", self)
         addRow.triggered.connect(self.addRow)
 
         addCol = QAction("Add Column", self)
         addCol.triggered.connect(self.addCol)
 
-        actions.insert(0,addRow)
-        actions.insert(0,addCol)
+        return [addRow, addCol]
 
     def __getstate__(self):
         state = {}
