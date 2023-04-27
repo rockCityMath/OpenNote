@@ -8,7 +8,9 @@ class TableWidget(QWidget):
 
         # The actual table widget
         self.table = QTableWidget(rows, cols, self)
-
+        # Hide the horizontal and vertical headers
+        self.table.horizontalHeader().setVisible(False)
+        self.table.verticalHeader().setVisible(False)
         self.setGeometry(x, y, w, h)
         self.table.setGeometry(0, 0, w, h)
         self.resize(w, h)
