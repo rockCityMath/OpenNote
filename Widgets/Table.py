@@ -11,6 +11,8 @@ class TableWidget(QWidget):
         # Hide the horizontal and vertical headers
         self.table.horizontalHeader().setVisible(False)
         self.table.verticalHeader().setVisible(False)
+        self.setStyleSheet("QWidget {border: 1px solid black;}")
+
         self.setGeometry(x, y, w, h)
         self.table.setGeometry(0, 0, w, h)
         self.resize(w, h)
