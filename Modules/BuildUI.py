@@ -16,7 +16,7 @@ def build_ui(editor):
     #editor.statusBar = editor.statusBar()
     build_window(editor)
     build_menubar(editor)
-    build_toolbar(editor)
+    #build_toolbar(editor)
 
     # Application's main layout (grid)
     gridLayout = QGridLayout()

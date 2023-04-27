@@ -16,6 +16,7 @@ class TableWidget(QWidget):
         self.resize(w, h)
         self.persistantGeometry = self.geometry()
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True) # If extending a qwidget to insert something else, dont receive mouse events
+        self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
 
     # Child widget not concerned with pos but is with w, h
     def newGeometryEvent(self, newGeometry: QRect):

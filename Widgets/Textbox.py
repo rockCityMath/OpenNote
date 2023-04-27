@@ -2,6 +2,8 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
+FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
+
 class TextboxWidget(QTextEdit):
     def __init__(self, x, y, w = 15, h = 30, t = ''):
         super().__init__()
@@ -12,47 +14,11 @@ class TextboxWidget(QTextEdit):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.textChanged.connect(self.textChangedEvent)
+        self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
 
     def textChangedEvent(self):
         if len(self.toPlainText()) < 2:
-            print("RESIZE TEXT")
             self.resize(100, 100)
-
-    def changeBackgroundColorEvent(self, color: QColor):
-        print("NEW COLOR: ", color)
-        # self.setStyleSheet()
-        print(color.getRgb())
-        rgb = color.getRgb()
-        self.setStyleSheet(f'background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});')
-
-    def changeFontColorEvent(self, color: QColor):
-        self.setTextColor(color)
-        self.removeSelection()
-
-    def changeFontEvent(self, font: QFont):
-        self.setCurrentFont(font)
-        self.removeSelection()
-
-    def changeFontSizeEvent(self, size: int):
-        self.setFontPointSize(size)
-        self.removeSelction()
-
-    def changeFontBoldEvent(self):
-        self.setFontWeight(QFont.Bold)
-        self.removeSelection()
-
-    def changeFontItalicEvent(self):
-        self.setFontItalic(True)
-        self.removeSelection()
-
-    def changeFontUnderlineEvent(self):
-        self.setFontUnderline(True)
-        self.removeSelection()
-
-    def removeSelection(self):
-        cursor = self.textCursor()
-        cursor.clearSelection()
-        self.setTextCursor(cursor)
 
     @staticmethod
     def new(clickPos: QPoint):
@@ -63,14 +29,111 @@ class TextboxWidget(QTextEdit):
 
         data['geometry'] = self.parentWidget().geometry()
         data['content'] = self.toHtml()
+        data['stylesheet'] = self.styleSheet()
         return data
 
     def __setstate__(self, data):
         self.__init__(data['geometry'].x(), data['geometry'].y(), data['geometry'].width(), data['geometry'].height(), data['content'])
+        self.setStyleSheet(data['stylesheet'])
 
     def checkEmpty(self):
         if len(self.toPlainText()) < 1:
             return True
         return False
 
+    def customMenuItems(self):
+      def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
+          action = QAction(QIcon(icon_path), action_name, parent)
+          action.setStatusTip(set_status_tip)
+          action.setCheckable(set_checkable)
+          return action
 
+      toolbarTop = QToolBar()
+      toolbarTop.setIconSize(QSize(25, 25))
+      toolbarTop.setMovable(False)
+
+      toolbarBottom = QToolBar()
+      toolbarBottom.setIconSize(QSize(25, 25))
+      toolbarBottom.setMovable(False)
+
+      font = QFontComboBox()
+      font.currentFontChanged.connect(lambda x: self.setCurrentFontCustom(font.currentFont() if x else self.currentFont()))
+
+      size = QComboBox()
+      size.addItems([str(fs) for fs in FONT_SIZES])
+      size.currentIndexChanged.connect(lambda x: self.setFontPointSizeCustom(FONT_SIZES[x] if x else self.fontPointSize()))
+
+      bold = build_action(toolbarBottom, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
+      bold.toggled.connect(lambda x: self.setFontWeightCustom(700 if x else 500))
+
+      italic = build_action(toolbarBottom, 'assets/icons/svg_font_italic', "Italic", "Italic", True)
+      italic.toggled.connect(lambda x: self.setFontItalicCustom(True if x else False))
+
+      underline = build_action(toolbarBottom, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
+      underline.toggled.connect(lambda x: self.setFontUnderlineCustom(True if x else False))
+
+      fontColor = build_action(toolbarBottom, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
+      fontColor.triggered.connect(lambda x: self.setTextColorCustom(QColorDialog.getColor()))
+
+      bgColor = build_action(toolbarBottom, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
+      bgColor.triggered.connect(lambda x: self.setBackgroundColor(QColorDialog.getColor()))
+
+      toolbarTop.addWidget(font)
+      toolbarTop.addWidget(size)
+      toolbarBottom.addActions([bold, italic, underline, fontColor, bgColor])
+      qwaTop = QWidgetAction(self)
+      qwaTop.setDefaultWidget(toolbarTop)
+      qwaBottom = QWidgetAction(self)
+      qwaBottom.setDefaultWidget(toolbarBottom)
+
+      return [qwaTop, qwaBottom]
+
+    def setFontItalicCustom(self, italic: bool):
+        if not self.applyToAllIfNoSelection(lambda: self.setFontItalic(italic)):
+            self.setFontItalic(italic)
+
+    def setFontWeightCustom(self, weight: int):
+        if not self.applyToAllIfNoSelection(lambda: self.setFontWeight(weight)):
+            self.setFontWeight(weight)
+
+    def setFontUnderlineCustom(self, underline: bool):
+        if not self.applyToAllIfNoSelection(lambda: self.setFontUnderline(underline)):
+            self.setFontUnderline(underline)
+
+    def setCurrentFontCustom(self, font: QFont):
+        if not self.applyToAllIfNoSelection(lambda: self.setCurrentFontCustom(font)):
+            self.setCurrentFont(font)
+
+    def setFontPointSizeCustom(self, size):
+        if not self.applyToAllIfNoSelection(lambda: self.setFontPointSize(size)):
+            self.setFontPointSize(size)
+
+    def setTextColorCustom(self, color):
+        print(color)
+        if not self.applyToAllIfNoSelection(lambda: self.setTextColor(color)):
+            self.setTextColor(color)
+
+    def setBackgroundColor(self, color: QColor):
+        rgb = color.getRgb()
+        self.setStyleSheet(f'background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});')
+
+
+    # If no text is selected, apply to all, else apply to selection
+    def applyToAllIfNoSelection(self, func):
+        if len(self.textCursor().selectedText()) != 0:
+            return False
+
+        # Select all text
+        cursor = self.textCursor()
+        cursor.movePosition(QTextCursor.Start)
+        cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
+        self.setTextCursor(cursor)
+
+        # Run function
+        func()
+
+        # Unselect all text
+        cursor = self.textCursor()
+        cursor.clearSelection()
+        self.setTextCursor(cursor)
+        return True

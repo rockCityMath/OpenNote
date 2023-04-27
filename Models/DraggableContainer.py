@@ -127,8 +127,21 @@ class DraggableContainer(QWidget):
             self.setFocus()
 
     def buildDragContainerMenu(self):
+
+        # Get custom menu actions from child widget
+        customMenuItems = []
+        widgetCustomMenu = getattr(self.childWidget, "customMenuItems", None)
+        if callable(widgetCustomMenu):
+            customMenuItems = self.childWidget.customMenuItems()
+
         menu = QMenu()
 
+        # Add any widget type menu actions from child
+        for item in customMenuItems:
+            if type(item) == QWidgetAction:
+                menu.addAction(item)
+
+        # Add standard menu actions
         delete = QAction("Delete", self)
         delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
         menu.addAction(delete)
@@ -141,11 +154,9 @@ class DraggableContainer(QWidget):
         cut.triggered.connect(lambda: print("CUT"))
         menu.addAction(cut)
 
-        # Append widget specific menu items
-        widgetCustomMenu = getattr(self.childWidget, "customMenuItems", None)
-        if callable(widgetCustomMenu):
-            widgetSpecificItems = self.childWidget.customMenuItems()
-            for item in widgetSpecificItems:
+        # Add any non-widget type menu actions from child
+        for item in customMenuItems:
+            if type(item) != QWidgetAction:
                 menu.addAction(item)
 
         return menu
