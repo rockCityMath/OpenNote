@@ -64,7 +64,7 @@ class ImageWidget(QLabel):
 
     def __getstate__(self):
         state = {}
-        state['geometry'] = self.persistantGeometry
+        state['geometry'] = self.parentWidget().geometry()
         state['image_matrix'] = self.image_matrix
         return state
 

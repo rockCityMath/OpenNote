@@ -31,14 +31,15 @@ class TableWidget(QWidget):
     def new(clickPos: QPoint):
         return TableWidget(clickPos.x(), clickPos.y(), 200, 200, 2, 2)
 
-    def customMenuItems(self):
+    def customMenuItems(self,actions,menu):
         addRow = QAction("Add Row", self)
         addRow.triggered.connect(self.addRow)
 
         addCol = QAction("Add Column", self)
         addCol.triggered.connect(self.addCol)
 
-        return [addRow, addCol]
+        actions.insert(0,addRow)
+        actions.insert(0,addCol)
 
     def __getstate__(self):
         state = {}
@@ -46,10 +47,10 @@ class TableWidget(QWidget):
         t = self.table
         rowCnt = t.rowCount()
         colCnt = t.columnCount()
-        tableData = [["" if t.item(i, j) == None else t.item(i, j).text() for j in range(rowCnt)] for i in range(colCnt)] # :)
+        tableData = [["" if t.item(i, j) == None else t.item(i, j).text() for i in range(rowCnt)] for j in range(colCnt)] # :)
 
         state['tableData'] = tableData
-        state['geometry'] = self.persistantGeometry
+        state['geometry'] = self.parentWidget().geometry() # Can get whole geometry from parent, or just the pos
         return state
 
     def __setstate__(self, state):
@@ -60,6 +61,9 @@ class TableWidget(QWidget):
                       len(state['tableData'][0]),
                       len(state['tableData']))
 
-        for i in range(len(state['tableData'])):
-            for j in range(len(state['tableData'][i])):
-                self.table.setItem(i, j, QTableWidgetItem(state['tableData'][i][j]))
+        rowCnt = len(state['tableData'][0])
+        colCnt = len(state['tableData'])
+
+        for i in range(colCnt):
+            for j in range(rowCnt):
+                self.table.setItem(j, i, QTableWidgetItem(state['tableData'][i][j]))

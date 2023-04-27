@@ -7,6 +7,8 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
+from Models.NotebookModel import NotebookModel
+
 # Creates a new notebook
 def new(editor):
     print("RAN NEW")

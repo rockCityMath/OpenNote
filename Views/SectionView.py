@@ -14,7 +14,7 @@ class SectionView(QWidget):
     def __init__(self, sectionModels: List[SectionModel]):
         super(SectionView, self).__init__()
 
-        self.sectionModels: List[SectionModel] # Reference to the current section models
+        self.sectionModels: List[SectionModel] # Reference to the current section models (draggableContainer in runtime)
 
         # The tabbed section widget
         self.tabs = QTabBar(self)
@@ -26,8 +26,6 @@ class SectionView(QWidget):
 
         self.tabs.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tabs.setExpanding(False)
-        # self.tabs.setShape(QTabBar.TriangularNorth)
-        # self.setStyleSheet("QTabBar::pane { border: 0; }")
 
         self.tabs.customContextMenuRequested.connect(self.openMenu)
         self.tabs.currentChanged.connect(self.changeSection)
@@ -49,9 +47,12 @@ class SectionView(QWidget):
         return QSize(300, 35)
 
     def widgetRemovedEvent(self, draggableContainer):
-        currentSectionIndex = self.tabs.currentIndex()
-        currentSectionModel = self.sectionModels[currentSectionIndex]
-        currentSectionModel.widgets.remove(draggableContainer)
+        try:
+            currentSectionIndex = self.tabs.currentIndex()
+            currentSectionModel = self.sectionModels[currentSectionIndex]
+            currentSectionModel.widgets.remove(draggableContainer)
+        except:
+            print("CANNOT REMOVE WIDGET FROM SECTIONVIEW")
 
     def widgetAddedEvent(self, draggableContainer):
         print("SECTIONVIEW KNOWS WIDGET ADDED")

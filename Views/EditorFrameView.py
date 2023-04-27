@@ -30,17 +30,84 @@ class EditorFrameView(QWidget):
         editorSignalsInstance.widgetShouldLoad.connect(self.loadWidgetEvent)
         editorSignalsInstance.widgetRemoved.connect(self.removeWidgetEvent)
 
-        self.multiselector = Multiselector(self)
+        # Modularized functionality for the editorFrame and its widgets
         self.clipboard = Clipboard()
         self.undoHandler = UndoHandler()
+        self.multiselector = Multiselector(self)
 
-        print("BUILT FRAMEVIEW")
+        self.installEventFilter(self.multiselector)
 
+        # Undo setup
         self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
         self.shortcut.setContext(Qt.ApplicationShortcut)
         self.shortcut.activated.connect(self.undoHandler.undo)
+        self.undoHandler.undoWidgetDelete.connect(self.undoWidgetDeleteEvent)
+
+        print("BUILT FRAMEVIEW")
+
+    def pasteWidget(self, clickPos):
+        widgetOnClipboard = self.clipboard.getWidgetToPaste()
+
+        dc = DraggableContainer(widgetOnClipboard, self)
+        self.undoHandler.pushCreate(dc)
+        editorSignalsInstance.widgetAdded.emit(dc)  # Notify section that widget was added
+        editorSignalsInstance.changeMade.emit()
+        dc.move(clickPos.x(), clickPos.y())
+        dc.show()
+
+    def snipScreen(self, clickPos):
+        def onSnippingCompleted(imageMatrix):            # Called after screensnipper gets image
+            self.editor.setWindowState(Qt.WindowActive)
+            self.editor.showMaximized()
+            if imageMatrix is None:
+                return
+
+            widgetModel = ImageWidget.newFromMatrix(clickPos, imageMatrix)
+            dc = DraggableContainer(widgetModel, self)
+            self.undoHandler.pushCreate(dc)
+            editorSignalsInstance.widgetAdded.emit(dc)   # Notify the current section and editorFrame that a widget was added
+            dc.show()
+
+        # Begin screensnip
+        self.editor.setWindowState(Qt.WindowMinimized)
+        self.snippingWidget = SnippingWidget()
+        self.snippingWidget.onSnippingCompleted = onSnippingCompleted
+        self.snippingWidget.start(clickPos)
+
+    def newWidgetOnSection(self, widgetClass, clickPos):
+        print("ADDWIDGET: ", widgetClass)
+        try:
+            widget = widgetClass.new(clickPos)          # All widget classes implement .new() static method
+            dc = DraggableContainer(widget, self)
+            dc.show()
+
+            self.undoHandler.pushCreate(dc)             # Push to undo stack
+            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section that a widget was added
+            editorSignalsInstance.changeMade.emit()
+            dc.mouseDoubleClickEvent(None)              # Enter the child widget after adding
+
+        except Exception as e:
+            print("Error adding widget: ", e)
+
+    # When the DC geometry is changed, tell the undoHandler
+    def newGeometryOnDCEvent(self, dc):
+        self.undoHandler.pushGeometryChange(dc, dc.previousGeometry)
+        editorSignalsInstance.changeMade.emit()
+
+    # Special case for adding a widget by undoing a delete, since position is already set
+    def undoWidgetDeleteEvent(self, widget):
+        print("UNDO DELETE EVENT")
+        try:
+            dc = DraggableContainer(widget, self)
+            dc.show()
+            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section that a widget was added
+
+        except Exception as e:
+            print("Error adding widget: ", e)
 
     def removeWidgetEvent(self, draggableContainer):
+        self.undoHandler.pushDelete(draggableContainer)
+        editorSignalsInstance.changeMade.emit()
         draggableContainer.deleteLater()
 
     # Loading a preexisting (saved) widget into the frame inside a DraggableContainer
@@ -64,43 +131,6 @@ class EditorFrameView(QWidget):
             print(widget)
             widget.show()
 
-    def eventFilter(self, object, event):
-        if event.type() == QEvent.MouseButtonRelease:
-            # print("EAT MOUSE RELEASE FROM DC")
-            return True
-        return False
-
-        # probably move this to a multiselector class
-        # Only recieves events from DraggableContainers rn, but may need to recieve others at some point
-        # if isinstance(object, DraggableContainer):
-        #     multiselector = self.multiselector
-
-        #     # If clicking on an object
-        #     if event.type() == QEvent.MouseButtonPress:
-        #         print("EVENTFILTER TOOK EVENT")
-        #         if multiselector.mode == MultiselectMode.HAS_SELECTED_OBJECTS:
-        #             multiselector.beginDragIfObjectSelected(object, event)
-
-        #     if event.type() == QEvent.MouseMove:
-        #         if multiselector.mode == MultiselectMode.IS_DRAGGING_OBJECTS:
-        #             multiselector.dragObjects(event)
-        #             return True # Keep the event from going to the draggablecontainer so it doesnt have that mousemoveevent run on it too
-
-        #     # If in object-moving mode, and the mouse is released, reset all multiselecting
-        #     if event.type() == QEvent.MouseButtonRelease and isinstance(object, DraggableContainer):
-        #         if multiselector.mode == MultiselectMode.IS_DRAGGING_OBJECTS:
-        #             multiselector.finishDraggingObjects()
-
-        #     # After the selection is made, its possible that the user moves in and out of selected textboxes,
-        #     # This will remove their focus border, this mitigates that. Note: Do not let this run when the object is moving, its too expensive bc too many paint events
-        #     if multiselector.mode != MultiselectMode.NONE and multiselector.mode != MultiselectMode.IS_DRAGGING_OBJECTS and event.type() == QEvent.Paint:
-        #         multiselector.focusObjectIfInMultiselect()
-
-        #     return False
-
-        # else:
-        #     return False
-
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
 
@@ -118,7 +148,6 @@ class EditorFrameView(QWidget):
 
         # Open context menu on right click
         if event.buttons() == Qt.RightButton:
-            # editor.setFocus()
             frame_menu = QMenu(self)
 
             add_image = QAction("Add Image", self)
@@ -139,51 +168,12 @@ class EditorFrameView(QWidget):
 
             frame_menu.exec(event.globalPos())
 
-    def pasteWidget(self, clickPos):
-        widgetOnClipboard = self.clipboard.getWidgetToPaste()
-        widgetOnClipboard.newGeometryEvent(QRect(clickPos.x(), clickPos.y(), widgetOnClipboard.width(), widgetOnClipboard.height()))
-
-        dc = DraggableContainer(widgetOnClipboard, self)
-        editorSignalsInstance.widgetAdded.emit(dc)  # Notify section that widget was added
-        dc.move(clickPos.x(), clickPos.y())
-        dc.show()
-
-    def snipScreen(self, clickPos):
-        def onSnippingCompleted(imageMatrix):            # Called after screensnipper gets image
-            self.editor.setWindowState(Qt.WindowActive)
-            self.editor.showMaximized()
-            if imageMatrix is None:
-                return
-
-            widgetModel = ImageWidget.newFromMatrix(clickPos, imageMatrix)
-            dc = DraggableContainer(widgetModel, self)
-            editorSignalsInstance.widgetAdded.emit(dc)   # Notify the current section and editorFrame that a widget was added
-            dc.show()
-
-        # Begin screensnip
-        self.editor.setWindowState(Qt.WindowMinimized)
-        self.snippingWidget = SnippingWidget()
-        self.snippingWidget.onSnippingCompleted = onSnippingCompleted
-        self.snippingWidget.start(clickPos)
-
-    def newWidgetOnSection(self, widgetClass, clickPos):
-        print("ADDWIDGET: ", widgetClass)
-        try:
-            widget = widgetClass.new(clickPos)          # All widget classes implement .new() static method
-            dc = DraggableContainer(widget, self)
-            dc.show()
-
-            editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section that a widget was added
-
-        except Exception as e:
-            print("Error adding widget: ", e)
-
     def mouseMoveEvent(self, event): # This event is only called after clicking down on the frame and dragging
-        return
-        # Set up multi-select on first move of mouse drag
-        # if self.multiselector.mode != MultiselectMode.IS_DRAWING_AREA:
-        #     self.multiselector.beginDrawingArea(event)
 
-        # # Resize multi-select widget on mouse every proceeding mouse movement (dragging)
-        # else:
-        #     self.multiselector.continueDrawingArea(event)
+        # Set up multi-select on first move of mouse drag
+        if self.multiselector.mode != MultiselectMode.IS_DRAWING_AREA:
+            self.multiselector.beginDrawingArea(event)
+
+        # Resize multi-select widget on mouse every proceeding mouse movement (dragging)
+        else:
+            self.multiselector.continueDrawingArea(event)
