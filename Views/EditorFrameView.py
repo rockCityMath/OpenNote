@@ -116,7 +116,7 @@ class EditorFrameView(QWidget):
 
     def cutWidgetEvent(self, draggableContainer):
         editorSignalsInstance.widgetCopied.emit(draggableContainer)
-        self.removeWidgetEvent(draggableContainer)
+        editorSignalsInstance.widgetRemoved.emit(draggableContainer)
 
     # Loading a preexisting (saved) widget into the frame inside a DraggableContainer
     # Then add that DC instance reference to the sectionModel's widgets[] for runtime
