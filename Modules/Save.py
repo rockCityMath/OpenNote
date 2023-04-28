@@ -75,7 +75,7 @@ def saveToTempFile(editor):
         currentDatetime = datetime.now()
         tempFileName = currentDatetime.strftime("%d-%m-%Y_%H-%M-%S")
         editor.notebook.title = tempFileName
-        editor.notebook.path = os.getcwd() + "\\Saves\\" + tempFileName + ".ontemp" # If this doesnt work on mac, use path.join()
+        editor.notebook.path = os.path.join(os.path.join(os.getcwd(), "Saves"), tempFileName + ".ontemp" )
 
     file = open(editor.notebook.path, "wb")
     pickle.dump(editor.notebook, file)
