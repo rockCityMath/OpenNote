@@ -32,6 +32,7 @@ class EditorFrameView(QWidget):
         editorSignalsInstance.sectionChanged.connect(self.sectionChangedEvent)
         editorSignalsInstance.widgetShouldLoad.connect(self.loadWidgetEvent)
         editorSignalsInstance.widgetRemoved.connect(self.removeWidgetEvent)
+        editorSignalsInstance.widgetCut.connect(self.cutWidgetEvent)
 
         # Modularized functionality for the editorFrame and its widgets
         self.clipboard = Clipboard()
@@ -112,6 +113,10 @@ class EditorFrameView(QWidget):
         self.undoHandler.pushDelete(draggableContainer)
         editorSignalsInstance.changeMade.emit()
         draggableContainer.deleteLater()
+
+    def cutWidgetEvent(self, draggableContainer):
+        editorSignalsInstance.widgetCopied.emit(draggableContainer)
+        self.removeWidgetEvent(draggableContainer)
 
     # Loading a preexisting (saved) widget into the frame inside a DraggableContainer
     # Then add that DC instance reference to the sectionModel's widgets[] for runtime

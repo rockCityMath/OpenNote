@@ -22,6 +22,7 @@ class EditorSignals(QObject):
     widgetAdded = Signal(object)
     widgetRemoved = Signal(object)
     widgetCopied = Signal(object)
+    widgetCut = Signal(object)
 
     # Recieves any widget model, and the section model to add the instance of DraggableContainer to
     widgetShouldLoad = Signal(object, object)
