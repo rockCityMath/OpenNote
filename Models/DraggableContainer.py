@@ -151,7 +151,7 @@ class DraggableContainer(QWidget):
         menu.addAction(copy)
 
         cut = QAction("Cut", self)
-        cut.triggered.connect(lambda: print("CUT"))
+        cut.triggered.connect(lambda: editorSignalsInstance.widgetCut.emit(self))
         menu.addAction(cut)
 
         # Add any non-widget type menu actions from child
