@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from PIL import ImageGrab
+from sys import platform
 
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -68,7 +69,13 @@ class SnippingWidget(QWidget):
 
         self.repaint()
         QApplication.processEvents()
-        img = ImageGrab.grab(bbox=(x1 + 10, y1 + 30, x2 + 10, y2 + 40))
+
+        if platform == "darwin":
+            img = ImageGrab.grab(bbox=( (x1 ) * 2, (y1 + 55 ) * 2, (x2 ) * 2, (y2 + 55) * 2))
+        else:
+            img = ImageGrab.grab(bbox=(x1 + 10, y1 + 30, x2 + 10, y2 + 40))
+
+
 
         try:
             img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)

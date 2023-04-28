@@ -2,6 +2,9 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
+import os
+import importlib
+
 from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
 from Widgets.Textbox import TextboxWidget
@@ -166,7 +169,36 @@ class EditorFrameView(QWidget):
             take_screensnip.triggered.connect(lambda: self.snipScreen(event.pos()))
             frame_menu.addAction(take_screensnip)
 
+            add_custom_widget = QAction("Add Custom Widget", editor)
+            add_custom_widget.triggered.connect(lambda: self.addCustomWidget(event))
+            frame_menu.addAction(add_custom_widget)
+
             frame_menu.exec(event.globalPos())
+
+    def addCustomWidget(self, event):
+        def getCustomWidgets():
+            customWidgets = {} # dict where entries are {name: class}
+
+            # Check for files ending in .py, import them, and add their attribtues to the dict
+            # Should add checks that the plugin implements required methods
+            for filename in os.listdir("./PluginWidgets"):
+                if filename[-3:]!=".py": continue
+                className = filename[:-3]
+                module = importlib.__import__(f"PluginWidgets.{className}")
+                c = getattr(getattr(module,className),className)
+                customWidgets[className]=c
+            return customWidgets.items()
+
+        pluginMenu = QMenu(self)
+
+        for customWidget in getCustomWidgets():
+            item_action = QAction(customWidget[0], self)
+            def tmp(c, pos):
+                return lambda: self.newWidgetOnSection(c, pos)
+            item_action.triggered.connect(tmp(customWidget[1], event.pos()))
+            pluginMenu.addAction(item_action)
+
+        pluginMenu.exec(event.globalPos())
 
     def mouseMoveEvent(self, event): # This event is only called after clicking down on the frame and dragging
 
