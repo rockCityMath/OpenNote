@@ -5,24 +5,12 @@ from PySide6.QtWidgets import *
 class TableWidget(QWidget):
     def __init__(self, x, y, w, h, rows, cols):
         super(TableWidget, self).__init__()
-        
+
         # The actual table widget
         self.table = QTableWidget(rows, cols, self)
         # Hide the horizontal and vertical headers
         self.table.horizontalHeader().setVisible(False)
         self.table.verticalHeader().setVisible(False)
-
-        # Get the default table border color from the palette
-        table_border_color = self.palette().color(QPalette.Window)
-
-        # Add a custom border on the top of the widget
-        self.table.setStyleSheet(f"QTableView {{border: 1px solid {table_border_color.name()};}}")
-           
-        # Make the cells resizable
-        self.table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-        
         self.setGeometry(x, y, w, h)
         self.table.setGeometry(0, 0, w, h)
         self.resize(w, h)
