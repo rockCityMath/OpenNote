@@ -161,10 +161,6 @@ class EditorFrameView(QWidget):
             add_table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, event.pos()))
             frame_menu.addAction(add_table)
 
-            add_custom_widget = QAction("Add Custom Widget", editor)
-            add_custom_widget.triggered.connect(lambda: self.addCustomWidget(event))
-            frame_menu.addAction(add_custom_widget)
-
             paste = QAction("Paste", editor)
             paste.triggered.connect(lambda: self.pasteWidget(event.pos()))
             frame_menu.addAction(paste)
@@ -172,6 +168,10 @@ class EditorFrameView(QWidget):
             take_screensnip = QAction("Snip Screen", editor)
             take_screensnip.triggered.connect(lambda: self.snipScreen(event.pos()))
             frame_menu.addAction(take_screensnip)
+
+            add_custom_widget = QAction("Add Custom Widget", editor)
+            add_custom_widget.triggered.connect(lambda: self.addCustomWidget(event))
+            frame_menu.addAction(add_custom_widget)
 
             frame_menu.exec(event.globalPos())
 
