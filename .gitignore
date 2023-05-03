@@ -3,7 +3,6 @@ __pycache__/
 *.git
 *.on
 *.ontemp
-*.png
 *.jpg
 *.vim
 Saves/*
