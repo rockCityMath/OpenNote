@@ -29,7 +29,7 @@ App Features:
 ## Getting Started
 
 ### Downloading and Using
-Simply find an appropriate release for your operating system under the "Releases" section. Once downloaded, run the OpenNote executable and the program will start.
+Simply find an appropriate release for your operating system under the "Releases" section, then download the .zip file. Once downloaded, run the OpenNote executable and the program will start.
 
 Basic Usage:
 * Right click on "Notebook Pages" in the left nav to add more top-level pages.
