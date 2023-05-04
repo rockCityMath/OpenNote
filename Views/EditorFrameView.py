@@ -4,6 +4,7 @@ from PySide6.QtGui import *
 
 import os
 import importlib
+import sys
 
 from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
@@ -186,12 +187,17 @@ class EditorFrameView(QWidget):
 
             # Check for files ending in .py, import them, and add their attribtues to the dict
             # Should add checks that the plugin implements required methods
-            for filename in os.listdir("./PluginWidgets"):
+            pluginDirectory = os.path.join(os.path.dirname(os.getcwd()), "PluginWidgets")
+
+            for filename in os.listdir(pluginDirectory):
                 if filename[-3:]!=".py": continue
                 className = filename[:-3]
-                module = importlib.__import__(f"PluginWidgets.{className}")
-                c = getattr(getattr(module,className),className)
+
+                module = importlib.__import__(f"{className}")
+
+                c = getattr(module,className)
                 customWidgets[className]=c
+
             return customWidgets.items()
 
         pluginMenu = QMenu(self)

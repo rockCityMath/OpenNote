@@ -58,8 +58,9 @@ def build_ui(editor):
 
 def build_window(editor):
     editor.setWindowTitle("OpenNote")
+    editor.setWindowIcon(QIcon('./Assets/OpenNoteLogo.png'))
     editor.setAcceptDrops(True)
-    with open('styles/styles.qss',"r") as fh:
+    with open('./Styles/styles.qss',"r") as fh:
         editor.setStyleSheet(fh.read())
 
 def build_menubar(editor):
