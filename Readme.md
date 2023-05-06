@@ -19,7 +19,7 @@ An open source, extensible, cross-platform alternative to Microsoft's OneNote so
 App Features:
 * Move and resize any textbox, image, table, or custom widget
 * Unlimited pages, with nested child pages
-* Unlimited sections with unique content per page
+* Unlimited sections with unique content per section
 * Autosave
 * Clipboard and undo
 * Screensnipping
