@@ -5,6 +5,4 @@ __pycache__/
 *.ontemp
 *.jpg
 *.vim
-Saves/*
-!Saves/Class Notes.on
 /dist
