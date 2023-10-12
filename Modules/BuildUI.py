@@ -16,7 +16,7 @@ def build_ui(editor):
     #editor.statusBar = editor.statusBar()
     build_window(editor)
     build_menubar(editor)
-    #build_toolbar(editor)
+    build_toolbar(editor)
 
     # Application's main layout (grid)
     gridLayout = QGridLayout()
@@ -67,11 +67,11 @@ def build_menubar(editor):
     file = editor.menuBar().addMenu('&File')
     plugins = editor.menuBar().addMenu('&Plugins')
 
-    new_file = build_action(editor, 'assets/icons/svg_file_open', 'New Notebook...', 'New Notebook', False)
+    new_file = build_action(editor, 'assets/icons/svg_file_open', 'New Notebook', 'New Notebook', False)
     new_file.setShortcut(QKeySequence.StandardKey.New)
     new_file.triggered.connect(lambda: new(editor))
 
-    open_file = build_action(editor, 'assets/icons/svg_file_open', 'Open Notebook...', 'Open Notebook', False)
+    open_file = build_action(editor, 'assets/icons/svg_file_open', 'Open Notebook', 'Open Notebook', False)
     open_file.setShortcut(QKeySequence.StandardKey.Open)
     open_file.triggered.connect(lambda: load(editor))
 
