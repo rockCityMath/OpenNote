@@ -85,9 +85,23 @@ def build_menubar(editor):
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
 
+'''
+def build_toolbar(editor):
+    toolbar = QToolBar("Main toolbar")
+    editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
+
+    button_action = QAction("Your button", editor)
+    button_action.setStatusTip("This is your button")
+    button_action.triggered.connect(action.onMyToolBarButtonClick)
+    button_action.setCheckable(True)
+    toolbar.addAction(button_action)
+'''
+
+
+
 def build_toolbar(editor):
     toolbar = QToolBar()
-    toolbar.setIconSize(QSize(15, 15))
+    toolbar.setIconSize(QSize(16, 16))
     toolbar.setMovable(False)
     editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
 
@@ -98,24 +112,27 @@ def build_toolbar(editor):
     size.addItems([str(fs) for fs in FONT_SIZES])
     size.currentIndexChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(size.currentText())))
 
+    bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
+    bgColor.triggered.connect(lambda x: openGetColorDialog(purpose = "background"))
+    
     fontColor = build_action(toolbar, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
     fontColor.triggered.connect(lambda x: openGetColorDialog(purpose = "font"))
 
-    bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
-    bgColor.triggered.connect(lambda x: openGetColorDialog(purpose = "background"))
-
     bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
     bold.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
+    
 
     italic = build_action(toolbar, 'assets/icons/italic.svg', "Italic", "Italic", True)
     italic.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))
 
     underline = build_action(toolbar, 'assets/icons/underline.svg', "Underline", "Underline", True)
-    underline.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontUnderline, None))
-
+    #underline.toggled.connect(lambda x: editor.childWidget. setFontUnderlineCustom(True if x else False))
+    
     toolbar.addWidget(font)
     toolbar.addWidget(size)
+
     toolbar.addActions([bgColor, fontColor, bold, italic, underline])
+
 
 def openGetColorDialog(purpose):
     color = QColorDialog.getColor()
@@ -128,4 +145,5 @@ def openGetColorDialog(purpose):
 def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action = QAction(QIcon(icon_path), action_name, parent)
     action.setStatusTip(set_status_tip)
+    action.setCheckable(set_checkable)
     return action

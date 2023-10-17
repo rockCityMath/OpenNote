@@ -18,6 +18,7 @@ from Modules.Undo import UndoHandler
 
 # Handles all widget display (could be called widget view, but so could draggablecontainer)
 class EditorFrameView(QWidget):
+
     def __init__(self, editor):
         super(EditorFrameView, self).__init__()
 
@@ -151,37 +152,43 @@ class EditorFrameView(QWidget):
             else:
                 self.newWidgetOnSection(TextboxWidget, event.pos())
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, e):
         print("EDITORFRAME MOUSEPRESS")
         editor = self.editor
 
         # Open context menu on right click
-        if event.buttons() == Qt.RightButton:
+        if e.buttons() == Qt.RightButton:
             frame_menu = QMenu(self)
 
+            cut_action = QAction("Cut", self)
+            #add cut functionality
+            frame_menu.addAction(cut_action)
+
+            paste = QAction("Paste", editor)
+            paste.triggered.connect(lambda: self.pasteWidget(e.pos()))
+            frame_menu.addAction(paste)
+
             add_image = QAction("Add Image", self)
-            add_image.triggered.connect(lambda: self.newWidgetOnSection(ImageWidget, event.pos()))
+            add_image.triggered.connect(lambda: self.newWidgetOnSection(ImageWidget, e.pos()))
             frame_menu.addAction(add_image)
 
             add_table = QAction("Add Table", editor)
-            add_table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, event.pos()))
+            add_table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, e.pos()))
             frame_menu.addAction(add_table)
 
-            paste = QAction("Paste", editor)
-            paste.triggered.connect(lambda: self.pasteWidget(event.pos()))
-            frame_menu.addAction(paste)
+
 
             take_screensnip = QAction("Snip Screen", editor)
-            take_screensnip.triggered.connect(lambda: self.snipScreen(event.pos()))
+            take_screensnip.triggered.connect(lambda: self.snipScreen(e.pos()))
             frame_menu.addAction(take_screensnip)
 
             add_custom_widget = QAction("Add Custom Widget", editor)
-            add_custom_widget.triggered.connect(lambda: self.addCustomWidget(event))
+            add_custom_widget.triggered.connect(lambda: self.addCustomWidget(e))
             frame_menu.addAction(add_custom_widget)
 
-            frame_menu.exec(event.globalPos())
+            frame_menu.exec(e.globalPos())
 
-    def addCustomWidget(self, event):
+    def addCustomWidget(self, e):
         def getCustomWidgets():
             customWidgets = {} # dict where entries are {name: class}
 
@@ -206,17 +213,16 @@ class EditorFrameView(QWidget):
             item_action = QAction(customWidget[0], self)
             def tmp(c, pos):
                 return lambda: self.newWidgetOnSection(c, pos)
-            item_action.triggered.connect(tmp(customWidget[1], event.pos()))
+            item_action.triggered.connect(tmp(customWidget[1], e.pos()))
             pluginMenu.addAction(item_action)
 
-        pluginMenu.exec(event.globalPos())
+        pluginMenu.exec(e.globalPos())
 
-    def mouseMoveEvent(self, event): # This event is only called after clicking down on the frame and dragging
-
+    def mouseMoveEvent(self, e): # This event is only called after clicking down on the frame and dragging
         # Set up multi-select on first move of mouse drag
         if self.multiselector.mode != MultiselectMode.IS_DRAWING_AREA:
-            self.multiselector.beginDrawingArea(event)
+                self.multiselector.beginDrawingArea(e)
 
         # Resize multi-select widget on mouse every proceeding mouse movement (dragging)
         else:
-            self.multiselector.continueDrawingArea(event)
+            self.multiselector.continueDrawingArea(e)

@@ -49,11 +49,11 @@ class TextboxWidget(QTextEdit):
           return action
 
       toolbarTop = QToolBar()
-      toolbarTop.setIconSize(QSize(25, 25))
+      toolbarTop.setIconSize(QSize(16, 16))
       toolbarTop.setMovable(False)
 
       toolbarBottom = QToolBar()
-      toolbarBottom.setIconSize(QSize(25, 25))
+      toolbarBottom.setIconSize(QSize(16, 16))
       toolbarBottom.setMovable(False)
 
       font = QFontComboBox()
@@ -73,10 +73,10 @@ class TextboxWidget(QTextEdit):
       underline.toggled.connect(lambda x: self.setFontUnderlineCustom(True if x else False))
 
       fontColor = build_action(toolbarBottom, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
-      fontColor.triggered.connect(lambda x: self.setTextColorCustom(QColorDialog.getColor()))
+      fontColor.triggered.connect(lambda: self.setTextColorCustom(QColorDialog.getColor()))
 
       bgColor = build_action(toolbarBottom, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
-      bgColor.triggered.connect(lambda x: self.setBackgroundColor(QColorDialog.getColor()))
+      bgColor.triggered.connect(lambda: self.setBackgroundColor(QColorDialog.getColor()))
 
       toolbarTop.addWidget(font)
       toolbarTop.addWidget(size)
