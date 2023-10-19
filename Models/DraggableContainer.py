@@ -118,6 +118,8 @@ class DraggableContainer(QWidget):
         self.setStyleSheet("border: none;")
 
         # Delete this Draggable Container if childWidget says it's empty
+        # current bug: draggable containers will still exist after creating a 
+        # new textbox but after creating an additional textbox, the dc will remove itself.
         if not self.childWidget.hasFocus():
             if hasattr(self.childWidget, "checkEmpty"):
                 if self.childWidget.checkEmpty():

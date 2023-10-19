@@ -37,6 +37,9 @@ def build_ui(editor):
     leftSideLayout.setContentsMargins(0, 0, 0, 0)
     leftSideLayout.setSpacing(0)
 
+
+    
+
     # Right side of the app's layout
     rightSideLayout = QVBoxLayout()
     rightSideContainerWidget = QWidget()
@@ -55,6 +58,10 @@ def build_ui(editor):
     # Add L+R container's widgets to the main grid
     gridLayout.addWidget(leftSideContainerWidget, 0, 0)
     gridLayout.addWidget(rightSideContainerWidget, 0, 1)
+
+    addSectionButton = QPushButton("Add Section")
+    #add functionality e.g. addSectionButton.clcicked.connect(editor.add_section_function)
+    leftSideLayout.addWidget(addSectionButton)
 
 def build_window(editor):
     editor.setWindowTitle("OpenNote")
@@ -85,25 +92,19 @@ def build_menubar(editor):
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
 
-'''
-def build_toolbar(editor):
-    toolbar = QToolBar("Main toolbar")
-    editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
-
-    button_action = QAction("Your button", editor)
-    button_action.setStatusTip("This is your button")
-    button_action.triggered.connect(action.onMyToolBarButtonClick)
-    button_action.setCheckable(True)
-    toolbar.addAction(button_action)
-'''
-
-
-
 def build_toolbar(editor):
     toolbar = QToolBar()
     toolbar.setIconSize(QSize(16, 16))
     toolbar.setMovable(False)
     editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
+
+    spacer = QWidget()
+    spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
+    undo = build_action(toolbar, 'assets/icons/svg_undo', "undo", "undo", False)
+    redo = build_action(toolbar, 'assets/icons/svg_redo', "redo", "redo", False)
+    
+
 
     font = QFontComboBox()
     font.currentFontChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font.currentFont()))
@@ -113,25 +114,33 @@ def build_toolbar(editor):
     size.currentIndexChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(size.currentText())))
 
     bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
-    bgColor.triggered.connect(lambda x: openGetColorDialog(purpose = "background"))
+    bgColor.triggered.connect(lambda: openGetColorDialog(purpose = "background"))
+
+
     
     fontColor = build_action(toolbar, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
-    fontColor.triggered.connect(lambda x: openGetColorDialog(purpose = "font"))
+    fontColor.triggered.connect(lambda: openGetColorDialog(purpose = "font"))
 
     bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
-    bold.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
+    bold.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
     
 
     italic = build_action(toolbar, 'assets/icons/italic.svg', "Italic", "Italic", True)
-    italic.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))
+    #italic.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(setFontItalicCustom), None)
 
     underline = build_action(toolbar, 'assets/icons/underline.svg', "Underline", "Underline", True)
     #underline.toggled.connect(lambda x: editor.childWidget. setFontUnderlineCustom(True if x else False))
-    
+    table = build_action(toolbar, 'assets/icons/svg_table', "Create Table", "Create Table", True)
+    hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", True)
+
+    toolbar.addActions([undo, redo])
+    toolbar.addSeparator()
     toolbar.addWidget(font)
     toolbar.addWidget(size)
-
+    toolbar.addSeparator()
     toolbar.addActions([bgColor, fontColor, bold, italic, underline])
+    toolbar.addSeparator()
+    toolbar.addActions([table, hyperlink])
 
 
 def openGetColorDialog(purpose):
