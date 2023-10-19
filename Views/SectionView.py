@@ -102,38 +102,39 @@ class SectionView(QWidget):
         clickedSectionIndex = self.tabs.tabAt(position)
         sectionModel = self.tabs.tabData(clickedSectionIndex)
 
+        # Changed "section" to "page" for the sake of clarity between Opennote and Onenote
         menu = QMenu()
-        addSectionAction = menu.addAction(self.tr("Add Section"))
+        addSectionAction = menu.addAction(self.tr("Add Page"))
         addSectionAction.triggered.connect(partial(self.addSection, sectionModel, clickedSectionIndex))
 
-        deleteSectionAction = menu.addAction(self.tr("Delete Section"))
+        deleteSectionAction = menu.addAction(self.tr("Delete Page"))
         deleteSectionAction.triggered.connect(partial(self.deleteSection, sectionModel, clickedSectionIndex))
 
-        renameSectionAction = menu.addAction(self.tr("Rename Section"))
+        renameSectionAction = menu.addAction(self.tr("Rename Page"))
         renameSectionAction.triggered.connect(partial(self.renameSection, sectionModel, clickedSectionIndex))
 
         menu.exec(self.tabs.mapToGlobal(position))
 
     def addSection(self, sectionModel: SectionModel, clickedSectionIndex: int):
-        print("ADD SECTION")
+        print("ADD PAGE")
 
-        addedSectionIndex = self.tabs.addTab("New Section")                  # Add section to UI
+        addedSectionIndex = self.tabs.addTab("New Page")                  # Add section to UI
         rightOfClickedSectionIndex = clickedSectionIndex + 1
         self.tabs.moveTab(addedSectionIndex, rightOfClickedSectionIndex)     # Move to right of right clicked section
 
-        newSectionModel = SectionModel("New Section")                        # Create new SectionModel
+        newSectionModel = SectionModel("New Page")                        # Create new SectionModel
         self.tabs.setTabData(rightOfClickedSectionIndex, newSectionModel)    # Set new SectionModel as section data
 
         self.sectionModels.insert(clickedSectionIndex + 1, newSectionModel)  # Insert new SectionModel into list of section models
 
     def deleteSection(self, sectionModel: SectionModel, clickedSectionIndex: int):
-        print("DELETE SECTION")
+        print("DELETE PAGE")
         self.tabs.removeTab(clickedSectionIndex)                            # Remove section from UI
         self.sectionModels.pop(clickedSectionIndex)                         # Remove section from list of section models
 
     def renameSection(self, sectionModel: SectionModel, clickedSectionIndex: int):
-        print("RENAME SECTION")
-        newName, accept = QInputDialog.getText(self, 'Change Section Title', 'Enter new title of section: ')
+        print("RENAME PAGE")
+        newName, accept = QInputDialog.getText(self, 'Change Page Title', 'Enter new title of page: ')
         if accept:
             self.tabs.setTabText(clickedSectionIndex, newName)        # Rename section in UI
             self.sectionModels[clickedSectionIndex].title = newName   # Rename section in SectionModel
@@ -142,7 +143,7 @@ class SectionView(QWidget):
         if self.isLoading:  # Dont change sections while loading in new tabs (it will keep emitting the sectionChanged signal)
             return
 
-        print("CHANGED SECTION")
+        print("CHANGED PAGE")
         sectionModel = self.tabs.tabData(sectionIndex)
         editorSignalsInstance.sectionChanged.emit(sectionModel)       # Notify editorframe that section has changed
 
