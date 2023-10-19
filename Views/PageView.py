@@ -142,6 +142,19 @@ class PageView(QWidget):
         return False
 
     def addPage(self, level: int, clickedIndex: QModelIndex):
+        # New page added at the top level (root)
+        newPageModel = PageModel('New Page', 0)  # Assuming 0 as the parent UUID for the root
+        newPage = QStandardItem(newPageModel.title)
+        newPage.setData(newPageModel)
+        newPage.setEditable(False)
+        root.appendRow([newPage])                 # Add to UI
+        self.pageModels.append(newPageModel)      # Add to array of PageModel
+
+        self.tree.expandAll()
+
+    # previous addPage would nest the page into the selected page (not a function in Onenote)
+    '''
+    def addPage(self, level: int, clickedIndex: QModelIndex):
 
         # New page added under parent (what the user right clicked on)
         parentPage = self.model.itemFromIndex(clickedIndex)
@@ -155,7 +168,7 @@ class PageView(QWidget):
         parentPage.appendRow([newPage])       # Add to UI
         self.pageModels.append(newPageModel)  # Add to array of PageModel
 
-        self.tree.expand(clickedIndex)
+        self.tree.expand(clickedIndex)  '''
 
     def deletePage(self, page: QStandardItem):
         deletePages = [page]
