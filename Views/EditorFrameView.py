@@ -15,6 +15,10 @@ from Modules.Screensnip import SnippingWidget
 from Widgets.Table import TableWidget
 from Modules.Clipboard import Clipboard
 from Modules.Undo import UndoHandler
+from Widgets.Link import LinkWidget
+from Widgets.Link import LinkDialog
+
+
 
 # Handles all widget display (could be called widget view, but so could draggablecontainer)
 class EditorFrameView(QWidget):
@@ -178,6 +182,10 @@ class EditorFrameView(QWidget):
             add_custom_widget = QAction("Add Custom Widget", editor)
             add_custom_widget.triggered.connect(lambda: self.addCustomWidget(event))
             frame_menu.addAction(add_custom_widget)
+
+            insert_Link = QAction("Insert Link", editor)
+            insert_Link.triggered.connect(lambda: self.newWidgetOnSection(LinkWidget,event.pos()))
+            frame_menu.addAction(insert_Link)
 
             frame_menu.exec(event.globalPos())
 
