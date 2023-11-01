@@ -2,6 +2,7 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
+
 class TableWidget(QWidget):
     def __init__(self, x, y, w, h, rows, cols):
         super(TableWidget, self).__init__()
@@ -42,6 +43,8 @@ class TableWidget(QWidget):
 
     @staticmethod
     def new(clickPos: QPoint):
+        #dialog = table
+        #if 
         return TableWidget(clickPos.x(), clickPos.y(), 200, 200, 2, 2)
 
     def customMenuItems(self):
@@ -79,3 +82,48 @@ class TableWidget(QWidget):
         for i in range(colCnt):
             for j in range(rowCnt):
                 self.table.setItem(j, i, QTableWidgetItem(state['tableData'][i][j]))
+
+def show_table_popup(self):
+    popup = TablePopupWindow()
+    popup.exec_() 
+    #def undo_triggered(self):
+    # Call the EditorFrameView's triggerUndo method
+    #self.EditorFrameView.triggerUndo()
+
+class TablePopupWindow(QDialog):
+    def __init__(self):
+        super().__init__()
+        '''self.setWindowTitle("Popup Window")
+        layout = QVBoxLayout()
+        label = QLabel("This is a popup window.")
+        layout.addWidget(label)
+        self.setLayout(layout)'''
+        self.setWindowTitle("Table Configuration")
+        self.layout = QVBoxLayout()
+
+        self.rows_input = QLineEdit(self)
+        self.rows_input.setPlaceholderText("Enter number of rows:")
+        self.layout.addWidget(self.rows_input)
+
+        self.cols_input = QLineEdit(self)
+        colNum = self.cols_input.setPlaceholderText("Enter number of columns:")
+        self.layout.addWidget(self.cols_input)
+
+        create_table_button = QPushButton("Create Table", self)
+        self.layout.addWidget(self.create_button)
+        #create error message if no data is entered or if number of rows or columns are < 1
+        create_table_button.clicked.connect(self.accept)
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(self.reject)
+        self.setLayout(self.layout)
+    
+    def get_table_data(self):
+        rows_input = self.rows_input.text()
+        cols_input = self.cols_input.text()
+        return rows_input, cols_input
+
+    def create_table(self):
+        print("table")
+        #row_num = int(self.rows_input.text())
+        #col_num = int(self.cols_input.text())
+        #self.EditorFrameView.add_table_action(row_num, col_num)

@@ -160,10 +160,6 @@ class EditorFrameView(QWidget):
         if e.buttons() == Qt.RightButton:
             frame_menu = QMenu(self)
 
-            cut_action = QAction("Cut", self)
-            #add cut functionality
-            frame_menu.addAction(cut_action)
-
             paste = QAction("Paste", editor)
             paste.triggered.connect(lambda: self.pasteWidget(e.pos()))
             frame_menu.addAction(paste)
@@ -226,3 +222,8 @@ class EditorFrameView(QWidget):
         # Resize multi-select widget on mouse every proceeding mouse movement (dragging)
         else:
             self.multiselector.continueDrawingArea(e)
+    def add_table_action(self):
+        print("Add table action")
+        
+        self.newWidgetOnSection(TableWidget, 0)
+        
