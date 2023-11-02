@@ -2,7 +2,6 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
-
 class TableWidget(QWidget):
     def __init__(self, x, y, w, h, rows, cols):
         super(TableWidget, self).__init__()
@@ -43,9 +42,11 @@ class TableWidget(QWidget):
 
     @staticmethod
     def new(clickPos: QPoint):
-        #dialog = table
-        #if 
-        return TableWidget(clickPos.x(), clickPos.y(), 200, 200, 2, 2)
+        dialog = TablePopupWindow()
+        if dialog.exec_() == QDialog.Accepted:
+            rows_input, cols_input = dialog.get_table_data()
+            print(f"rows input is {rows_input} cols_input is {cols_input}")
+        return TableWidget(clickPos.x(), clickPos.y(), 200, 200, int(rows_input), int(cols_input))
 
     def customMenuItems(self):
         addRow = QAction("Add Row", self)
@@ -109,12 +110,16 @@ class TablePopupWindow(QDialog):
         colNum = self.cols_input.setPlaceholderText("Enter number of columns:")
         self.layout.addWidget(self.cols_input)
 
-        create_table_button = QPushButton("Create Table", self)
-        self.layout.addWidget(self.create_button)
-        #create error message if no data is entered or if number of rows or columns are < 1
+        create_table_button = QPushButton("Create Table")
+        self.layout.addWidget(create_table_button)
         create_table_button.clicked.connect(self.accept)
+        #create error message if no data is entered or if number of rows or columns are < 1
+        
         cancel_button = QPushButton("Cancel")
+        self.layout.addWidget(cancel_button)
         cancel_button.clicked.connect(self.reject)
+        
+
         self.setLayout(self.layout)
     
     def get_table_data(self):

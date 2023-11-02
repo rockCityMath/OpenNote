@@ -148,9 +148,9 @@ def build_toolbar(editor):
     underline = build_action(toolbar, 'assets/icons/underline.svg', "Underline", "Underline", True)
     #underline.toggled.connect(lambda x: editor.childWidget. setFontUnderlineCustom(True if x else False))
     table = build_action(toolbar, 'assets/icons/svg_table', "Create Table", "Create Table", False)
-    #table.triggered.connect(show_table_popup)
     table.triggered.connect(EditorFrameView.add_table_action)
-    hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", True)
+    #table.triggered.connect(EditorFrameView.add_table_action)
+    hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
 
     editor.action1 = QAction('Action 1', editor)
     #editor.action1.triggered.connect(EditorFrameView.slot_action1)
@@ -228,51 +228,6 @@ def change_font(self):
     self.text_edit.setFont(selected_font)
 
 def widgetAttributeChangedEvent(self, draggableContainer):
-        editorSignalsInstance.widgetAttributeChanged.emit(draggableContainer)
+    editorSignalsInstance.widgetAttributeChanged.emit(draggableContainer)
 
-def show_table_popup(self):
-    popup = TablePopupWindow()
-    popup.exec_() 
-    #def undo_triggered(self):
-    # Call the EditorFrameView's triggerUndo method
-    #self.EditorFrameView.triggerUndo()
-
-class TablePopupWindow(QDialog):
-    def __init__(self):
-        super().__init__()
-        '''self.setWindowTitle("Popup Window")
-        layout = QVBoxLayout()
-        label = QLabel("This is a popup window.")
-        layout.addWidget(label)
-        self.setLayout(layout)'''
-        self.setWindowTitle("Table Configuration")
-        self.layout = QVBoxLayout()
-
-        self.rows_input = QLineEdit(self)
-        self.rows_input.setPlaceholderText("Enter number of rows:")
-        self.layout.addWidget(self.rows_input)
-
-        self.cols_input = QLineEdit(self)
-        colNum = self.cols_input.setPlaceholderText("Enter number of columns:")
-        self.layout.addWidget(self.cols_input)
-
-        create_table_button = QPushButton("Create Table")
-        self.layout.addWidget(create_table_button)
-        create_table_button.clicked.connect(self.accept)
-        #create error message if no data is entered or if number of rows or columns are < 1
-        
-        cancel_button = QPushButton("Cancel")
-        cancel_button.clicked.connect(self.reject)
-        self.setLayout(self.layout)
-    
-    def get_table_data(self):
-        rows_input = self.rows_input.text()
-        cols_input = self.cols_input.text()
-        return rows_input, cols_input
-
-    def create_table(self):
-        print("table")
-        #row_num = int(self.rows_input.text())
-        #col_num = int(self.cols_input.text())
-        #self.EditorFrameView.add_table_action(row_num, col_num)
 
