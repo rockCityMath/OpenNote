@@ -5,9 +5,14 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
-from Views.EditorFrameView import *
-from Widgets.Table import *
+from Models.DraggableContainer import DraggableContainer
+from Widgets.Textbox import *
+
 from Modules.EditorSignals import editorSignalsInstance, ChangedWidgetAttribute
+from Modules.Undo import UndoHandler
+from Widgets.Table import *
+
+from Views.EditorFrameView import *
 
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
@@ -15,10 +20,13 @@ FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 def build_ui(editor):
     print("Building UI...")
 
+    
+    #editor.EditorFrameView = EditorFrameView(editor)
     #editor.statusBar = editor.statusBar()
     build_window(editor)
     build_menubar(editor)
     build_toolbar(editor)
+    #build_test_toolbar(editor)
 
     # Application's main layout (grid)
     gridLayout = QGridLayout()
@@ -100,16 +108,20 @@ def build_toolbar(editor):
     toolbar.setMovable(False)
     editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
 
+    #separates toolbar with a line break
     spacer = QWidget()
     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
-    undo = build_action(toolbar, 'assets/icons/svg_undo', "undo", "undo", False)
+    toolbar_undo = build_action(toolbar, 'assets/icons/svg_undo', "undo", "undo", False)
+    #toolbar_undo.triggered.connect(editor.frameView.triggerUndo)
+
+
     redo = build_action(toolbar, 'assets/icons/svg_redo', "redo", "redo", False)
     
 
 
     font = QFontComboBox()
-    font.currentFontChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font.currentFont()))
+    font.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font.currentFont()))
 
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
@@ -124,8 +136,11 @@ def build_toolbar(editor):
     fontColor.triggered.connect(lambda: openGetColorDialog(purpose = "font"))
 
     bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
-    bold.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
-    
+    #bold.toggled.connect(editor.frameView.toggleBold)
+    #bold.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
+    bold.triggered.connect(editor.frameView.add_table_action)
+
+    #bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
 
     italic = build_action(toolbar, 'assets/icons/italic.svg', "Italic", "Italic", True)
     #italic.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(setFontItalicCustom), None)
@@ -133,11 +148,22 @@ def build_toolbar(editor):
     underline = build_action(toolbar, 'assets/icons/underline.svg', "Underline", "Underline", True)
     #underline.toggled.connect(lambda x: editor.childWidget. setFontUnderlineCustom(True if x else False))
     table = build_action(toolbar, 'assets/icons/svg_table', "Create Table", "Create Table", False)
-    table.triggered.connect(show_table_popup)
-
+    #table.triggered.connect(show_table_popup)
+    table.triggered.connect(EditorFrameView.add_table_action)
     hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", True)
 
-    toolbar.addActions([undo, redo])
+    editor.action1 = QAction('Action 1', editor)
+    #editor.action1.triggered.connect(EditorFrameView.slot_action1)
+    toolbar.addAction(editor.action1)
+    editor.action2 = QAction('Action 2', editor)
+    #editor.action2.triggered.connect(TextboxWidget.slot_action2)
+    #editor.action2.triggered.connect(show_popup)
+    toolbar.addAction(editor.action2)
+    #editor.button = QPushButton("Click Me", editor)
+    #editor.button.clicked.connect(editor.slot_button_click)
+
+
+    #toolbar.addActions([undo, redo])
     toolbar.addSeparator()
     toolbar.addWidget(font)
     toolbar.addWidget(size)
@@ -146,6 +172,10 @@ def build_toolbar(editor):
     toolbar.addSeparator()
     toolbar.addActions([table, hyperlink])
 
+def toggle_bold(self):
+    self.is_bold = not self.is_bold
+
+    font =self.text_edit
 
 def openGetColorDialog(purpose):
     color = QColorDialog.getColor()
@@ -160,6 +190,45 @@ def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action.setStatusTip(set_status_tip)
     action.setCheckable(set_checkable)
     return action
+
+def build_test_toolbar(self):
+    editorFrameViewInstance = EditorFrameView(self)
+
+    toolbar = QToolBar(self)
+    self.addToolBar(toolbar)
+
+    exitAct = QAction(QIcon('assets/icons/underline.svg'), 'Exit', self)
+    exitAct.setShortcut('Ctrl+Q')
+    exitAct.triggered.connect(QApplication.instance().quit)
+
+    self.toolbar = self.addToolBar('Exit')
+    self.toolbar.addAction(exitAct)
+
+    #font_change
+    font_combo = QFontComboBox(self)
+    toolbar.addWidget(font_combo)
+
+    bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
+    bold.setShortcut('Ctrl+B')
+    bold.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.connect(self.widgetAttributeChangedEvent))
+    
+    
+    toolbar.addAction(bold)
+
+    undo_action = QAction("Undo", self)
+    undo_action.triggered.connect(self.frameView.triggerUndo)
+    
+    toolbar.addAction(undo_action)
+
+
+
+def change_font(self):
+    selected_font = self.sender().parent().widgetForAction(self.sender()).currentFont()
+
+    self.text_edit.setFont(selected_font)
+
+def widgetAttributeChangedEvent(self, draggableContainer):
+        editorSignalsInstance.widgetAttributeChanged.emit(draggableContainer)
 
 def show_table_popup(self):
     popup = TablePopupWindow()

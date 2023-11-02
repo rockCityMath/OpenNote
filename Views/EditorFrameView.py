@@ -12,7 +12,7 @@ from Widgets.Textbox import TextboxWidget
 from Modules.EditorSignals import editorSignalsInstance
 from Widgets.Image import ImageWidget
 from Modules.Screensnip import SnippingWidget
-from Widgets.Table import TableWidget
+from Widgets.Table import *
 from Modules.Clipboard import Clipboard
 from Modules.Undo import UndoHandler
 
@@ -46,10 +46,14 @@ class EditorFrameView(QWidget):
         # Undo setup
         self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
         self.shortcut.setContext(Qt.ApplicationShortcut)
-        self.shortcut.activated.connect(self.undoHandler.undo)
-        self.undoHandler.undoWidgetDelete.connect(self.undoWidgetDeleteEvent)
+        self.shortcut.activated.connect(self.triggerUndo)
 
         print("BUILT FRAMEVIEW")
+    
+    def triggerUndo(self):
+        print("triggerUndo Called")
+        self.undoHandler.undo
+        self.undoHandler.undoWidgetDelete.connect(self.undoWidgetDeleteEvent) 
 
     def pasteWidget(self, clickPos):
         widgetOnClipboard = self.clipboard.getWidgetToPaste()
@@ -150,6 +154,7 @@ class EditorFrameView(QWidget):
 
             # Releasing the mouse after clicking to add text
             else:
+                print("CREATE DRAGGABLE CONTAINER")
                 self.newWidgetOnSection(TextboxWidget, event.pos())
 
     def mousePressEvent(self, e):
@@ -170,9 +175,8 @@ class EditorFrameView(QWidget):
 
             add_table = QAction("Add Table", editor)
             add_table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, e.pos()))
+            #add_table.triggered.connect(self.show_table_popup)
             frame_menu.addAction(add_table)
-
-
 
             take_screensnip = QAction("Snip Screen", editor)
             take_screensnip.triggered.connect(lambda: self.snipScreen(e.pos()))
@@ -184,6 +188,11 @@ class EditorFrameView(QWidget):
 
             frame_menu.exec(e.globalPos())
 
+    def add_table_action(self):
+        print("add_table_action pressed")
+        clickPos = QPoint(0, 0)
+        self.newWidgetOnSection(TableWidget, clickPos)
+        
     def addCustomWidget(self, e):
         def getCustomWidgets():
             customWidgets = {} # dict where entries are {name: class}
@@ -222,8 +231,31 @@ class EditorFrameView(QWidget):
         # Resize multi-select widget on mouse every proceeding mouse movement (dragging)
         else:
             self.multiselector.continueDrawingArea(e)
-    def add_table_action(self):
-        print("Add table action")
-        
-        self.newWidgetOnSection(TableWidget, 0)
-        
+
+    def toggleBold(self):
+        print ("TOGGLE BOLD")
+        dc = DraggableContainer()
+        cw = dc.childWidget
+        if(dc.hasFocus()):
+            cw.changeFontBoldEvent()
+        #editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, )
+
+    def slot_action1(self, item):
+        print("Action 1 triggered")
+
+
+'''class PopupDialog(QDialog):
+    def __init__(self, name, parent):
+        super().__init__(parent)
+        self.resize(600, 300)
+        self.setWindowTitle("pop")
+        self.label = QLabel(name, self)
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("Test"))
+        ok_button = QPushButton("OK")
+        layout.addWidget(ok_button)
+        ok_button.clicked.connect(self.accept)
+
+        self.setLayout(layout)
+        self.setWindowTitle("Table Creation") '''
+    
