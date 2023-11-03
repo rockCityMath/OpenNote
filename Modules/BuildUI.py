@@ -148,8 +148,7 @@ def build_toolbar(editor):
     underline = build_action(toolbar, 'assets/icons/underline.svg', "Underline", "Underline", True)
     #underline.toggled.connect(lambda x: editor.childWidget. setFontUnderlineCustom(True if x else False))
     table = build_action(toolbar, 'assets/icons/svg_table', "Create Table", "Create Table", False)
-    table.triggered.connect(EditorFrameView.add_table_action)
-    #table.triggered.connect(EditorFrameView.add_table_action)
+    table.triggered.connect(editor.frameView.add_table_action)
     hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
 
     editor.action1 = QAction('Action 1', editor)

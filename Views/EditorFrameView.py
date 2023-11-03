@@ -44,9 +44,9 @@ class EditorFrameView(QWidget):
         self.installEventFilter(self.multiselector)
 
         # Undo setup
-        self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
-        self.shortcut.setContext(Qt.ApplicationShortcut)
-        self.shortcut.activated.connect(self.triggerUndo)
+        #self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
+        #self.shortcut.setContext(Qt.ApplicationShortcut)
+        #self.shortcut.activated.connect(self.triggerUndo)
 
         print("BUILT FRAMEVIEW")
     
