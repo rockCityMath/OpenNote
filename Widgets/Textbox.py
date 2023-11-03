@@ -69,10 +69,9 @@ class TextboxWidget(QTextEdit):
         bold.toggled.connect(lambda x: self.setFontWeightCustom(700 if x else 500))
 
         italic = build_action(toolbarBottom, 'assets/icons/svg_font_italic', "Italic", "Italic", True)
-        def italicToggled():
-            print("Italic Toggled")
-            italic.toggled.connect(lambda x: self.setFontItalicCustom(True if x else False))
-        italicToggled()
+        print("Italic Toggled from right click context menu")
+        italic.toggled.connect(lambda x: self.setFontItalicCustom(True if x else False))
+        
 
         underline = build_action(toolbarBottom, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
         underline.toggled.connect(lambda x: self.setFontUnderlineCustom(True if x else False))
@@ -152,3 +151,12 @@ class TextboxWidget(QTextEdit):
         font = QFont()
         font.setItalic(True)
         self.setFont(font)
+
+    def changeFontSizeEvent(self, weight):
+        print("changeFontSizeEvent Called")
+        self.setFontWeightCustom(weight)
+    
+    def changeFontItalicEvent(self):
+        print("changeFontItalicEvent Called")
+        #somehow highlights all boxes
+        self.setFontItalicCustom(lambda x: True if x else False)

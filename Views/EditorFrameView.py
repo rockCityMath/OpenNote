@@ -161,50 +161,51 @@ class EditorFrameView(QWidget):
                 print("CREATE DRAGGABLE CONTAINER")
                 self.newWidgetOnSection(TextboxWidget, event.pos())
 
-    def mousePressEvent(self, e):
+    def mousePressEvent(self, event):
         print("EDITORFRAME MOUSEPRESS")
         editor = self.editor
 
         # Open context menu on right click
-        if e.buttons() == Qt.RightButton:
+        if event.buttons() == Qt.RightButton:
             frame_menu = QMenu(self)
 
             paste = QAction("Paste", editor)
-            paste.triggered.connect(lambda: self.pasteWidget(e.pos()))
+            paste.triggered.connect(lambda: self.pasteWidget(event.pos()))
             frame_menu.addAction(paste)
 
             add_image = QAction("Add Image", self)
-            add_image.triggered.connect(lambda: self.newWidgetOnSection(ImageWidget, e.pos()))
+            add_image.triggered.connect(lambda: self.newWidgetOnSection(ImageWidget, event.pos()))
             frame_menu.addAction(add_image)
 
             add_table = QAction("Add Table", editor)
-            add_table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, e.pos()))
+            add_table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, event.pos()))
             #add_table.triggered.connect(self.show_table_popup)
             frame_menu.addAction(add_table)
 
             take_screensnip = QAction("Snip Screen", editor)
-            take_screensnip.triggered.connect(lambda: self.snipScreen(e.pos()))
+            take_screensnip.triggered.connect(lambda: self.snipScreen(event.pos()))
             frame_menu.addAction(take_screensnip)
 
             add_custom_widget = QAction("Add Custom Widget", editor)
-            add_custom_widget.triggered.connect(lambda: self.addCustomWidget(e))
+            add_custom_widget.triggered.connect(lambda: self.addCustomWidget(event))
             frame_menu.addAction(add_custom_widget)
 
-<<<<<<< HEAD
-            frame_menu.exec(e.globalPos())
-=======
             insert_Link = QAction("Insert Link", editor)
             insert_Link.triggered.connect(lambda: self.newWidgetOnSection(LinkWidget,event.pos()))
             frame_menu.addAction(insert_Link)
 
             frame_menu.exec(event.globalPos())
->>>>>>> main
 
-    def add_table_action(self):
-        print("add_table_action pressed")
+    def toolbar_table(self):
+        print("toolbar_table pressed")
         clickPos = QPoint(0, 0)
         self.newWidgetOnSection(TableWidget, clickPos)
         
+    def toolbar_hyperlink(self):
+        print("toolbar_hyperlink pressed")
+        clickPos = QPoint(0, 0)
+        self.newWidgetOnSection(LinkWidget, clickPos)
+
     def addCustomWidget(self, e):
         def getCustomWidgets():
             customWidgets = {} # dict where entries are {name: class}

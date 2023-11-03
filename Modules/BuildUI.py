@@ -59,6 +59,7 @@ def build_ui(editor):
     rightSideLayout.setStretch(0, 0)
     rightSideLayout.setStretch(1, 1)
 
+
     # Add appropriate widgets (ideally just view controllers) to their layouts
     leftSideLayout.addWidget(editor.notebookTitleView, 0)
     leftSideLayout.addWidget(editor.pageView, 1) # Page view has max stretch factor
@@ -138,18 +139,22 @@ def build_toolbar(editor):
     bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
     #bold.toggled.connect(editor.frameView.toggleBold)
     #bold.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
-    bold.triggered.connect(editor.frameView.add_table_action)
+    #bold.triggered.connect(editor.frameView.add_table_action)
 
     #bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
 
     italic = build_action(toolbar, 'assets/icons/italic.svg', "Italic", "Italic", True)
-    #italic.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(setFontItalicCustom), None)
+    italic.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))
 
     underline = build_action(toolbar, 'assets/icons/underline.svg', "Underline", "Underline", True)
     #underline.toggled.connect(lambda x: editor.childWidget. setFontUnderlineCustom(True if x else False))
     table = build_action(toolbar, 'assets/icons/svg_table', "Create Table", "Create Table", False)
-    table.triggered.connect(editor.frameView.add_table_action)
+    table.triggered.connect(editor.frameView.toolbar_table)
     hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
+    hyperlink.triggered.connect(editor.frameView.toolbar_hyperlink)
+    bullets = build_action(toolbar, 'assets/icons/svg_bullets', "Hyperlink", "Hyperlink", False)
+
+
 
     editor.action1 = QAction('Action 1', editor)
     #editor.action1.triggered.connect(EditorFrameView.slot_action1)
@@ -160,7 +165,7 @@ def build_toolbar(editor):
     toolbar.addAction(editor.action2)
     #editor.button = QPushButton("Click Me", editor)
     #editor.button.clicked.connect(editor.slot_button_click)
-
+    
 
     #toolbar.addActions([undo, redo])
     toolbar.addSeparator()
@@ -169,7 +174,7 @@ def build_toolbar(editor):
     toolbar.addSeparator()
     toolbar.addActions([bgColor, fontColor, bold, italic, underline])
     toolbar.addSeparator()
-    toolbar.addActions([table, hyperlink])
+    toolbar.addActions([table, hyperlink, bullets])
 
 def toggle_bold(self):
     self.is_bold = not self.is_bold
