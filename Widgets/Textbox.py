@@ -16,6 +16,7 @@ class TextboxWidget(QTextEdit):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.textChanged.connect(self.textChangedEvent)
         self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
+        self.setTextColor('black')
 
     def textChangedEvent(self):
         if len(self.toPlainText()) < 2:
