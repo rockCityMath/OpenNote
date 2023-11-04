@@ -1,6 +1,7 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
+from Modules.EditorSignals import editorSignalsInstance
 
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
@@ -43,54 +44,56 @@ class TextboxWidget(QTextEdit):
         return False
 
     def customMenuItems(self):
-      def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
-          action = QAction(QIcon(icon_path), action_name, parent)
-          action.setStatusTip(set_status_tip)
-          action.setCheckable(set_checkable)
-          return action
+        def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
+            action = QAction(QIcon(icon_path), action_name, parent)
+            action.setStatusTip(set_status_tip)
+            action.setCheckable(set_checkable)
+            return action
 
-      toolbarTop = QToolBar()
-      toolbarTop.setIconSize(QSize(25, 25))
-      toolbarTop.setMovable(False)
+        toolbarTop = QToolBar()
+        toolbarTop.setIconSize(QSize(25, 25))
+        toolbarTop.setMovable(False)
 
-      toolbarBottom = QToolBar()
-      toolbarBottom.setIconSize(QSize(25, 25))
-      toolbarBottom.setMovable(False)
+        toolbarBottom = QToolBar()
+        toolbarBottom.setIconSize(QSize(25, 25))
+        toolbarBottom.setMovable(False)
 
-      font = QFontComboBox()
-      font.currentFontChanged.connect(lambda x: self.setCurrentFontCustom(font.currentFont() if x else self.currentFont()))
+        font = QFontComboBox()
+        font.currentFontChanged.connect(lambda x: self.setCurrentFontCustom(font.currentFont() if x else self.currentFont()))
 
-      size = QComboBox()
-      size.addItems([str(fs) for fs in FONT_SIZES])
-      size.currentIndexChanged.connect(lambda x: self.setFontPointSizeCustom(FONT_SIZES[x] if x else self.fontPointSize()))
+        size = QComboBox()
+        size.addItems([str(fs) for fs in FONT_SIZES])
+        size.currentIndexChanged.connect(lambda x: self.setFontPointSizeCustom(FONT_SIZES[x] if x else self.fontPointSize()))
 
-      bold = build_action(toolbarBottom, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
-      bold.toggled.connect(lambda x: self.setFontWeightCustom(700 if x else 500))
+        bold = build_action(toolbarBottom, 'assets/icons/svg_font_bold', "Bold", "Bold", True)
+        bold.toggled.connect(lambda x: self.setFontWeightCustom(700 if x else 500))
 
-      italic = build_action(toolbarBottom, 'assets/icons/svg_font_italic', "Italic", "Italic", True)
-      italic.toggled.connect(lambda x: self.setFontItalicCustom(True if x else False))
+        italic = build_action(toolbarBottom, 'assets/icons/svg_font_italic', "Italic", "Italic", True)
+        italic.toggled.connect(lambda x: self.setFontItalicCustom(True if x else False))
+        
 
-      underline = build_action(toolbarBottom, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
-      underline.toggled.connect(lambda x: self.setFontUnderlineCustom(True if x else False))
+        underline = build_action(toolbarBottom, 'assets/icons/svg_font_underline', "Underline", "Underline", True)
+        underline.toggled.connect(lambda x: self.setFontUnderlineCustom(True if x else False))
 
-      fontColor = build_action(toolbarBottom, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
-      fontColor.triggered.connect(lambda x: self.setTextColorCustom(QColorDialog.getColor()))
+        fontColor = build_action(toolbarBottom, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
+        fontColor.triggered.connect(lambda: self.setTextColorCustom(QColorDialog.getColor()))
 
-      bgColor = build_action(toolbarBottom, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
-      bgColor.triggered.connect(lambda x: self.setBackgroundColor(QColorDialog.getColor()))
+        bgColor = build_action(toolbarBottom, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
+        bgColor.triggered.connect(lambda: self.setBackgroundColor(QColorDialog.getColor()))
 
-      toolbarTop.addWidget(font)
-      toolbarTop.addWidget(size)
-      toolbarBottom.addActions([bold, italic, underline, fontColor, bgColor])
-      qwaTop = QWidgetAction(self)
-      qwaTop.setDefaultWidget(toolbarTop)
-      qwaBottom = QWidgetAction(self)
-      qwaBottom.setDefaultWidget(toolbarBottom)
+        toolbarTop.addWidget(font)
+        toolbarTop.addWidget(size)
+        toolbarBottom.addActions([bold, italic, underline, fontColor, bgColor])
+        qwaTop = QWidgetAction(self)
+        qwaTop.setDefaultWidget(toolbarTop)
+        qwaBottom = QWidgetAction(self)
+        qwaBottom.setDefaultWidget(toolbarBottom)
 
-      return [qwaTop, qwaBottom]
+        return [qwaTop, qwaBottom]
 
     def setFontItalicCustom(self, italic: bool):
         if not self.applyToAllIfNoSelection(lambda: self.setFontItalic(italic)):
+            print("setFontItalicCustom Called")
             self.setFontItalic(italic)
 
     def setFontWeightCustom(self, weight: int):
@@ -138,3 +141,70 @@ class TextboxWidget(QTextEdit):
         cursor.clearSelection()
         self.setTextCursor(cursor)
         return True
+
+    def attributeChangedSlot(attribute, value):
+        if attribute == editorSignalsInstance.ChangedWidgetAttribute.FontBold:
+            print("Font Bold Signal")
+    def slot_action2(self):
+        print("Action 2 Triggered")
+        font = QFont()
+        font.setItalic(True)
+        self.setFont(font)
+
+    def changeFontSizeEvent(self, weight):
+        print("changeFontSizeEvent Called")
+        self.setFontWeightCustom(weight)
+    
+    #for communicating the signal editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None)
+    def changeFontItalicEvent(self):
+        #somehow highlights all boxes
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+        
+        #Checks if currently selected text is italics
+        is_italic = current_format.fontItalic()
+        
+        #toggles the italics 
+        current_format.setFontItalic(not is_italic)
+
+        #Apply modified format to selected text
+        cursor.setCharFormat(current_format)
+
+        #Update text cursor with modified format
+        self.setTextCursor(cursor)
+
+    def changeFontBoldEvent(self):
+        #somehow highlights all boxes
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+        
+        #Checks if currently selected text is bold
+        is_bold = current_format.fontWeight() == 700
+        
+        #toggles the italics 
+        if is_bold:
+            current_format.setFontWeight(500)
+        else:
+            current_format.setFontWeight(700)
+        #Apply modified format to selected text
+        cursor.setCharFormat(current_format)
+
+        #Update text cursor with modified format
+        self.setTextCursor(cursor)
+
+    def changeFontUnderlineEvent(self):
+        #somehow highlights all boxes
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+        
+        #Checks if currently selected text is bold
+        is_underlined = current_format.fontUnderline()
+        
+        #toggles the underline
+        current_format.setFontUnderline(not is_underlined)
+
+        #Apply modified format to selected text
+        cursor.setCharFormat(current_format)
+
+        #Update text cursor with modified format
+        self.setTextCursor(cursor)
