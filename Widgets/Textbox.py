@@ -69,7 +69,6 @@ class TextboxWidget(QTextEdit):
         bold.toggled.connect(lambda x: self.setFontWeightCustom(700 if x else 500))
 
         italic = build_action(toolbarBottom, 'assets/icons/svg_font_italic', "Italic", "Italic", True)
-        print("Italic Toggled from right click context menu")
         italic.toggled.connect(lambda x: self.setFontItalicCustom(True if x else False))
         
 
@@ -156,7 +155,56 @@ class TextboxWidget(QTextEdit):
         print("changeFontSizeEvent Called")
         self.setFontWeightCustom(weight)
     
+    #for communicating the signal editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None)
     def changeFontItalicEvent(self):
-        print("changeFontItalicEvent Called")
         #somehow highlights all boxes
-        self.setFontItalicCustom(lambda x: True if x else False)
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+        
+        #Checks if currently selected text is italics
+        is_italic = current_format.fontItalic()
+        
+        #toggles the italics 
+        current_format.setFontItalic(not is_italic)
+
+        #Apply modified format to selected text
+        cursor.setCharFormat(current_format)
+
+        #Update text cursor with modified format
+        self.setTextCursor(cursor)
+
+    def changeFontBoldEvent(self):
+        #somehow highlights all boxes
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+        
+        #Checks if currently selected text is bold
+        is_bold = current_format.fontWeight() == 700
+        
+        #toggles the italics 
+        if is_bold:
+            current_format.setFontWeight(500)
+        else:
+            current_format.setFontWeight(700)
+        #Apply modified format to selected text
+        cursor.setCharFormat(current_format)
+
+        #Update text cursor with modified format
+        self.setTextCursor(cursor)
+
+    def changeFontUnderlineEvent(self):
+        #somehow highlights all boxes
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+        
+        #Checks if currently selected text is bold
+        is_underlined = current_format.fontUnderline()
+        
+        #toggles the underline
+        current_format.setFontUnderline(not is_underlined)
+
+        #Apply modified format to selected text
+        cursor.setCharFormat(current_format)
+
+        #Update text cursor with modified format
+        self.setTextCursor(cursor)

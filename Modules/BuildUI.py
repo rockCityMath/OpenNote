@@ -137,8 +137,7 @@ def build_toolbar(editor):
     fontColor.triggered.connect(lambda: openGetColorDialog(purpose = "font"))
 
     bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
-    #bold.toggled.connect(editor.frameView.toggleBold)
-    #bold.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
+    bold.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
     #bold.triggered.connect(editor.frameView.add_table_action)
 
     #bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
@@ -147,7 +146,8 @@ def build_toolbar(editor):
     italic.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))
 
     underline = build_action(toolbar, 'assets/icons/underline.svg', "Underline", "Underline", True)
-    #underline.toggled.connect(lambda x: editor.childWidget. setFontUnderlineCustom(True if x else False))
+    underline.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontUnderline, None))
+
     table = build_action(toolbar, 'assets/icons/svg_table', "Create Table", "Create Table", False)
     table.triggered.connect(editor.frameView.toolbar_table)
     hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)

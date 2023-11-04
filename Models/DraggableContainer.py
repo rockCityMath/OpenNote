@@ -309,4 +309,3 @@ class DraggableContainer(QWidget):
 
         if hasattr(cw, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
             cw.changeBackgroundColorEvent(value)
-
