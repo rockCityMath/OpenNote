@@ -54,6 +54,8 @@ class DraggableContainer(QWidget):
         if hasattr(self.childWidget, "newGeometryEvent"): self.newGeometry.connect(childWidget.newGeometryEvent)
         editorSignalsInstance.widgetAttributeChanged.connect(self.widgetAttributeChanged)
 
+
+                
     def setChildWidget(self, childWidget):
         if childWidget:
             self.childWidget = childWidget
@@ -309,3 +311,6 @@ class DraggableContainer(QWidget):
 
         if hasattr(cw, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
             cw.changeBackgroundColorEvent(value)
+
+        if hasattr(cw, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
+            cw.changeTextboxColorEvent(value)

@@ -10,6 +10,7 @@ class ChangedWidgetAttribute(Enum):
     FontBold = 4
     FontItalic = 5
     FontUnderline = 6
+    TextboxColor = 7
 
 # Cant be statically typed because importing the classes causes circular imports
 

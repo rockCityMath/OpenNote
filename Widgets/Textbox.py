@@ -14,10 +14,23 @@ class TextboxWidget(QTextEdit):
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #self.setSizePolicy(QSizePolicy)
         self.textChanged.connect(self.textChangedEvent)
         self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
         self.setTextColor('black')
+        
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.MouseButtonPress:
+            # A click occurred outside the QTextEdit
+            self.clearFocus()
+            cursor = self.textCursor()
+            cursor.clearSelection()
+            self.setTextCursor(cursor)
 
+        return super().eventFilter(obj, event)
+
+        
+    
     def textChangedEvent(self):
         if len(self.toPlainText()) < 2:
             self.resize(100, 100)
@@ -78,12 +91,15 @@ class TextboxWidget(QTextEdit):
         fontColor = build_action(toolbarBottom, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
         fontColor.triggered.connect(lambda: self.setTextColorCustom(QColorDialog.getColor()))
 
-        bgColor = build_action(toolbarBottom, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
-        bgColor.triggered.connect(lambda: self.setBackgroundColor(QColorDialog.getColor()))
+        bgColor = build_action(toolbarBottom, 'assets/icons/svg_font_bucket', "Background Color", "Background Color", False)
+        #bgColor.triggered.connect(lambda: self.setBackgroundColor(QColorDialog.getColor()))
+        bgColor.triggered.connect(lambda: self.changeBackgroundColorEvent(QColorDialog.getColor()))
+        textboxColor = build_action(toolbarBottom, 'assets/icons/svg_textboxColor', "Background Color", "Background Color", False)
+        textboxColor.triggered.connect(lambda: self.changeTextboxColorEvent(QColorDialog.getColor()))
 
         toolbarTop.addWidget(font)
         toolbarTop.addWidget(size)
-        toolbarBottom.addActions([bold, italic, underline, fontColor, bgColor])
+        toolbarBottom.addActions([bold, italic, underline, fontColor, bgColor, textboxColor])
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
         qwaBottom = QWidgetAction(self)
@@ -120,7 +136,6 @@ class TextboxWidget(QTextEdit):
     def setBackgroundColor(self, color: QColor):
         rgb = color.getRgb()
         self.setStyleSheet(f'background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});')
-
 
     # If no text is selected, apply to all, else apply to selection
     def applyToAllIfNoSelection(self, func):
@@ -199,7 +214,7 @@ class TextboxWidget(QTextEdit):
         
         #Checks if currently selected text is bold
         is_underlined = current_format.fontUnderline()
-        
+
         #toggles the underline
         current_format.setFontUnderline(not is_underlined)
 
@@ -208,3 +223,60 @@ class TextboxWidget(QTextEdit):
 
         #Update text cursor with modified format
         self.setTextCursor(cursor)
+
+    def changeFontSizeEvent(self, value):
+        #todo: when textbox is in focus, font size on toolbar should match the font size of the text
+        
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+
+        current_format.setFontPointSize(value)
+        cursor.setCharFormat(current_format)
+
+        self.setTextCursor(cursor)
+
+    def changeFontEvent(self, font_style):
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+        current_format.setFont(font_style)
+
+        cursor.setCharFormat(current_format)
+
+        
+        self.setTextCursor(cursor)
+
+    def changeFontColorEvent(self, new_font_color):
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+
+        color = QColor(new_font_color)
+        current_format.setForeground(color)
+
+        cursor.setCharFormat(current_format)
+        
+        #to not get stuck on highlighted text
+        self.deselectText()
+
+    def changeBackgroundColorEvent(self, color: QColor):
+        rgb = color.getRgb()
+        self.setStyleSheet(f'background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});')
+        self.deselectText()
+        
+    def changeTextboxColorEvent(self, new_bg_color):
+        cursor = self.textCursor()
+        current_format = cursor.charFormat()
+
+        color = QColor(new_bg_color)
+        current_format.setBackground(color)
+
+        cursor.setCharFormat(current_format)
+        self.deselectText()
+
+        #self.setTextCursor(cursor)
+    def deselectText(self):
+        cursor = self.textCursor()
+        cursor.clearSelection()
+        self.setTextCursor(cursor)
+
+
+    

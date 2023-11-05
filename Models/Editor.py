@@ -32,6 +32,5 @@ class Editor(QMainWindow):
         self.setFocus()
 
         build_ui(self)
-
     # def focusInEvent(self, event):
     #     self.repaint()

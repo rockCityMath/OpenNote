@@ -53,7 +53,7 @@ class EditorFrameView(QWidget):
         #self.shortcut.activated.connect(self.triggerUndo)
 
         print("BUILT FRAMEVIEW")
-    
+        
     def triggerUndo(self):
         print("triggerUndo Called")
         self.undoHandler.undo
@@ -245,30 +245,6 @@ class EditorFrameView(QWidget):
         else:
             self.multiselector.continueDrawingArea(e)
 
-    def toggleBold(self):
-        print ("TOGGLE BOLD")
-        dc = DraggableContainer()
-        cw = dc.childWidget
-        if(dc.hasFocus()):
-            cw.changeFontBoldEvent()
-        #editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, )
-
     def slot_action1(self, item):
         print("Action 1 triggered")
 
-
-'''class PopupDialog(QDialog):
-    def __init__(self, name, parent):
-        super().__init__(parent)
-        self.resize(600, 300)
-        self.setWindowTitle("pop")
-        self.label = QLabel(name, self)
-        layout = QVBoxLayout()
-        layout.addWidget(QLabel("Test"))
-        ok_button = QPushButton("OK")
-        layout.addWidget(ok_button)
-        ok_button.clicked.connect(self.accept)
-
-        self.setLayout(layout)
-        self.setWindowTitle("Table Creation") '''
-    

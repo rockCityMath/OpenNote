@@ -101,7 +101,10 @@ def build_menubar(editor):
     save_fileAs.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
     save_fileAs.triggered.connect(lambda: saveAs(editor))
 
+    add_widget = build_action(editor, 'assets/icons/svg_textboxColor', 'Add Custom Widget', 'Add Custom Widget', False)
+
     file.addActions([new_file, open_file, save_file, save_fileAs])
+    plugins.addActions([add_widget])
 
 def build_toolbar(editor):
     toolbar = QToolBar()
@@ -114,7 +117,7 @@ def build_toolbar(editor):
     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
     toolbar_undo = build_action(toolbar, 'assets/icons/svg_undo', "undo", "undo", False)
-    #toolbar_undo.triggered.connect(editor.frameView.triggerUndo)
+    toolbar_undo.triggered.connect(editor.frameView.triggerUndo)
 
 
     redo = build_action(toolbar, 'assets/icons/svg_redo', "redo", "redo", False)
@@ -122,25 +125,25 @@ def build_toolbar(editor):
 
 
     font = QFontComboBox()
-    font.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font.currentFont()))
+    font.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font.currentFont().family()))
 
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
     size.currentIndexChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(size.currentText())))
 
-    bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
-    bgColor.triggered.connect(lambda: openGetColorDialog(purpose = "background"))
+    bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Background Color", "Background Color", False)
+    #bgColor.triggered.connect(lambda: openGetColorDialog(purpose = "background"))
+    bgColor.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BackgroundColor, QColorDialog.getColor()))
 
+    textboxColor = build_action(toolbar, 'assets/icons/svg_textboxColor', "Text Box Color", "Text Box Color", False)
+    textboxColor.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.TextboxColor, QColorDialog.getColor()))
 
-    
+    #defines font color icon appearance and settings
     fontColor = build_action(toolbar, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
     fontColor.triggered.connect(lambda: openGetColorDialog(purpose = "font"))
 
     bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
     bold.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
-    #bold.triggered.connect(editor.frameView.add_table_action)
-
-    #bold.toggled.connect(lambda x: editor.selected.setFontWeight(700 if x else 500))
 
     italic = build_action(toolbar, 'assets/icons/italic.svg', "Italic", "Italic", True)
     italic.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))
@@ -150,12 +153,14 @@ def build_toolbar(editor):
 
     table = build_action(toolbar, 'assets/icons/svg_table', "Create Table", "Create Table", False)
     table.triggered.connect(editor.frameView.toolbar_table)
+
     hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
     hyperlink.triggered.connect(editor.frameView.toolbar_hyperlink)
+
     bullets = build_action(toolbar, 'assets/icons/svg_bullets', "Hyperlink", "Hyperlink", False)
 
 
-
+    '''
     editor.action1 = QAction('Action 1', editor)
     #editor.action1.triggered.connect(EditorFrameView.slot_action1)
     toolbar.addAction(editor.action1)
@@ -164,22 +169,17 @@ def build_toolbar(editor):
     #editor.action2.triggered.connect(show_popup)
     toolbar.addAction(editor.action2)
     #editor.button = QPushButton("Click Me", editor)
-    #editor.button.clicked.connect(editor.slot_button_click)
+    #editor.button.clicked.connect(editor.slot_button_click)'''
     
 
-    #toolbar.addActions([undo, redo])
+    toolbar.addActions([toolbar_undo, redo])
     toolbar.addSeparator()
     toolbar.addWidget(font)
     toolbar.addWidget(size)
     toolbar.addSeparator()
-    toolbar.addActions([bgColor, fontColor, bold, italic, underline])
+    toolbar.addActions([bgColor, textboxColor, fontColor, bold, italic, underline])
     toolbar.addSeparator()
     toolbar.addActions([table, hyperlink, bullets])
-
-def toggle_bold(self):
-    self.is_bold = not self.is_bold
-
-    font =self.text_edit
 
 def openGetColorDialog(purpose):
     color = QColorDialog.getColor()
@@ -194,44 +194,3 @@ def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action.setStatusTip(set_status_tip)
     action.setCheckable(set_checkable)
     return action
-
-def build_test_toolbar(self):
-    editorFrameViewInstance = EditorFrameView(self)
-
-    toolbar = QToolBar(self)
-    self.addToolBar(toolbar)
-
-    exitAct = QAction(QIcon('assets/icons/underline.svg'), 'Exit', self)
-    exitAct.setShortcut('Ctrl+Q')
-    exitAct.triggered.connect(QApplication.instance().quit)
-
-    self.toolbar = self.addToolBar('Exit')
-    self.toolbar.addAction(exitAct)
-
-    #font_change
-    font_combo = QFontComboBox(self)
-    toolbar.addWidget(font_combo)
-
-    bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
-    bold.setShortcut('Ctrl+B')
-    bold.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.connect(self.widgetAttributeChangedEvent))
-    
-    
-    toolbar.addAction(bold)
-
-    undo_action = QAction("Undo", self)
-    undo_action.triggered.connect(self.frameView.triggerUndo)
-    
-    toolbar.addAction(undo_action)
-
-
-
-def change_font(self):
-    selected_font = self.sender().parent().widgetForAction(self.sender()).currentFont()
-
-    self.text_edit.setFont(selected_font)
-
-def widgetAttributeChangedEvent(self, draggableContainer):
-    editorSignalsInstance.widgetAttributeChanged.emit(draggableContainer)
-
-
