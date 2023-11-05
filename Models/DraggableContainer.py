@@ -286,31 +286,39 @@ class DraggableContainer(QWidget):
             self.parentWidget().repaint()
         self.newGeometry.emit(self.geometry())
 
-    # Pass the e to the child widget if this container is focuesd, and childwidget implements the method to receive it
+    # Pass the e to the child widget if this container is focused, and childwidget implements the method to receive it
+    # Uses signals to pass to draggable container, which then checks if child has the function, then calls the function.
+    # Look at toolbar in BuildUI.py to see examples
+    # example signal that doesn't have a value: 'italic.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))'
+    # example signal with a value: 'font_family.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font_family.currentFont().family()))'
+    # When adding a function to a child widget, use 'if self.hasFocus():' to ensure the function applies only to the focused widget. Else it will apply to all widgets of the same type
     def widgetAttributeChanged(self, changedWidgetAttribute, value):
 
-        cw = self.childWidget
+        child_widget = self.childWidget
+        if self.hasFocus() or child_widget.hasFocus():
+            if hasattr(child_widget, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
+                child_widget.changeFontSizeEvent(value)
 
-        if hasattr(cw, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
-            cw.changeFontSizeEvent(value)
+            if hasattr(child_widget, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
+                child_widget.changeFontBoldEvent()
 
-        if hasattr(cw, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
-            cw.changeFontBoldEvent()
+            if hasattr(child_widget, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
+                child_widget.changeFontItalicEvent()
 
-        if hasattr(cw, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
-            cw.changeFontItalicEvent()
+            if hasattr(child_widget, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
+                child_widget.changeFontUnderlineEvent()
 
-        if hasattr(cw, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
-            cw.changeFontUnderlineEvent()
+            if hasattr(child_widget, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
+                child_widget.changeFontEvent(value)
 
-        if hasattr(cw, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
-            cw.changeFontEvent(value)
+            if hasattr(child_widget, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
+                child_widget.changeFontColorEvent(value)
 
-        if hasattr(cw, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
-            cw.changeFontColorEvent(value)
+            if hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
+                child_widget.changeBackgroundColorEvent(value)
 
-        if hasattr(cw, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
-            cw.changeBackgroundColorEvent(value)
+            if hasattr(child_widget, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
+                child_widget.changeTextboxColorEvent(value)
 
-        if hasattr(cw, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
-            cw.changeTextboxColorEvent(value)
+            if hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet):
+                child_widget.changeBulletEvent()

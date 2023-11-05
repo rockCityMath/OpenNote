@@ -101,7 +101,7 @@ def build_menubar(editor):
     save_fileAs.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
     save_fileAs.triggered.connect(lambda: saveAs(editor))
 
-    add_widget = build_action(editor, 'assets/icons/svg_textboxColor', 'Add Custom Widget', 'Add Custom Widget', False)
+    add_widget = build_action(editor, 'assets/icons/svg_question', 'Add Custom Widget', 'Add Custom Widget', False)
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
     plugins.addActions([add_widget])
@@ -124,19 +124,24 @@ def build_toolbar(editor):
     
 
 
-    font = QFontComboBox()
-    font.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font.currentFont().family()))
+    font_family = QFontComboBox()
+    font_family.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font_family.currentFont().family()))
 
-    size = QComboBox()
-    size.addItems([str(fs) for fs in FONT_SIZES])
-    size.currentIndexChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(size.currentText())))
+    font_size = QComboBox()
+    font_size.addItems([str(fs) for fs in FONT_SIZES])
+    font_size.currentIndexChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(font_size.currentText())))
+
+    #current issues: 
+    # - Alternates between working and not working
+    # - Textboxes do not remember settings like if font is toggled or current font size
 
     bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Background Color", "Background Color", False)
     #bgColor.triggered.connect(lambda: openGetColorDialog(purpose = "background"))
+    #current bug, alternates between activating and not working when using
     bgColor.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BackgroundColor, QColorDialog.getColor()))
 
-    textboxColor = build_action(toolbar, 'assets/icons/svg_textboxColor', "Text Box Color", "Text Box Color", False)
-    textboxColor.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.TextboxColor, QColorDialog.getColor()))
+    textboxColor = build_action(toolbar, 'assets/icons/svg_textboxColor', "Text Box Color", "Text Box Color", True)
+    textboxColor.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.TextboxColor, QColorDialog.getColor()))
 
     #defines font color icon appearance and settings
     fontColor = build_action(toolbar, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
@@ -157,8 +162,8 @@ def build_toolbar(editor):
     hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
     hyperlink.triggered.connect(editor.frameView.toolbar_hyperlink)
 
-    bullets = build_action(toolbar, 'assets/icons/svg_bullets', "Hyperlink", "Hyperlink", False)
-
+    bullet = build_action(toolbar, 'assets/icons/svg_bullets', "Bullet List", "Bullet List", False)
+    bullet.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
 
     '''
     editor.action1 = QAction('Action 1', editor)
@@ -174,12 +179,12 @@ def build_toolbar(editor):
 
     toolbar.addActions([toolbar_undo, redo])
     toolbar.addSeparator()
-    toolbar.addWidget(font)
-    toolbar.addWidget(size)
+    toolbar.addWidget(font_family)
+    toolbar.addWidget(font_size)
     toolbar.addSeparator()
     toolbar.addActions([bgColor, textboxColor, fontColor, bold, italic, underline])
     toolbar.addSeparator()
-    toolbar.addActions([table, hyperlink, bullets])
+    toolbar.addActions([table, hyperlink, bullet])
 
 def openGetColorDialog(purpose):
     color = QColorDialog.getColor()

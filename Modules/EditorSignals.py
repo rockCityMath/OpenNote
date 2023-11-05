@@ -3,6 +3,8 @@ from PySide6.QtGui import *
 from enum import Enum
 
 class ChangedWidgetAttribute(Enum):
+    # Used for unique signals
+    # Add variable to create a unique signal 
     BackgroundColor = 0
     FontColor = 1
     Font = 2
@@ -11,6 +13,7 @@ class ChangedWidgetAttribute(Enum):
     FontItalic = 5
     FontUnderline = 6
     TextboxColor = 7
+    Bullet = 8
 
 # Cant be statically typed because importing the classes causes circular imports
 

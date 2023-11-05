@@ -14,7 +14,6 @@ class TextboxWidget(QTextEdit):
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        #self.setSizePolicy(QSizePolicy)
         self.textChanged.connect(self.textChangedEvent)
         self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
         self.setTextColor('black')
@@ -171,8 +170,11 @@ class TextboxWidget(QTextEdit):
         self.setFontWeightCustom(weight)
     
     #for communicating the signal editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None)
+    #current issue for Event Functions: Only affects highlighted
+
+
     def changeFontItalicEvent(self):
-        #somehow highlights all boxes
+
         cursor = self.textCursor()
         current_format = cursor.charFormat()
         
@@ -189,7 +191,6 @@ class TextboxWidget(QTextEdit):
         self.setTextCursor(cursor)
 
     def changeFontBoldEvent(self):
-        #somehow highlights all boxes
         cursor = self.textCursor()
         current_format = cursor.charFormat()
         
@@ -208,7 +209,6 @@ class TextboxWidget(QTextEdit):
         self.setTextCursor(cursor)
 
     def changeFontUnderlineEvent(self):
-        #somehow highlights all boxes
         cursor = self.textCursor()
         current_format = cursor.charFormat()
         
@@ -226,7 +226,6 @@ class TextboxWidget(QTextEdit):
 
     def changeFontSizeEvent(self, value):
         #todo: when textbox is in focus, font size on toolbar should match the font size of the text
-        
         cursor = self.textCursor()
         current_format = cursor.charFormat()
 
@@ -245,7 +244,9 @@ class TextboxWidget(QTextEdit):
         
         self.setTextCursor(cursor)
 
+    # Changes font text color 
     def changeFontColorEvent(self, new_font_color):
+
         cursor = self.textCursor()
         current_format = cursor.charFormat()
 
@@ -256,12 +257,16 @@ class TextboxWidget(QTextEdit):
         
         #to not get stuck on highlighted text
         self.deselectText()
+        #self.setTextCursor(cursor)
 
+    # Changes color of whole background
     def changeBackgroundColorEvent(self, color: QColor):
+        #if self.hasFocus():
         rgb = color.getRgb()
         self.setStyleSheet(f'background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});')
         self.deselectText()
-        
+    
+    # Changes textbox background color
     def changeTextboxColorEvent(self, new_bg_color):
         cursor = self.textCursor()
         current_format = cursor.charFormat()
@@ -272,11 +277,16 @@ class TextboxWidget(QTextEdit):
         cursor.setCharFormat(current_format)
         self.deselectText()
 
-        #self.setTextCursor(cursor)
+            #self.setTextCursor(cursor)
+
+    # Used to remove text highlighting
     def deselectText(self):
+        
         cursor = self.textCursor()
         cursor.clearSelection()
         self.setTextCursor(cursor)
-
-
     
+    # Adds bullet list to text
+    def changeBulletEvent(self):
+        #put bullet function here  
+        print("bullet press")
