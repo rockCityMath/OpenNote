@@ -132,6 +132,9 @@ class PageView(QWidget):
 
             renamePageAction = menu.addAction(self.tr("Rename Page"))
             renamePageAction.triggered.connect(partial(self.renamePage, page))
+
+            changeColorAction = menu.addAction(self.tr("Change Text Color"))
+            changeColorAction.triggered.connect(partial(self.changeTextColor, page))
         menu.exec_(self.sender().viewport().mapToGlobal(position))
 
     # Dont let the right click reach the viewport, context menu will still open but this will stop the page from being selected
@@ -209,3 +212,7 @@ class PageView(QWidget):
         print("CHANGED PAGE TO: " + newPage.data().title)
 
         editorSignalsInstance.pageChanged.emit(newPageModel) # Tell the sectionView that the page has changed
+    def changeTextColor(self, page: QStandardItem):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            page.setForeground(color)
