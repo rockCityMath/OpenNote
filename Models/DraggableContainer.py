@@ -102,8 +102,14 @@ class DraggableContainer(QWidget):
             self.popupShow(e.pos())
             e.accept()
 
+        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.childWidget.setFocus()
+        self.childWidget.setCursorPosition(e)
+        # need to add code for setting cursor to the end of the textbox
+
     # On double click, focus on child and make mouse events pass through this container to child
     def mouseDoubleClickEvent(self, e: QMouseEvent):
+        print("MOUSEDOUBLECLICKEVENT FROM DRAGGABLE CONTAINER")
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.childWidget.setFocus()
         return
@@ -120,7 +126,7 @@ class DraggableContainer(QWidget):
         self.setStyleSheet("border: none;")
 
         # Delete this Draggable Container if childWidget says it's empty
-        # current bug: draggable containers will still exist after creating a 
+        # current bug: Draggable Container will not delete itself if you use multiselect while the container is still in focus
         # new textbox but after creating an additional textbox, the dc will remove itself.
         if not self.childWidget.hasFocus():
             if hasattr(self.childWidget, "checkEmpty"):

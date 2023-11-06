@@ -186,6 +186,8 @@ def build_toolbar(editor):
     toolbar.addSeparator()
     toolbar.addActions([table, hyperlink, bullet])
 
+    #toolbar.setStyleSheet("QToolBar { background-color: #FFFFFF; }")
+
 def openGetColorDialog(purpose):
     color = QColorDialog.getColor()
     if color.isValid():

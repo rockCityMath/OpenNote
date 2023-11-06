@@ -17,18 +17,19 @@ class TextboxWidget(QTextEdit):
         self.textChanged.connect(self.textChangedEvent)
         self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
         self.setTextColor('black')
-        
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.MouseButtonPress:
-            # A click occurred outside the QTextEdit
-            self.clearFocus()
-            cursor = self.textCursor()
-            cursor.clearSelection()
-            self.setTextCursor(cursor)
 
-        return super().eventFilter(obj, event)
+    #upon clicking somewhere else, remove selection of highlighted text
+    def focusOutEvent(self, event):
+        super().focusOutEvent(event)
+        print("super().focusOutEvent occured")
+        cursor = self.textCursor()
+        cursor.clearSelection()
+        self.setTextCursor(cursor)
 
-        
+    def setCursorPosition(self, event):
+        print("SETCURSORPOSITION FUNCTION RAN")
+        cursor = self.cursorForPosition(event.pos())
+        self.setTextCursor(cursor)
     
     def textChangedEvent(self):
         if len(self.toPlainText()) < 2:
