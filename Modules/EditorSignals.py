@@ -14,6 +14,7 @@ class ChangedWidgetAttribute(Enum):
     FontUnderline = 6
     TextboxColor = 7
     Bullet = 8
+    LoseFocus = 9
 
 # Cant be statically typed because importing the classes causes circular imports
 
@@ -36,5 +37,8 @@ class EditorSignals(QObject):
 
     # Recieves nothing, used by autosaver
     changeMade = Signal()
+
+    # Clear Selection
+    loseFocus = Signal()
 
 editorSignalsInstance = EditorSignals()

@@ -9,7 +9,7 @@ import sys
 from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
 from Widgets.Textbox import TextboxWidget
-from Modules.EditorSignals import editorSignalsInstance
+from Modules.EditorSignals import editorSignalsInstance,ChangedWidgetAttribute
 from Widgets.Image import ImageWidget
 from Modules.Screensnip import SnippingWidget
 from Widgets.Table import *
@@ -164,6 +164,12 @@ class EditorFrameView(QWidget):
     def mousePressEvent(self, event):
         print("EDITORFRAME MOUSEPRESS")
         editor = self.editor
+
+        #calls textwidget's clearSelectionSignal
+        if event.button() == Qt.LeftButton:
+            if self.rect().contains(event.pos()):
+                editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.LoseFocus, None)
+            super().mousePressEvent(event)
 
         # Open context menu on right click
         if event.buttons() == Qt.RightButton:

@@ -303,8 +303,9 @@ class DraggableContainer(QWidget):
         child_widget = self.childWidget
         if self.hasFocus() or child_widget.hasFocus():
             if hasattr(child_widget, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
+                print("Change Font Size Event Called")
                 child_widget.changeFontSizeEvent(value)
-
+                
             if hasattr(child_widget, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
                 child_widget.changeFontBoldEvent()
 
@@ -328,3 +329,6 @@ class DraggableContainer(QWidget):
 
             if hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet):
                 child_widget.changeBulletEvent()
+
+            if hasattr(child_widget, "clearSelectionSlot") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
+                child_widget.clearSelectionSlot()

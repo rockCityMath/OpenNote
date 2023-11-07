@@ -133,8 +133,12 @@ class PageView(QWidget):
             renamePageAction = menu.addAction(self.tr("Rename Page"))
             renamePageAction.triggered.connect(partial(self.renamePage, page))
 
-            changeColorAction = menu.addAction(self.tr("Change Text Color"))
-            changeColorAction.triggered.connect(partial(self.changeTextColor, page))
+            #Current Issue: settings do not save because autosave only saves editor state
+            changeTextColorAction = menu.addAction(self.tr("Change Text Color"))
+            changeTextColorAction.triggered.connect(partial(self.changeTextColor, page))
+            
+            changeBackgroundColorAction = menu.addAction(self.tr("Change Background Color"))
+            changeBackgroundColorAction.triggered.connect(partial(self.changeBackgroundColor, page))
         menu.exec_(self.sender().viewport().mapToGlobal(position))
 
     # Dont let the right click reach the viewport, context menu will still open but this will stop the page from being selected
@@ -216,3 +220,8 @@ class PageView(QWidget):
         color = QColorDialog.getColor()
         if color.isValid():
             page.setForeground(color)
+
+    def changeBackgroundColor(self, page: QStandardItem):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            page.setBackground(color)

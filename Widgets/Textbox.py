@@ -19,15 +19,23 @@ class TextboxWidget(QTextEdit):
         self.setTextColor('black')
 
     #upon clicking somewhere else, remove selection of highlighted text
-    def focusOutEvent(self, event):
+    # Current issue: clicking on any toolbar button that creates a popup will activate this function, which prevents the toolbar button to work
+    '''def focusOutEvent(self, event):
         super().focusOutEvent(event)
         print("super().focusOutEvent occured")
         cursor = self.textCursor()
         cursor.clearSelection()
+        self.setTextCursor(cursor)'''
+    
+    def clearSelectionSlot(self):
+        print("clearSelectionSlot Called")
+        cursor = self.textCursor()
+        cursor.clearSelection()
         self.setTextCursor(cursor)
+    
 
     def setCursorPosition(self, event):
-        print("SETCURSORPOSITION FUNCTION RAN")
+        print("SET TEXT CURSOR POSITION TO MOUSE POSITION")
         cursor = self.cursorForPosition(event.pos())
         self.setTextCursor(cursor)
     
@@ -227,9 +235,10 @@ class TextboxWidget(QTextEdit):
 
     def changeFontSizeEvent(self, value):
         #todo: when textbox is in focus, font size on toolbar should match the font size of the text
+        print("Change Font Size Event Called")
         cursor = self.textCursor()
         current_format = cursor.charFormat()
-
+        
         current_format.setFontPointSize(value)
         cursor.setCharFormat(current_format)
 
