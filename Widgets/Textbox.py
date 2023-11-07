@@ -26,14 +26,6 @@ class TextboxWidget(QTextEdit):
         cursor = self.textCursor()
         cursor.clearSelection()
         self.setTextCursor(cursor)'''
-    
-    #deselect highlighted
-    '''def clearSelectionSlot(self):
-        print("clearSelectionSlot Called")
-        cursor = self.textCursor()
-        cursor.clearSelection()
-        self.setTextCursor(cursor)'''
-    
 
     def setCursorPosition(self, event):
         print("SET TEXT CURSOR POSITION TO MOUSE POSITION")
@@ -244,6 +236,8 @@ class TextboxWidget(QTextEdit):
         cursor.setCharFormat(current_format)
 
         self.setTextCursor(cursor)
+
+        
 
     def changeFontEvent(self, font_style):
         cursor = self.textCursor()

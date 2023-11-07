@@ -299,9 +299,13 @@ class DraggableContainer(QWidget):
     # example signal with a value: 'font_family.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font_family.currentFont().family()))'
     # When adding a function to a child widget, use 'if self.hasFocus():' to ensure the function applies only to the focused widget. Else it will apply to all widgets of the same type
     def widgetAttributeChanged(self, changedWidgetAttribute, value):
-
+        #print(f"changedWidgetAttribute is {changedWidgetAttribute} and value is {value}")
         child_widget = self.childWidget
+
         if self.hasFocus() or child_widget.hasFocus():
+            #only the focused container will print this line
+            print(f"changedWidgetAttribute is {changedWidgetAttribute} and value is {value}")
+                
             if hasattr(child_widget, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
                 print("Change Font Size Event Called")
                 child_widget.changeFontSizeEvent(value)
