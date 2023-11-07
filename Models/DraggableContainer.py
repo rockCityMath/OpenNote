@@ -307,28 +307,37 @@ class DraggableContainer(QWidget):
                 child_widget.changeFontSizeEvent(value)
                 
             if hasattr(child_widget, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
+                print("Change Font Bold Event Called")
                 child_widget.changeFontBoldEvent()
 
             if hasattr(child_widget, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
+                print("Change Font Italic Event Called")
                 child_widget.changeFontItalicEvent()
 
             if hasattr(child_widget, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
+                print("Change Font Underline Event Called")
                 child_widget.changeFontUnderlineEvent()
 
             if hasattr(child_widget, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
+                print("Change Font Family Event Called")
                 child_widget.changeFontEvent(value)
 
             if hasattr(child_widget, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
+                print("Change Font Color Event Called")
                 child_widget.changeFontColorEvent(value)
 
             if hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
+                print("Change Font Background Color Event Called")
                 child_widget.changeBackgroundColorEvent(value)
 
             if hasattr(child_widget, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
+                print("Change Textbox Color Event Called")
                 child_widget.changeTextboxColorEvent(value)
 
             if hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet):
+                print("Change Bullet Event Called")
                 child_widget.changeBulletEvent()
 
-            if hasattr(child_widget, "clearSelectionSlot") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
-                child_widget.clearSelectionSlot()
+            if hasattr(child_widget, "deselectText") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
+                print("Clear Selection Slot Called")
+                child_widget.deselectText()

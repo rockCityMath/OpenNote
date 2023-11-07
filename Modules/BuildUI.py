@@ -129,7 +129,7 @@ def build_toolbar(editor):
 
     font_size = QComboBox()
     font_size.addItems([str(fs) for fs in FONT_SIZES])
-    font_size.currentIndexChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(font_size.currentText())))
+    font_size.currentIndexChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(font_size.currentText())))
 
     #current issues: 
     # - Alternates between working and not working

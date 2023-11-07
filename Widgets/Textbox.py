@@ -27,11 +27,12 @@ class TextboxWidget(QTextEdit):
         cursor.clearSelection()
         self.setTextCursor(cursor)'''
     
-    def clearSelectionSlot(self):
+    #deselect highlighted
+    '''def clearSelectionSlot(self):
         print("clearSelectionSlot Called")
         cursor = self.textCursor()
         cursor.clearSelection()
-        self.setTextCursor(cursor)
+        self.setTextCursor(cursor)'''
     
 
     def setCursorPosition(self, event):
@@ -235,7 +236,7 @@ class TextboxWidget(QTextEdit):
 
     def changeFontSizeEvent(self, value):
         #todo: when textbox is in focus, font size on toolbar should match the font size of the text
-        print("Change Font Size Event Called")
+
         cursor = self.textCursor()
         current_format = cursor.charFormat()
         
