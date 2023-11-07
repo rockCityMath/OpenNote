@@ -64,10 +64,10 @@ class DraggableContainer(QWidget):
             self.vLayout.addWidget(childWidget)
             self.vLayout.setContentsMargins(0,0,0,0)
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, obj, e):
 
         # If child widget resized itsself, resize this drag container, not ideal bc child resizes on hover
-        if isinstance(event, QResizeEvent):
+        if isinstance(e, QResizeEvent):
             self.resize(self.childWidget.size())
         return False
 
@@ -80,7 +80,7 @@ class DraggableContainer(QWidget):
     def mousePressEvent(self, e: QMouseEvent):
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
 
-        print("DC MOUSE PRESS")
+        print("Draggable Container MOUSE PRESS")
 
         # Undo related
         # self.old_x = e.globalX()
@@ -93,7 +93,7 @@ class DraggableContainer(QWidget):
             print("NOT EDIT")
             return
         if not e.buttons() and Qt.LeftButton:
-            print("DC GOT MOUSE PRESS")
+            print("Draggable Container GOT MOUSE PRESS")
             self.setCursorShape(e.pos())
             return True
         if e.button() == Qt.RightButton:
@@ -117,14 +117,17 @@ class DraggableContainer(QWidget):
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setStyleSheet("border: none;")
 
-        # Delete this DC if childWidget says it's empty
-        if hasattr(self.childWidget, "checkEmpty"):
-            if self.childWidget.checkEmpty():
-                editorSignalsInstance.widgetRemoved.emit(self)
-
-        # ???
-        if self.childWidget.hasFocus():
-            self.setFocus()
+        # Delete this Draggable Container if childWidget says it's empty
+        # current bug: draggable containers will still exist after creating a 
+        # new textbox but after creating an additional textbox, the dc will remove itself.
+        if not self.childWidget.hasFocus():
+            if hasattr(self.childWidget, "checkEmpty"):
+                if self.childWidget.checkEmpty():
+                    editorSignalsInstance.widgetRemoved.emit(self)
+        
+        # If mouse leaves draggable container, set focus to the editor
+        #if self.childWidget.hasFocus():
+        #    self.setFocus()'''
 
     def buildDragContainerMenu(self):
 
@@ -217,7 +220,7 @@ class DraggableContainer(QWidget):
                 self.setCursor(QCursor(Qt.SizeVerCursor))
                 self.mode = Mode.RESIZEB
         else:
-            self.setCursor(QCursor(Qt. ArrowCursor))
+            self.setCursor(QCursor(Qt.ArrowCursor))
             self.mode = Mode.MOVE
 
     # Determine how to handle the mouse being moved inside the box
@@ -281,7 +284,7 @@ class DraggableContainer(QWidget):
             self.parentWidget().repaint()
         self.newGeometry.emit(self.geometry())
 
-    # Pass the event to the child widget if this container is focuesd, and childwidget implements the method to receive it
+    # Pass the e to the child widget if this container is focuesd, and childwidget implements the method to receive it
     def widgetAttributeChanged(self, changedWidgetAttribute, value):
 
         cw = self.childWidget
@@ -306,4 +309,3 @@ class DraggableContainer(QWidget):
 
         if hasattr(cw, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
             cw.changeBackgroundColorEvent(value)
-
