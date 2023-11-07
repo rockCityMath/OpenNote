@@ -2,7 +2,7 @@ import pickle
 import os
 
 from Modules.Save import Autosaver
-
+import pyautogui
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -13,8 +13,8 @@ from Models.NotebookModel import NotebookModel
 def new(editor):
     print("RAN NEW")
     destroy(editor)
-
-    editor.notebook = NotebookModel('Untitled')
+    p_name = pyautogui.prompt("Enter Page Name")
+    editor.notebook = NotebookModel(p_name)
     editor.notebookTitleView.setText(editor.notebook.title)
     editor.selected = None
     editor.autosaver = Autosaver(editor)
