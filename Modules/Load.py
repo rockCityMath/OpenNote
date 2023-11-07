@@ -13,7 +13,7 @@ from Models.NotebookModel import NotebookModel
 def new(editor):
     print("RAN NEW")
     destroy(editor)
-    p_name = pyautogui.prompt("Enter Page Name")
+    p_name = pyautogui.prompt("Enter Notebook Name")
     editor.notebook = NotebookModel(p_name)
     editor.notebookTitleView.setText(editor.notebook.title)
     editor.selected = None
