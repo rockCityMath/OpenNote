@@ -125,10 +125,14 @@ def build_toolbar(editor):
 
 
     font_family = QFontComboBox()
+    default_font = font_family.currentFont().family()
+    print(f"default font is {default_font}")
     font_family.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font_family.currentFont().family()))
 
     font_size = QComboBox()
     font_size.addItems([str(fs) for fs in FONT_SIZES])
+    default_font_size_index = 8 #default text size is 18
+    font_size.setCurrentIndex(default_font_size_index)
     font_size.currentIndexChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(font_size.currentText())))
 
     #current issues: 
