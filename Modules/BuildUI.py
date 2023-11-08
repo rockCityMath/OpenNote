@@ -150,10 +150,11 @@ def build_toolbar(editor):
 
     table = build_action(toolbar, 'assets/icons/svg_table', "Create Table", "Create Table", False)
     table.triggered.connect(editor.frameView.toolbar_table)
+
     hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
     hyperlink.triggered.connect(editor.frameView.toolbar_hyperlink)
-    bullets = build_action(toolbar, 'assets/icons/svg_bullets', "Hyperlink", "Hyperlink", False)
 
+    bullets = build_action(toolbar, 'assets/icons/svg_bullets', "Bullets", "Bullets", False)
 
 
     editor.action1 = QAction('Action 1', editor)

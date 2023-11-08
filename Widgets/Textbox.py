@@ -18,6 +18,15 @@ class TextboxWidget(QTextEdit):
         self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
         self.setTextColor('black')
 
+        self.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
+            self.handleTabKey()
+            return True  # To prevent the default Tab key behavior
+
+        return super(TextboxWidget, self).eventFilter(obj, event)
+
     def textChangedEvent(self):
         if len(self.toPlainText()) < 2:
             self.resize(100, 100)
@@ -81,9 +90,15 @@ class TextboxWidget(QTextEdit):
         bgColor = build_action(toolbarBottom, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
         bgColor.triggered.connect(lambda: self.setBackgroundColor(QColorDialog.getColor()))
 
+        bullets = build_action(toolbarBottom, 'assets/icons/svg_bullets', "Bullets", "Bullets", True)
+        bullets.toggled.connect(lambda: self.bullet_list("bulletReg"))
+
+        bullets_num = build_action(toolbarBottom, 'assets/icons/svg_bullet_number', "Bullets Num", "Bullets Num", True)
+        bullets_num.toggled.connect(lambda: self.bullet_list("bulletNum"))
+
         toolbarTop.addWidget(font)
         toolbarTop.addWidget(size)
-        toolbarBottom.addActions([bold, italic, underline, fontColor, bgColor])
+        toolbarBottom.addActions([bold, italic, underline, fontColor, bgColor, bullets, bullets_num])
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
         qwaBottom = QWidgetAction(self)
@@ -207,4 +222,59 @@ class TextboxWidget(QTextEdit):
         cursor.setCharFormat(current_format)
 
         #Update text cursor with modified format
+        self.setTextCursor(cursor)
+
+    def bullet_list(self, bulletType):
+        cursor = self.textCursor()
+        textList = cursor.currentList()
+
+        if textList:
+            start = cursor.selectionStart()
+            end = cursor.selectionEnd()
+            removed = 0
+            for i in range(textList.count()):
+                item = textList.item(i - removed)
+                if (item.position() <= end and
+                    item.position() + item.length() > start):
+                    textList.remove(item)
+                    blockCursor = QTextCursor(item)
+                    blockFormat = blockCursor.blockFormat()
+                    blockFormat.setIndent(0)
+                    blockCursor.mergeBlockFormat(blockFormat)
+                    removed += 1
+
+            cursor = self.textCursor()
+            cursor.setBlockFormat(QTextBlockFormat())  # Clear any previous block format
+
+            self.setTextCursor(cursor)
+            self.setFocus()
+        else:
+            listFormat = QTextListFormat()
+
+            if bulletType == 'bulletNum':
+                style = QTextListFormat.ListDecimal
+            if bulletType == 'bulletReg':
+                style = QTextListFormat.ListDisc
+
+            listFormat.setStyle(style)
+            cursor.createList(listFormat)
+
+            self.setTextCursor(cursor)
+            self.setFocus()
+
+    def handleTabKey(self):
+        cursor = self.textCursor()
+        textList = cursor.currentList()
+
+        if textList:
+            # Check if there is a list at the current cursor position
+            current_block = cursor.block()  # Get the current block
+            if cursor.atBlockStart() and current_block.text().strip() == '':
+                # Increase the indentation level for the current list item
+                blockFormat = current_block.blockFormat()
+                blockFormat.setIndent(blockFormat.indent() + 1)
+                cursor.setBlockFormat(blockFormat)
+        else:
+              pass
+
         self.setTextCursor(cursor)
