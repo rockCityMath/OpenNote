@@ -9,7 +9,7 @@ import sys
 from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
 from Widgets.Textbox import TextboxWidget
-from Modules.EditorSignals import editorSignalsInstance
+from Modules.EditorSignals import editorSignalsInstance,ChangedWidgetAttribute
 from Widgets.Image import ImageWidget
 from Modules.Screensnip import SnippingWidget
 from Widgets.Table import *
@@ -53,7 +53,7 @@ class EditorFrameView(QWidget):
         #self.shortcut.activated.connect(self.triggerUndo)
 
         print("BUILT FRAMEVIEW")
-    
+        
     def triggerUndo(self):
         print("triggerUndo Called")
         self.undoHandler.undo
@@ -165,6 +165,12 @@ class EditorFrameView(QWidget):
         print("EDITORFRAME MOUSEPRESS")
         editor = self.editor
 
+        #calls textwidget's clearSelectionSignal
+        if event.button() == Qt.LeftButton:
+            if self.rect().contains(event.pos()):
+                editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.LoseFocus, None)
+            super().mousePressEvent(event)
+
         # Open context menu on right click
         if event.buttons() == Qt.RightButton:
             frame_menu = QMenu(self)
@@ -245,30 +251,6 @@ class EditorFrameView(QWidget):
         else:
             self.multiselector.continueDrawingArea(e)
 
-    def toggleBold(self):
-        print ("TOGGLE BOLD")
-        dc = DraggableContainer()
-        cw = dc.childWidget
-        if(dc.hasFocus()):
-            cw.changeFontBoldEvent()
-        #editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, )
-
     def slot_action1(self, item):
         print("Action 1 triggered")
 
-
-'''class PopupDialog(QDialog):
-    def __init__(self, name, parent):
-        super().__init__(parent)
-        self.resize(600, 300)
-        self.setWindowTitle("pop")
-        self.label = QLabel(name, self)
-        layout = QVBoxLayout()
-        layout.addWidget(QLabel("Test"))
-        ok_button = QPushButton("OK")
-        layout.addWidget(ok_button)
-        ok_button.clicked.connect(self.accept)
-
-        self.setLayout(layout)
-        self.setWindowTitle("Table Creation") '''
-    

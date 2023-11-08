@@ -54,6 +54,8 @@ class DraggableContainer(QWidget):
         if hasattr(self.childWidget, "newGeometryEvent"): self.newGeometry.connect(childWidget.newGeometryEvent)
         editorSignalsInstance.widgetAttributeChanged.connect(self.widgetAttributeChanged)
 
+
+                
     def setChildWidget(self, childWidget):
         if childWidget:
             self.childWidget = childWidget
@@ -100,8 +102,14 @@ class DraggableContainer(QWidget):
             self.popupShow(e.pos())
             e.accept()
 
+        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.childWidget.setFocus()
+        self.childWidget.setCursorPosition(e)
+        # need to add code for setting cursor to the end of the textbox
+
     # On double click, focus on child and make mouse events pass through this container to child
     def mouseDoubleClickEvent(self, e: QMouseEvent):
+        print("MOUSEDOUBLECLICKEVENT FROM DRAGGABLE CONTAINER")
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.childWidget.setFocus()
         return
@@ -118,7 +126,7 @@ class DraggableContainer(QWidget):
         self.setStyleSheet("border: none;")
 
         # Delete this Draggable Container if childWidget says it's empty
-        # current bug: draggable containers will still exist after creating a 
+        # current bug: Draggable Container will not delete itself if you use multiselect while the container is still in focus
         # new textbox but after creating an additional textbox, the dc will remove itself.
         if not self.childWidget.hasFocus():
             if hasattr(self.childWidget, "checkEmpty"):
@@ -284,28 +292,57 @@ class DraggableContainer(QWidget):
             self.parentWidget().repaint()
         self.newGeometry.emit(self.geometry())
 
-    # Pass the e to the child widget if this container is focuesd, and childwidget implements the method to receive it
+    # Pass the e to the child widget if this container is focused, and childwidget implements the method to receive it
+    # Uses signals to pass to draggable container, which then checks if child has the function, then calls the function.
+    # Look at toolbar in BuildUI.py to see examples
+    # example signal that doesn't have a value: 'italic.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))'
+    # example signal with a value: 'font_family.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font_family.currentFont().family()))'
+    # When adding a function to a child widget, use 'if self.hasFocus():' to ensure the function applies only to the focused widget. Else it will apply to all widgets of the same type
     def widgetAttributeChanged(self, changedWidgetAttribute, value):
+        #print(f"changedWidgetAttribute is {changedWidgetAttribute} and value is {value}")
+        child_widget = self.childWidget
 
-        cw = self.childWidget
+        #this if statement is no longer needed because highlighted text deselects after clicking on an area in the editor thats not the in focus textbox
+        #if self.hasFocus() or child_widget.hasFocus():
+            #only the focused container will print this line
+        print(f"changedWidgetAttribute is {changedWidgetAttribute} and value is {value}")
+            
+        if hasattr(child_widget, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
+            print("Change Font Size Event Called")
+            child_widget.changeFontSizeEvent(value)
+            
+        if hasattr(child_widget, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
+            print("Change Font Bold Event Called")
+            child_widget.changeFontBoldEvent()
 
-        if hasattr(cw, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
-            cw.changeFontSizeEvent(value)
+        if hasattr(child_widget, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
+            print("Change Font Italic Event Called")
+            child_widget.changeFontItalicEvent()
 
-        if hasattr(cw, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
-            cw.changeFontBoldEvent()
+        if hasattr(child_widget, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
+            print("Change Font Underline Event Called")
+            child_widget.changeFontUnderlineEvent()
 
-        if hasattr(cw, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
-            cw.changeFontItalicEvent()
+        if hasattr(child_widget, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
+            print("Change Font Family Event Called")
+            child_widget.changeFontEvent(value)
 
-        if hasattr(cw, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
-            cw.changeFontUnderlineEvent()
+        if hasattr(child_widget, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
+            print("Change Font Color Event Called")
+            child_widget.changeFontColorEvent(value)
 
-        if hasattr(cw, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
-            cw.changeFontEvent(value)
+        if hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
+            print("Change Font Background Color Event Called")
+            child_widget.changeBackgroundColorEvent(value)
 
-        if hasattr(cw, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
-            cw.changeFontColorEvent(value)
+        if hasattr(child_widget, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
+            print("Change Textbox Color Event Called")
+            child_widget.changeTextboxColorEvent(value)
 
-        if hasattr(cw, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
-            cw.changeBackgroundColorEvent(value)
+        if hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet):
+            print("Change Bullet Event Called")
+            child_widget.changeBulletEvent()
+
+        if hasattr(child_widget, "deselectText") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
+            print("Clear Selection Slot Called")
+            child_widget.deselectText()
