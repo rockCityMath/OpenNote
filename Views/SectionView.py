@@ -19,11 +19,6 @@ class SectionView(QWidget):
         # The tabbed section widget
         self.tabs = QTabBar(self)
 
-        # Create a scroll area and set the SectionView as its widget
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setWidget(self.tabs)
-
         # Layout that holds this view
         layout = QVBoxLayout(self)
         layout.addWidget(self.tabs)
@@ -46,10 +41,10 @@ class SectionView(QWidget):
         print("BUILT SECTIONVIEW")
 
     def tabSizeHint(self, index):
-        return QSize(600, 70)
+        return QSize(300, 35)
 
     def minimumTabSizeHint(self, index):
-        return QSize(600, 70)
+        return QSize(300, 35)
 
     def widgetRemovedEvent(self, draggableContainer):
         try:

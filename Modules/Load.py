@@ -1,8 +1,5 @@
 import pickle
 import os
-from tkinter import *
-from tkinter import ttk
-import pyautogui
 
 from Modules.Save import Autosaver
 import pyautogui
@@ -12,41 +9,28 @@ from PySide6.QtGui import *
 
 from Models.NotebookModel import NotebookModel
 
-
 # Creates a new notebook
 def new(editor):
-    print("New Note book is created")
-    window = Tk()
-    nb = ttk.Notebook(window)
-    nb.pack(fill=BOTH, expand=1)
-
-    p = ttk.Frame(nb)
-    p.pack(fill=BOTH, expand=1)
-
-    p_name = pyautogui.prompt("Enter Page Name")
-
-    nb.add(p, text=p_name)
-    text_ar = Text(p, fg="black", bg="white", font=("segoe print", 15))
-    text_ar.pack()
+    print("RAN NEW")
     destroy(editor)
-    
     p_name = pyautogui.prompt("Enter Notebook Name")
     editor.notebook = NotebookModel(p_name)
-
     editor.notebookTitleView.setText(editor.notebook.title)
     editor.selected = None
     editor.autosaver = Autosaver(editor)
-    build(editor)  # should we build here, or should above be in build?
-
+    build(editor) # should we build here, or should above be in build?
 
 # Loads models.notebook.Notebook class from file
 def load(editor):
     print("LOADING")
     path, accept = QFileDialog.getOpenFileName(
-        editor, "Open Notebook", "", "OpenNote (*.on *.ontemp)"
+        editor,
+        'Open Notebook',
+        '',
+        'OpenNote (*.on *.ontemp)'
     )
     if accept:
-        file = open(path, "rb")
+        file = open(path, 'rb')
         destroy(editor)
         editor.notebook = pickle.load(file)
         # for page in editor.notebook.pages:
@@ -59,25 +43,25 @@ def load(editor):
         return
     build(editor)
 
-
 # Try to find and open the most recent OpenNote related file
 def load_most_recent_notebook(editor):
+
     print("LOAD RECENT RAN")
     files = []
-    saves_directory = os.path.join(os.getcwd(), "Saves")
+    saves_directory = os.path.join(os.getcwd(), 'Saves')
     for file in os.listdir(saves_directory):
-        file_path = os.path.join(saves_directory, file)
-        if os.path.isfile(file_path):
-            files.append(file_path)
-            print(file_path)
+       file_path = os.path.join(saves_directory, file)
+       if os.path.isfile(file_path):
+          files.append(file_path)
+          print(file_path)
 
-    directory_files = reversed(sorted(files, key=os.path.getmtime))
+    directory_files = reversed(sorted(files, key = os.path.getmtime))
     for f in directory_files:
-        if f.endswith(".on") or f.endswith(".ontemp"):
+        if (f.endswith(".on") or f.endswith(".ontemp")):
             print("FOUND: " + str(f))
             try:
                 # prob need load from file function, dup functionality
-                file = open(os.path.join(os.getcwd() + "\\Saves", f), "rb")
+                file = open(os.path.join(os.getcwd() + "\\Saves", f), 'rb')
                 destroy(editor)
                 editor.notebook = pickle.load(file)
                 build(editor)
@@ -90,7 +74,6 @@ def load_most_recent_notebook(editor):
                 return
             except:
                 continue
-
 
 def build(editor):
     print("BUILDING FROM LOAD")
@@ -116,7 +99,8 @@ def build(editor):
 
     print("RELOADED VIEWS ")
 
-    if len(editor.notebook.pages) > 0:  # If pages exist
+    if len(editor.notebook.pages) > 0:   # If pages exist
+
         print("PAGES EXIST")
         # Show all Pages in Notebook
         # editor.pageView.loadPages(editor.notebook.pages)
@@ -144,7 +128,6 @@ def build(editor):
     # # Select page1, section1
     # editor.pageIndex = 0
     # editor.sectionIndex = 0
-
 
 # Destroy all Widgets in the Current Notebook
 def destroy(editor):

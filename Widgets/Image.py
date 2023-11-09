@@ -28,14 +28,6 @@ class ImageWidget(QLabel):
     def newGeometryEvent(self, newGeometry):
         new_w = newGeometry.width()
         new_h = newGeometry.height()
-
-        # Calculate minimum width and height as 1/8th (arbitrary) of the original image dimensions
-        min_width = max(1, self.w // 8)  # Ensure that min_width is at least 1
-        min_height = max(1, self.h // 8)  # Ensure that min_height is at least 1
-
-        # Check if the new width/height is below the minimum and if it is limits the width/height to 1/8th the size
-        if (new_w < min_width) and (new_h < min_height): new_w, new_h  = min_width, min_height
-
         if (self.w != new_w) or (self.h != new_h): # Not exactly sure how object's width and height attribute gets updated but this works
             self.setPixmap(self.q_pixmap.scaled(new_w, new_h, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
