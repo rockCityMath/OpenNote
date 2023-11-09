@@ -166,6 +166,8 @@ def build_toolbar(editor):
     hyperlink = build_action(toolbar, 'assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
     hyperlink.triggered.connect(editor.frameView.toolbar_hyperlink)
 
+    bullets = build_action(toolbar, 'assets/icons/svg_bullets', "Bullets", "Bullets", False)
+
     bullet = build_action(toolbar, 'assets/icons/svg_bullets', "Bullet List", "Bullet List", False)
     bullet.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
 
