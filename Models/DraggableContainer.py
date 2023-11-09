@@ -331,10 +331,6 @@ class DraggableContainer(QWidget):
             print("Change Font Color Event Called")
             child_widget.changeFontColorEvent(value)
 
-        elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
-            print("Change Font Background Color Event Called")
-            child_widget.changeBackgroundColorEvent(value)
-
         elif hasattr(child_widget, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
             print("Change Textbox Color Event Called")
             child_widget.changeTextboxColorEvent(value)
@@ -349,3 +345,6 @@ class DraggableContainer(QWidget):
             elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet_Num):
                 print("Change Bullet Event Called")
                 child_widget.bullet_list("bulletNum")
+            elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
+                print("Chang Background Color Event Called")
+                child_widget.changeBackgroundColorEvent(value)

@@ -323,7 +323,7 @@ class TextboxWidget(QTextEdit):
         cursor.setCharFormat(current_format)
         
         #to not get stuck on highlighted text
-        self.deselectText()
+        #self.deselectText()
         #self.setTextCursor(cursor)
 
     # Changes color of whole background
@@ -342,7 +342,7 @@ class TextboxWidget(QTextEdit):
         current_format.setBackground(color)
 
         cursor.setCharFormat(current_format)
-        self.deselectText()
+        #self.deselectText()
 
             #self.setTextCursor(cursor)
 
