@@ -168,8 +168,11 @@ def build_toolbar(editor):
 
     bullets = build_action(toolbar, 'assets/icons/svg_bullets', "Bullets", "Bullets", False)
 
-    bullet = build_action(toolbar, 'assets/icons/svg_bullets', "Bullet List", "Bullet List", False)
-    bullet.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
+    bullet_reg = build_action(toolbar, 'assets/icons/svg_bullets', "Bullet List", "Bullet List", False)
+    bullet_reg.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
+
+    bullet_num = build_action(toolbar, 'assets/icons/svg_bullet_number', "Bullet List", "Bullet List", False)
+    bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
 
     '''
     editor.action1 = QAction('Action 1', editor)
@@ -190,7 +193,7 @@ def build_toolbar(editor):
     toolbar.addSeparator()
     toolbar.addActions([bgColor, textboxColor, fontColor, bold, italic, underline])
     toolbar.addSeparator()
-    toolbar.addActions([table, hyperlink, bullet])
+    toolbar.addActions([table, hyperlink, bullet_reg, bullet_num])
 
     #toolbar.setStyleSheet("QToolBar { background-color: #FFFFFF; }")
 
