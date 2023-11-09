@@ -1,4 +1,4 @@
-﻿numpy>=1.24.3
+numpy>=1.24.3
 opencv-python>=4.7.0.72
 Pillow>=9.5.0
 PySide6>=6.5.0
