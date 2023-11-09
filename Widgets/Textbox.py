@@ -242,7 +242,7 @@ class TextboxWidget(QTextEdit):
     def changeFontEvent(self, font_style):
         cursor = self.textCursor()
         current_format = cursor.charFormat()
-        current_format.setFont(font_style)
+        current_format.setFontFamily(font_style)
 
         cursor.setCharFormat(current_format)
 
