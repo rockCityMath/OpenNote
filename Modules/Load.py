@@ -11,6 +11,9 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 from Models.NotebookModel import NotebookModel
+from Models.PageModel import PageModel
+from Views.PageView import PageView
+
 
 
 # Creates a new notebook
@@ -36,6 +39,22 @@ def new(editor):
     editor.autosaver = Autosaver(editor)
     build(editor)  # should we build here, or should above be in build?
 
+<<<<<<< Updated upstream
+=======
+
+def add_new_notebook(editor):
+    destroy(editor)
+    p_name = pyautogui.prompt("Enter Notebook Name")
+    editor.pagemodel = PageModel(p_name, 0)
+    page_models = [PageModel]
+    page_models.append(editor.pagemodel)
+    page_view = PageView(page_models)
+    editor.pageView(page_models)
+    editor.selected = None
+    editor.autosaver = Autosaver(editor)
+    build(editor)
+
+>>>>>>> Stashed changes
 
 # Loads models.notebook.Notebook class from file
 def load(editor):

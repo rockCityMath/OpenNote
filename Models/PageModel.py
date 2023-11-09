@@ -1,5 +1,6 @@
 import uuid
 
+
 class PageModel:
     def __init__(self, title: str, parentUuid: int = 0):
         self.title = title
@@ -12,9 +13,14 @@ class PageModel:
 
     @staticmethod
     def newRootPage():
-        rootPage = PageModel("Notebook Pages")
+        rootPage = PageModel("Notebook Pages Reloaded")
         rootPage.__uuid = 0
         return rootPage
+
+    def createNewRootPage():
+        this_root = PageModel("Notebook Pagesssss")
+        this_root.__uuid = 0
+        return this_root
 
     def isRoot(self):
         return self.__uuid == 0
