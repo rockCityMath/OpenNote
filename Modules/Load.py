@@ -5,7 +5,7 @@ from tkinter import ttk
 import pyautogui
 
 from Modules.Save import Autosaver
-
+import pyautogui
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -29,8 +29,10 @@ def new(editor):
     text_ar = Text(p, fg="black", bg="white", font=("segoe print", 15))
     text_ar.pack()
     destroy(editor)
+    
+    p_name = pyautogui.prompt("Enter Notebook Name")
+    editor.notebook = NotebookModel(p_name)
 
-    editor.notebook = NotebookModel("Untitled")
     editor.notebookTitleView.setText(editor.notebook.title)
     editor.selected = None
     editor.autosaver = Autosaver(editor)
