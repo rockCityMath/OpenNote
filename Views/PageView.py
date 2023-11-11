@@ -147,17 +147,14 @@ class PageView(QWidget):
             if(event.button() == Qt.RightButton):
                 return True
         return False
-
+    
     def addPage(self, level: int, clickedIndex: QModelIndex):
 
-        # New page added under parent (what the user right clicked on)
+        # New page added to root 
+        # will add functionallity for page groups which can be nested 
         parentPage = self.model.itemFromIndex(clickedIndex)
-        
-        # Check if the parent is a page
-        if isinstance(parentPage.data(), PageModel):
-            # Parent is a page, do not proceed
-            return
-
+        while not parentPage.data().isRoot()
+            parentPage = parentPage.parent()
         parentPageUUID = parentPage.data().getUUID()
 
         # Create a new page model, set that as the data for the new page
@@ -168,25 +165,7 @@ class PageView(QWidget):
         parentPage.appendRow([newPage])       # Add to UI
         self.pageModels.append(newPageModel)  # Add to array of PageModel
 
-        self.tree.expand(clickedIndex)
-
-    # previous addPage would nest the page into the selected page (not a function in Onenote)
-    '''
-    def addPage(self, level: int, clickedIndex: QModelIndex):
-
-        # New page added under parent (what the user right clicked on)
-        parentPage = self.model.itemFromIndex(clickedIndex)
-        parentPageUUID = parentPage.data().getUUID()
-
-        # Create a new page model, set that as the data for the new page
-        newPageModel = PageModel('New Page', parentPageUUID)
-        newPage = QStandardItem(newPageModel.title)
-        newPage.setData(newPageModel)
-        newPage.setEditable(False)
-        parentPage.appendRow([newPage])       # Add to UI
-        self.pageModels.append(newPageModel)  # Add to array of PageModel
-
-        self.tree.expand(clickedIndex)  '''
+        self.tree.expand(clickedIndex) 
 
     def deletePage(self, page: QStandardItem):
         deletePages = [page]
