@@ -18,6 +18,7 @@ class TextboxWidget(QTextEdit):
         self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
         self.setTextColor('black')
 
+
         self.installEventFilter(self)
 
     def eventFilter(self, obj, event):
@@ -32,6 +33,7 @@ class TextboxWidget(QTextEdit):
         print("SET TEXT CURSOR POSITION TO MOUSE POSITION")
         cursor = self.cursorForPosition(event.pos())
         self.setTextCursor(cursor)
+    
 
     def textChangedEvent(self):
         if len(self.toPlainText()) < 2:
@@ -107,7 +109,9 @@ class TextboxWidget(QTextEdit):
 
         toolbarTop.addWidget(font)
         toolbarTop.addWidget(size)
-        toolbarBottom.addActions([bold, italic, underline, fontColor, bgColor, textboxColor, bullets, bullets_num])
+
+        toolbarBottom.addActions([bold, italic, underline, fontColor, bgColor, bullets, bullets_num])
+
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
         qwaBottom = QWidgetAction(self)
@@ -257,6 +261,7 @@ class TextboxWidget(QTextEdit):
 
             self.setTextCursor(cursor)
             self.setFocus()
+
         else:
             listFormat = QTextListFormat()
 
@@ -273,20 +278,54 @@ class TextboxWidget(QTextEdit):
 
     def handleTabKey(self):
         cursor = self.textCursor()
+        block = cursor.block()
+        block_format = block.blockFormat()
         textList = cursor.currentList()
 
         if textList:
-            # Check if there is a list at the current cursor position
-            current_block = cursor.block()  # Get the current block
-            if cursor.atBlockStart() and current_block.text().strip() == '':
-                # Increase the indentation level for the current list item
-                blockFormat = current_block.blockFormat()
-                blockFormat.setIndent(blockFormat.indent() + 1)
-                cursor.setBlockFormat(blockFormat)
-        else:
-              pass
 
-        self.setTextCursor(cursor)
+            if cursor.atBlockStart() and block.text().strip() == '':
+                current_indent = block_format.indent()
+
+                if current_indent == 0:
+
+                    block_format.setIndent(1)
+                    cursor.setBlockFormat(block_format)
+                    cursor.beginEditBlock()
+                    list_format = QTextListFormat()
+                    currentStyle = textList.format().style()
+
+                    if currentStyle == QTextListFormat.ListDisc:
+                        list_format.setStyle(QTextListFormat.ListCircle)
+                    if currentStyle == QTextListFormat.ListDecimal:
+                        list_format.setStyle(QTextListFormat.ListLowerAlpha)
+
+                    cursor.createList(list_format)
+                    cursor.endEditBlock()
+
+                if current_indent == 1:
+
+                    block_format.setIndent(2)
+                    cursor.setBlockFormat(block_format)
+                    cursor.beginEditBlock()
+                    list_format = QTextListFormat()
+                    currentStyle = textList.format().style()
+
+                    if currentStyle == QTextListFormat.ListCircle:
+                        list_format.setStyle(QTextListFormat.ListSquare)
+                    if currentStyle == QTextListFormat.ListLowerAlpha:
+                        list_format.setStyle(QTextListFormat.ListLowerRoman)
+
+                    cursor.createList(list_format)
+                    cursor.endEditBlock()
+
+                cursor.insertText('')
+                cursor.movePosition(QTextCursor.StartOfBlock)
+            self.setTextCursor(cursor)
+
+        else:
+            #maybe add manual tab or diff functionality?
+            pass
 
     def changeFontSizeEvent(self, value):
         #todo: when textbox is in focus, font size on toolbar should match the font size of the text
@@ -304,7 +343,7 @@ class TextboxWidget(QTextEdit):
     def changeFontEvent(self, font_style):
         cursor = self.textCursor()
         current_format = cursor.charFormat()
-        current_format.setFontFamily(font_style)
+        current_format.setFont(font_style)
 
         cursor.setCharFormat(current_format)
 
