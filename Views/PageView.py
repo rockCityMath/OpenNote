@@ -134,6 +134,11 @@ class PageView(QWidget):
             renamePageAction.triggered.connect(partial(self.renamePage, page))
 
             #Current Issue: settings do not save because autosave only saves editor state
+            '''
+            mergePageAction = menu.addAction(self.tr("Merge Pages"))
+            mergePageAction.triggered.connect(partial(self.mergePages, page))
+            '''
+
             changeTextColorAction = menu.addAction(self.tr("Change Text Color"))
             changeTextColorAction.triggered.connect(partial(self.changeTextColor, page))
             
@@ -220,6 +225,7 @@ class PageView(QWidget):
 
         editorSignalsInstance.pageChanged.emit(newPageModel) # Tell the sectionView that the page has changed
 
+    '''
     #   Not sure if working as intended 
     def mergePages(self):
         # Prompt the user to select two pages
@@ -263,6 +269,7 @@ class PageView(QWidget):
         else:
             # If not exactly two pages are selected, show a warning or message
             QMessageBox.warning(self, 'Invalid Selection', 'Please select exactly two pages to merge.', QMessageBox.Ok)
+    '''
 
     def changeTextColor(self, page: QStandardItem):
         color = QColorDialog.getColor()
