@@ -155,8 +155,10 @@ class PageView(QWidget):
     
     def addPage(self, level: int, clickedIndex: QModelIndex):
 
+
         # New page added to root 
         # will add functionallity for page groups which can be nested 
+    
         parentPage = self.model.itemFromIndex(clickedIndex)
         while not parentPage.data().isRoot()
             parentPage = parentPage.parent()
@@ -270,7 +272,7 @@ class PageView(QWidget):
             # If not exactly two pages are selected, show a warning or message
             QMessageBox.warning(self, 'Invalid Selection', 'Please select exactly two pages to merge.', QMessageBox.Ok)
     '''
-
+    
     def changeTextColor(self, page: QStandardItem):
         color = QColorDialog.getColor()
         if color.isValid():
