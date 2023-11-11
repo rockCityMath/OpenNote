@@ -124,14 +124,6 @@ class DraggableContainer(QWidget):
     def leaveEvent(self, e: QMouseEvent):
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setStyleSheet("border: none;")
-
-        # Delete this Draggable Container if childWidget says it's empty
-        # current bug: Draggable Container will not delete itself if you use multiselect while the container is still in focus
-        # new textbox but after creating an additional textbox, the dc will remove itself.
-        if not self.childWidget.hasFocus():
-            if hasattr(self.childWidget, "checkEmpty"):
-                if self.childWidget.checkEmpty():
-                    editorSignalsInstance.widgetRemoved.emit(self)
         
         # If mouse leaves draggable container, set focus to the editor
         #if self.childWidget.hasFocus():
@@ -331,10 +323,6 @@ class DraggableContainer(QWidget):
             print("Change Font Color Event Called")
             child_widget.changeFontColorEvent(value)
 
-        elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
-            print("Change Font Background Color Event Called")
-            child_widget.changeBackgroundColorEvent(value)
-
         elif hasattr(child_widget, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
             print("Change Textbox Color Event Called")
             child_widget.changeTextboxColorEvent(value)
@@ -342,6 +330,10 @@ class DraggableContainer(QWidget):
         elif hasattr(child_widget, "deselectText") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
             print("Clear Selection Slot Called")
             child_widget.deselectText()
+            if hasattr(self.childWidget, "checkEmpty") and isinstance(child_widget, QTextEdit):
+                if self.childWidget.checkEmpty():
+                    print("Removing empty container")
+                    editorSignalsInstance.widgetRemoved.emit(self)
         if self.hasFocus() or child_widget.hasFocus():
             if hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet):
                 print("Change Bullet Event Called")
@@ -349,3 +341,6 @@ class DraggableContainer(QWidget):
             elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet_Num):
                 print("Change Bullet Event Called")
                 child_widget.bullet_list("bulletNum")
+            elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
+                print("Chang Background Color Event Called")
+                child_widget.changeBackgroundColorEvent(value)

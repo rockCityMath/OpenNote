@@ -73,7 +73,7 @@ def build_ui(editor):
     addSectionButton = QPushButton("Add Section")
     #add functionality e.g. addSectionButton.clcicked.connect(editor.add_section_function)
     leftSideLayout.addWidget(addSectionButton)
-
+    
 def build_window(editor):
     editor.setWindowTitle("OpenNote")
     editor.setWindowIcon(QIcon('./Assets/OpenNoteLogo.png'))

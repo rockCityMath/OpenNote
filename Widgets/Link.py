@@ -16,6 +16,7 @@ class LinkWidget(QLabel):
 
 
         self.setText(f'<a href="{l}">{d}</a>')
+        self.adjustSize()
         #self.setParent(parent)
 
     @staticmethod

@@ -20,7 +20,7 @@ class TextboxWidget(QTextEdit):
 
 
         self.installEventFilter(self)
-
+        
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
             self.handleTabKey()
@@ -362,7 +362,7 @@ class TextboxWidget(QTextEdit):
         cursor.setCharFormat(current_format)
         
         #to not get stuck on highlighted text
-        self.deselectText()
+        #self.deselectText()
         #self.setTextCursor(cursor)
 
     # Changes color of whole background
@@ -381,7 +381,7 @@ class TextboxWidget(QTextEdit):
         current_format.setBackground(color)
 
         cursor.setCharFormat(current_format)
-        self.deselectText()
+        #self.deselectText()
 
             #self.setTextCursor(cursor)
 
