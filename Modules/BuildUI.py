@@ -125,10 +125,14 @@ def build_toolbar(editor):
 
 
     font_family = QFontComboBox()
+    default_font = font_family.currentFont().family()
+    print(f"default font is {default_font}")
     font_family.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font_family.currentFont().family()))
 
     font_size = QComboBox()
     font_size.addItems([str(fs) for fs in FONT_SIZES])
+    default_font_size_index = 8 #default text size is 18
+    font_size.setCurrentIndex(default_font_size_index)
     font_size.currentIndexChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontSize, int(font_size.currentText())))
 
     #current issues: 
@@ -164,8 +168,11 @@ def build_toolbar(editor):
 
     bullets = build_action(toolbar, 'assets/icons/svg_bullets', "Bullets", "Bullets", False)
 
-    bullet = build_action(toolbar, 'assets/icons/svg_bullets', "Bullet List", "Bullet List", False)
-    bullet.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
+    bullet_reg = build_action(toolbar, 'assets/icons/svg_bullets', "Bullet List", "Bullet List", False)
+    bullet_reg.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
+
+    bullet_num = build_action(toolbar, 'assets/icons/svg_bullet_number', "Bullet List", "Bullet List", False)
+    bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
 
     '''
     editor.action1 = QAction('Action 1', editor)
@@ -186,7 +193,7 @@ def build_toolbar(editor):
     toolbar.addSeparator()
     toolbar.addActions([bgColor, textboxColor, fontColor, bold, italic, underline])
     toolbar.addSeparator()
-    toolbar.addActions([table, hyperlink, bullet])
+    toolbar.addActions([table, hyperlink, bullet_reg, bullet_num])
 
     #toolbar.setStyleSheet("QToolBar { background-color: #FFFFFF; }")
 
