@@ -3,9 +3,13 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from Modules.EditorSignals import editorSignalsInstance
 
+
+#from Widgets.Link import LinkWidget
+from Widgets.Link import LinkDialog
+
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
-class TextboxWidget(QTextEdit):
+class TextboxWidget(QTextBrowser):
     def __init__(self, x, y, w = 15, h = 30, t = ''):
         super().__init__()
 
@@ -18,6 +22,7 @@ class TextboxWidget(QTextEdit):
         self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
         self.setTextColor('black')
 
+        self.setTextInteractionFlags(Qt.TextEditorInteraction | Qt.TextBrowserInteraction)
 
         self.installEventFilter(self)
 
@@ -396,4 +401,11 @@ class TextboxWidget(QTextEdit):
     def changeBulletEvent(self):
         #put bullet function here  
         print("bullet press")
+
+    def insertTextLink(self, link_address, display_text):
+        self.setOpenExternalLinks(True)
+        link_html = f'<a href="{link_address}">{display_text}</a>'
+        cursor = self.textCursor()
+        cursor.insertHtml(link_html)
+        QDesktopServices.openUrl(link_html)
 

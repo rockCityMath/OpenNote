@@ -15,7 +15,6 @@ from Modules.Screensnip import SnippingWidget
 from Widgets.Table import *
 from Modules.Clipboard import Clipboard
 from Modules.Undo import UndoHandler
-from Widgets.Link import LinkWidget
 from Widgets.Link import LinkDialog
 
 
@@ -99,6 +98,8 @@ class EditorFrameView(QWidget):
             editorSignalsInstance.widgetAdded.emit(dc)  # Notify the current section that a widget was added
             editorSignalsInstance.changeMade.emit()
             dc.mouseDoubleClickEvent(None)              # Enter the child widget after adding
+
+            return widget
 
         except Exception as e:
             print("Error adding widget: ", e)
@@ -197,10 +198,27 @@ class EditorFrameView(QWidget):
             frame_menu.addAction(add_custom_widget)
 
             insert_Link = QAction("Insert Link", editor)
-            insert_Link.triggered.connect(lambda: self.newWidgetOnSection(LinkWidget,event.pos()))
+            insert_Link.triggered.connect(lambda: self.insertLink(event.pos()))
             frame_menu.addAction(insert_Link)
 
             frame_menu.exec(event.globalPos())
+
+    def insertLink(self, clickPos):
+        link_dialog = LinkDialog()
+        result = link_dialog.exec_()
+
+        if result == QDialog.Accepted:
+            link_address, display_text = link_dialog.get_link_data()
+
+            textboxWidget = TextboxWidget.new(clickPos)
+            textboxWidget.insertTextLink(link_address, display_text)
+
+            dc = DraggableContainer(textboxWidget, self)
+            dc.show()
+
+            self.undoHandler.pushCreate(dc)
+            editorSignalsInstance.widgetAdded.emit(dc)
+            editorSignalsInstance.changeMade.emit()
 
     def toolbar_table(self):
         print("toolbar_table pressed")
@@ -210,7 +228,7 @@ class EditorFrameView(QWidget):
     def toolbar_hyperlink(self):
         print("toolbar_hyperlink pressed")
         clickPos = QPoint(0, 0)
-        self.newWidgetOnSection(LinkWidget, clickPos)
+        self.insertLink(clickPos)
 
     def addCustomWidget(self, e):
         def getCustomWidgets():
