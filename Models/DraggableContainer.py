@@ -104,7 +104,7 @@ class DraggableContainer(QWidget):
 
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.childWidget.setFocus()
-        self.childWidget.setCursorPosition(e)
+        #self.childWidget.setCursorPosition(e)
         # need to add code for setting cursor to the end of the textbox
 
     # On double click, focus on child and make mouse events pass through this container to child
