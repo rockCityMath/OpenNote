@@ -53,7 +53,7 @@ class TableWidget(QWidget):
         addRow.triggered.connect(self.addRow)
 
         addCol = QAction("Add Column", self)
-        addCol.triggered.connect(self.addCol)
+        addCol.triggered.connect(self.addCol)  
 
         return [addRow, addCol]
 

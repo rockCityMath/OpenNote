@@ -160,7 +160,7 @@ class PageView(QWidget):
         # will add functionallity for page groups which can be nested 
     
         parentPage = self.model.itemFromIndex(clickedIndex)
-        while not parentPage.data().isRoot()
+        while not parentPage.data().isRoot():
             parentPage = parentPage.parent()
         parentPageUUID = parentPage.data().getUUID()
 
