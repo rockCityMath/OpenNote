@@ -70,6 +70,7 @@ class DraggableContainer(QWidget):
 
         # If child widget resized itsself, resize this drag container, not ideal bc child resizes on hover
         if isinstance(e, QResizeEvent):
+            print("resize event for draggable container")
             self.resize(self.childWidget.size())
         return False
 

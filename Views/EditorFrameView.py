@@ -202,14 +202,26 @@ class EditorFrameView(QWidget):
 
             frame_menu.exec(event.globalPos())
 
+    def center_of_screen(self):
+        editor_frame_geometry = self.editorFrame.geometry()
+        print(f"editor_frame_geometry.width() is {editor_frame_geometry.width()}")
+        print(f"editor_frame_geometry.height() is {editor_frame_geometry.height()}")
+        center_x = (editor_frame_geometry.width() - 200) // 2 
+        center_y = (editor_frame_geometry.height() - 200) // 2 
+        return center_x, center_y
+
+        
+
     def toolbar_table(self):
         print("toolbar_table pressed")
-        clickPos = QPoint(0, 0)
+        center_x, center_y = self.center_of_screen()
+        clickPos = QPoint(center_x, center_y)
         self.newWidgetOnSection(TableWidget, clickPos)
         
     def toolbar_hyperlink(self):
         print("toolbar_hyperlink pressed")
-        clickPos = QPoint(0, 0)
+        center_x, center_y = self.center_of_screen()
+        clickPos = QPoint(center_x, center_y)
         self.newWidgetOnSection(LinkWidget, clickPos)
 
     def addCustomWidget(self, e):
