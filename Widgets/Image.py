@@ -95,8 +95,13 @@ class ImageWidget(QLabel):
         rotateRightAction = build_action(toolbarBottom, 'assets/icons/svg_rotate_right', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
         rotateRightAction.triggered.connect(self.rotate90Right)
 
+        shrinkImageAction = build_action(toolbarBottom, 'assets/icons/svg_shrink', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
+        shrinkImageAction.triggered.connect(self.shrinkImage)
+        expandImageAction = build_action(toolbarBottom, 'assets/icons/svg_expand', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
+        expandImageAction.triggered.connect(self.expandImage)
 
-        toolbarBottom.addActions([rotateLeftAction, rotateRightAction, flipHorizontal, flipVertical])
+
+        toolbarBottom.addActions([rotateLeftAction, rotateRightAction, flipHorizontal, flipVertical, shrinkImageAction, expandImageAction])
 
         qwaBottom = QWidgetAction(self)
         qwaBottom.setDefaultWidget(toolbarBottom)
@@ -122,6 +127,22 @@ class ImageWidget(QLabel):
         self.image_matrix = cv2.rotate(self.image_matrix, cv2.ROTATE_90_CLOCKWISE)
         self.updatePixmap()
 
+    def shrinkImage(self):
+        # Decrease image size by 10%
+        self.w = int(self.w * 0.9)
+        self.h = int(self.h * 0.9)
+        self.updateImageSize()
+
+    def expandImage(self):
+        # Increase image size by 10%
+        self.w = int(self.w * 1.1)
+        self.h = int(self.h * 1.1)
+        self.updateImageSize()
+
+    def updateImageSize(self):
+        # Update the displayed pixmap with the new size
+        self.setPixmap(self.q_pixmap.scaled(self.w, self.h, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+  
     def updatePixmap(self):
         # Update the QImage and QPixmap
         matrix_height, matrix_width, _ = self.image_matrix.shape
