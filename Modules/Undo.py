@@ -4,6 +4,7 @@ from PySide6.QtWidgets import *
 from Modules.EditorSignals import editorSignalsInstance
 import os
 
+
 class UndoActionCreate:
     def __init__(self, draggableContainer):
         self.draggableContainer = draggableContainer

@@ -39,8 +39,6 @@ def new(editor):
     editor.autosaver = Autosaver(editor)
     build(editor)  # should we build here, or should above be in build?
 
-<<<<<<< Updated upstream
-=======
 
 def add_new_notebook(editor):
     destroy(editor)
@@ -54,7 +52,6 @@ def add_new_notebook(editor):
     editor.autosaver = Autosaver(editor)
     build(editor)
 
->>>>>>> Stashed changes
 
 # Loads models.notebook.Notebook class from file
 def load(editor):

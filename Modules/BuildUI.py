@@ -13,19 +13,12 @@ FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 def build_ui(editor):
     print("Building UI...")
 
-<<<<<<< Updated upstream
-    #editor.statusBar = editor.statusBar()
-    build_window(editor)
-    build_menubar(editor)
-    #build_toolbar(editor)
-=======
     # editor.EditorFrameView = EditorFrameView(editor)
     # editor.statusBar = editor.statusBar()
     build_window(editor)
     build_menubar(editor)
     build_toolbar(editor)
     # build_test_toolbar(editor)
->>>>>>> Stashed changes
 
     # Application's main layout (grid)
     gridLayout = QGridLayout()
@@ -67,14 +60,11 @@ def build_ui(editor):
     gridLayout.addWidget(leftSideContainerWidget, 0, 0)
     gridLayout.addWidget(rightSideContainerWidget, 0, 1)
 
-<<<<<<< Updated upstream
-=======
     addSectionButton = QPushButton("Add Section")
     # add functionality e.g. addSectionButton.clcicked.connect(editor.add_section_function)
     leftSideLayout.addWidget(addSectionButton)
 
 
->>>>>>> Stashed changes
 def build_window(editor):
     editor.setWindowTitle("OpenNote")
     editor.setWindowIcon(QIcon("./Assets/OpenNoteLogo.png"))
@@ -83,13 +73,6 @@ def build_window(editor):
         editor.setStyleSheet(fh.read())
 
 
-<<<<<<< Updated upstream
-    new_file = build_action(editor, 'assets/icons/svg_file_open', 'New Notebook...', 'New Notebook', False)
-    new_file.setShortcut(QKeySequence.StandardKey.New)
-    new_file.triggered.connect(lambda: new(editor))
-
-    open_file = build_action(editor, 'assets/icons/svg_file_open', 'Open Notebook...', 'Open Notebook', False)
-=======
 def build_menubar(editor):
     file = editor.menuBar().addMenu("&File")
     plugins = editor.menuBar().addMenu("&Plugins")
@@ -113,7 +96,6 @@ def build_menubar(editor):
     open_file = build_action(
         editor, "assets/icons/svg_file_open", "Open Notebook", "Open Notebook", False
     )
->>>>>>> Stashed changes
     open_file.setShortcut(QKeySequence.StandardKey.Open)
     open_file.triggered.connect(lambda: load(editor))
 
@@ -142,10 +124,6 @@ def build_toolbar(editor):
     toolbar.setMovable(False)
     editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
 
-<<<<<<< Updated upstream
-    font = QFontComboBox()
-    font.currentFontChanged.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font.currentFont()))
-=======
     # separates toolbar with a line break
     spacer = QWidget()
     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -161,7 +139,6 @@ def build_toolbar(editor):
             ChangedWidgetAttribute.Font, font.currentFont()
         )
     )
->>>>>>> Stashed changes
 
     size = QComboBox()
     size.addItems([str(fs) for fs in FONT_SIZES])
@@ -171,23 +148,6 @@ def build_toolbar(editor):
         )
     )
 
-<<<<<<< Updated upstream
-    fontColor = build_action(toolbar, 'assets/icons/svg_font_color', "Font Color", "Font Color", False)
-    fontColor.triggered.connect(lambda x: openGetColorDialog(purpose = "font"))
-
-    bgColor = build_action(toolbar, 'assets/icons/svg_font_bucket', "Text Box Color", "Text Box Color", False)
-    bgColor.triggered.connect(lambda x: openGetColorDialog(purpose = "background"))
-
-    bold = build_action(toolbar, 'assets/icons/bold', "Bold", "Bold", True)
-    bold.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontBold, None))
-
-    italic = build_action(toolbar, 'assets/icons/italic.svg', "Italic", "Italic", True)
-    italic.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))
-
-    underline = build_action(toolbar, 'assets/icons/underline.svg', "Underline", "Underline", True)
-    underline.triggered.connect(lambda x: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontUnderline, None))
-
-=======
     bgColor = build_action(
         toolbar,
         "assets/icons/svg_font_bucket",
@@ -252,12 +212,9 @@ def build_toolbar(editor):
 
     # toolbar.addActions([undo, redo])
     toolbar.addSeparator()
->>>>>>> Stashed changes
     toolbar.addWidget(font)
     toolbar.addWidget(size)
     toolbar.addActions([bgColor, fontColor, bold, italic, underline])
-<<<<<<< Updated upstream
-=======
     toolbar.addSeparator()
     toolbar.addActions([table, hyperlink, bullets])
 
@@ -267,7 +224,6 @@ def toggle_bold(self):
 
     font = self.text_edit
 
->>>>>>> Stashed changes
 
 def openGetColorDialog(purpose):
     color = QColorDialog.getColor()
@@ -286,8 +242,6 @@ def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
     action = QAction(QIcon(icon_path), action_name, parent)
     action.setStatusTip(set_status_tip)
     return action
-<<<<<<< Updated upstream
-=======
 
 
 def build_test_toolbar(self):
@@ -331,4 +285,3 @@ def change_font(self):
 
 def widgetAttributeChangedEvent(self, draggableContainer):
     editorSignalsInstance.widgetAttributeChanged.emit(draggableContainer)
->>>>>>> Stashed changes
