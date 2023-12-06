@@ -72,6 +72,7 @@ class EditorFrameView(QWidget):
     def snipScreen(self, clickPos):
         def onSnippingCompleted(imageMatrix):            # Called after screensnipper gets image
             self.editor.setWindowState(Qt.WindowActive)
+            self.editor.setWindowFlags(QT.WindowStaysOnTopHint)
             self.editor.showMaximized()
             if imageMatrix is None:
                 return
