@@ -14,6 +14,7 @@ class SnippingWidget(QWidget):
     def __init__(self):
         super(SnippingWidget, self).__init__()
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
         self.parent = None
         self.screen = QApplication.instance().primaryScreen()
         self.setGeometry(0, 0, self.screen.size().width(), self.screen.size().height())
