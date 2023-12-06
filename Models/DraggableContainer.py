@@ -104,7 +104,13 @@ class DraggableContainer(QWidget):
 
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.childWidget.setFocus()
-        self.childWidget.setCursorPosition(e)
+
+        #brings text cursor to cursor position but causes exception
+        '''if isinstance(self.childWidget, TextboxWidget):
+            self.childWidget.setCursorPosition(e)
+        else:
+            # Handle the case where self.childWidget is not a TextBox
+            pass'''
         # need to add code for setting cursor to the end of the textbox
 
     # On double click, focus on child and make mouse events pass through this container to child
@@ -344,3 +350,9 @@ class DraggableContainer(QWidget):
             elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
                 print("Chang Background Color Event Called")
                 child_widget.changeBackgroundColorEvent(value)
+    def connectTableSignals(self, tableWidget):
+        tableWidget.rowAdded.connect(self.resizeTable)
+    def resizeTable(self):
+        self.resize(self.childWidget.size())
+        self.newGeometry.emit(self.geometry())
+        self.parentWidget().repaint()
