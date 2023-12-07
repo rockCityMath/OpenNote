@@ -15,7 +15,6 @@ from Modules.Screensnip import SnippingWidget
 from Widgets.Table import *
 from Modules.Clipboard import Clipboard
 from Modules.Undo import UndoHandler
-from Widgets.Link import LinkWidget
 from Widgets.Link import LinkDialog
 
 
