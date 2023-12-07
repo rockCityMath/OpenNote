@@ -417,7 +417,8 @@ class TextboxWidget(QTextBrowser):
             self.setTextCursor(cursor)
 
         else:
-            # maybe add manual tab or diff functionality?
+            cursor.insertText("    ")
+            self.setTextCursor(cursor)
             pass
 
     def insertTextLink(self, link_address, display_text):
@@ -426,7 +427,7 @@ class TextboxWidget(QTextBrowser):
         cursor = self.textCursor()
         cursor.insertHtml(link_html)
         QDesktopServices.openUrl(link_html)
-        
+
     def changeFontSizeEvent(self, value):
         # todo: when textbox is in focus, font size on toolbar should match the font size of the text
 

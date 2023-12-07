@@ -223,8 +223,6 @@ class EditorFrameView(QWidget):
         center_y = (editor_frame_geometry.height() - 200) // 2 
         return center_x, center_y
 
-        
-
     def toolbar_table(self):
         print("toolbar_table pressed")
         center_x, center_y = self.center_of_screen()
