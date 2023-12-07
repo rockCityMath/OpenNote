@@ -192,6 +192,7 @@ class TextboxWidget(QTextBrowser):
         )
         bullets_num.toggled.connect(lambda: self.bullet_list("bulletNum"))
 
+
         toolbarTop.addWidget(font)
         toolbarTop.addWidget(size)
 
@@ -209,6 +210,21 @@ class TextboxWidget(QTextBrowser):
                 bullets_num,
             ]
         )
+
+        menu = QMenu(self)
+        bulletUpperA = menu.addAction(QIcon("assets/icons/svg_bulletUA"), "")
+        bulletUpperR = menu.addAction(QIcon("assets/icons/svg_bulletUR"), "")
+
+        bulletUpperA.triggered.connect(lambda: self.bullet_list("bulletUpperA"))
+        bulletUpperR.triggered.connect(lambda: self.bullet_list("bulletUpperR"))
+
+
+        menu_button = QToolButton(self)
+        menu_button.setPopupMode(QToolButton.InstantPopup)
+        menu_button.setIcon(QIcon("assets/icons/svg_bullets"))
+        menu_button.setMenu(menu)
+
+        toolbarBottom.addWidget(menu_button)
 
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
@@ -365,6 +381,14 @@ class TextboxWidget(QTextBrowser):
                 style = QTextListFormat.ListDecimal
             if bulletType == "bulletReg":
                 style = QTextListFormat.ListDisc
+            if bulletType == "bulletLowerA":
+                style = QTextListFormat.ListLowerAlpha
+            if bulletType == "bulletLowerR":
+                style = QTextListFormat.ListLowerRoman
+            if bulletType == "bulletUpperA":
+                style = QTextListFormat.ListUpperAlpha
+            if bulletType == "bulletUpperR":
+                style = QTextListFormat.ListUpperRoman
 
             listFormat.setStyle(style)
             cursor.createList(listFormat)
@@ -395,6 +419,14 @@ class TextboxWidget(QTextBrowser):
                             list_format.setStyle(QTextListFormat.ListCircle)
                         if currentStyle == QTextListFormat.ListDecimal:
                             list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                        if currentStyle == QTextListFormat.ListLowerAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerRoman)
+                        if currentStyle == QTextListFormat.ListLowerRoman:
+                            list_format.setStyle(QTextListFormat.ListDecimal)
+                        if currentStyle == QTextListFormat.ListUpperAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                        if currentStyle == QTextListFormat.ListUpperRoman:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
 
                         cursor.createList(list_format)
                         cursor.endEditBlock()
@@ -410,6 +442,10 @@ class TextboxWidget(QTextBrowser):
                             list_format.setStyle(QTextListFormat.ListSquare)
                         if currentStyle == QTextListFormat.ListLowerAlpha:
                             list_format.setStyle(QTextListFormat.ListLowerRoman)
+                        if currentStyle == QTextListFormat.ListLowerRoman:
+                            list_format.setStyle(QTextListFormat.ListDecimal)
+                        if currentStyle == QTextListFormat.ListDecimal:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
 
                         cursor.createList(list_format)
                         cursor.endEditBlock()
@@ -425,6 +461,10 @@ class TextboxWidget(QTextBrowser):
                             list_format.setStyle(QTextListFormat.ListDisc)
                         if currentStyle == QTextListFormat.ListLowerRoman:
                             list_format.setStyle(QTextListFormat.ListDecimal)
+                        if currentStyle == QTextListFormat.ListDecimal:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                        if currentStyle == QTextListFormat.ListLowerAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerRoman)
 
                         cursor.createList(list_format)
                         cursor.endEditBlock()
