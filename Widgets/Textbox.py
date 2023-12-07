@@ -6,7 +6,7 @@ from Modules.EditorSignals import editorSignalsInstance
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 
-class TextboxWidget(QTextEdit):
+class TextboxWidget(QTextBrowser):
     def __init__(self, x, y, w=15, h=30, t=""):
         super().__init__()
 
@@ -18,6 +18,8 @@ class TextboxWidget(QTextEdit):
         self.textChanged.connect(self.textChangedEvent)
         self.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
         self.setTextColor("black")
+
+        self.setTextInteractionFlags(Qt.TextEditorInteraction | Qt.TextBrowserInteraction)
 
         self.installEventFilter(self)
 
@@ -190,6 +192,7 @@ class TextboxWidget(QTextEdit):
         )
         bullets_num.toggled.connect(lambda: self.bullet_list("bulletNum"))
 
+
         toolbarTop.addWidget(font)
         toolbarTop.addWidget(size)
 
@@ -207,6 +210,21 @@ class TextboxWidget(QTextEdit):
                 bullets_num,
             ]
         )
+
+        menu = QMenu(self)
+        bulletUpperA = menu.addAction(QIcon("assets/icons/svg_bulletUA"), "")
+        bulletUpperR = menu.addAction(QIcon("assets/icons/svg_bulletUR"), "")
+
+        bulletUpperA.triggered.connect(lambda: self.bullet_list("bulletUpperA"))
+        bulletUpperR.triggered.connect(lambda: self.bullet_list("bulletUpperR"))
+
+
+        menu_button = QToolButton(self)
+        menu_button.setPopupMode(QToolButton.InstantPopup)
+        menu_button.setIcon(QIcon("assets/icons/svg_bullets"))
+        menu_button.setMenu(menu)
+
+        toolbarBottom.addWidget(menu_button)
 
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
@@ -363,6 +381,14 @@ class TextboxWidget(QTextEdit):
                 style = QTextListFormat.ListDecimal
             if bulletType == "bulletReg":
                 style = QTextListFormat.ListDisc
+            if bulletType == "bulletLowerA":
+                style = QTextListFormat.ListLowerAlpha
+            if bulletType == "bulletLowerR":
+                style = QTextListFormat.ListLowerRoman
+            if bulletType == "bulletUpperA":
+                style = QTextListFormat.ListUpperAlpha
+            if bulletType == "bulletUpperR":
+                style = QTextListFormat.ListUpperRoman
 
             listFormat.setStyle(style)
             cursor.createList(listFormat)
@@ -380,43 +406,84 @@ class TextboxWidget(QTextEdit):
             if cursor.atBlockStart() and block.text().strip() == "":
                 current_indent = block_format.indent()
 
-                if current_indent == 0:
-                    block_format.setIndent(1)
-                    cursor.setBlockFormat(block_format)
-                    cursor.beginEditBlock()
-                    list_format = QTextListFormat()
-                    currentStyle = textList.format().style()
+                if current_indent < 11:
 
-                    if currentStyle == QTextListFormat.ListDisc:
-                        list_format.setStyle(QTextListFormat.ListCircle)
-                    if currentStyle == QTextListFormat.ListDecimal:
-                        list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                    if current_indent % 3 == 0:
+                        block_format.setIndent(current_indent + 1)
+                        cursor.setBlockFormat(block_format)
+                        cursor.beginEditBlock()
+                        list_format = QTextListFormat()
+                        currentStyle = textList.format().style()
 
-                    cursor.createList(list_format)
-                    cursor.endEditBlock()
+                        if currentStyle == QTextListFormat.ListDisc:
+                            list_format.setStyle(QTextListFormat.ListCircle)
+                        if currentStyle == QTextListFormat.ListDecimal:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                        if currentStyle == QTextListFormat.ListLowerAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerRoman)
+                        if currentStyle == QTextListFormat.ListLowerRoman:
+                            list_format.setStyle(QTextListFormat.ListDecimal)
+                        if currentStyle == QTextListFormat.ListUpperAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                        if currentStyle == QTextListFormat.ListUpperRoman:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
 
-                if current_indent == 1:
-                    block_format.setIndent(2)
-                    cursor.setBlockFormat(block_format)
-                    cursor.beginEditBlock()
-                    list_format = QTextListFormat()
-                    currentStyle = textList.format().style()
+                        cursor.createList(list_format)
+                        cursor.endEditBlock()
 
-                    if currentStyle == QTextListFormat.ListCircle:
-                        list_format.setStyle(QTextListFormat.ListSquare)
-                    if currentStyle == QTextListFormat.ListLowerAlpha:
-                        list_format.setStyle(QTextListFormat.ListLowerRoman)
+                    if current_indent % 3 == 1:
+                        block_format.setIndent(current_indent + 1)
+                        cursor.setBlockFormat(block_format)
+                        cursor.beginEditBlock()
+                        list_format = QTextListFormat()
+                        currentStyle = textList.format().style()
 
-                    cursor.createList(list_format)
-                    cursor.endEditBlock()
+                        if currentStyle == QTextListFormat.ListCircle:
+                            list_format.setStyle(QTextListFormat.ListSquare)
+                        if currentStyle == QTextListFormat.ListLowerAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerRoman)
+                        if currentStyle == QTextListFormat.ListLowerRoman:
+                            list_format.setStyle(QTextListFormat.ListDecimal)
+                        if currentStyle == QTextListFormat.ListDecimal:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
 
-                cursor.insertText("")
-                cursor.movePosition(QTextCursor.StartOfBlock)
+                        cursor.createList(list_format)
+                        cursor.endEditBlock()
+
+                    if current_indent % 3 == 2:
+                        block_format.setIndent(current_indent + 1)
+                        cursor.setBlockFormat(block_format)
+                        cursor.beginEditBlock()
+                        list_format = QTextListFormat()
+                        currentStyle = textList.format().style()
+
+                        if currentStyle == QTextListFormat.ListSquare:
+                            list_format.setStyle(QTextListFormat.ListDisc)
+                        if currentStyle == QTextListFormat.ListLowerRoman:
+                            list_format.setStyle(QTextListFormat.ListDecimal)
+                        if currentStyle == QTextListFormat.ListDecimal:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                        if currentStyle == QTextListFormat.ListLowerAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerRoman)
+
+                        cursor.createList(list_format)
+                        cursor.endEditBlock()
+
+                    cursor.insertText("")
+                    cursor.movePosition(QTextCursor.StartOfBlock)
             self.setTextCursor(cursor)
 
         else:
-            # maybe add manual tab or diff functionality?
+            cursor.insertText("    ")
+            self.setTextCursor(cursor)
             pass
+
+    def insertTextLink(self, link_address, display_text):
+        self.setOpenExternalLinks(True)
+        link_html = f'<a href="{link_address}">{display_text}</a>'
+        cursor = self.textCursor()
+        cursor.insertHtml(link_html)
+        QDesktopServices.openUrl(link_html)
 
     def changeFontSizeEvent(self, value):
         # todo: when textbox is in focus, font size on toolbar should match the font size of the text

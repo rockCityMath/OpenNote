@@ -195,6 +195,24 @@ def build_toolbar(editor):
     toolbar.addSeparator()
     toolbar.addActions([table, hyperlink, bullet_reg, bullet_num])
 
+    bullets_menu = QMenu(editor)
+
+    bulletUpperA = build_action(bullets_menu, './Assets/icons/svg_bulletUA', "", "", False)
+    bulletUpperA.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.bulletUpperA, None))
+
+    bulletUpperR = build_action(bullets_menu, './Assets/icons/svg_bulletUR', "", "", False)
+    bulletUpperR.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.bulletUpperR, None))
+
+    bullets_menu.addAction(bulletUpperA)
+    bullets_menu.addAction(bulletUpperR)
+
+    bullets = QToolButton(editor)
+    bullets.setIcon(QIcon('./Assets/icons/svg_bullets'))
+    bullets.setPopupMode(QToolButton.InstantPopup)
+    bullets.setMenu(bullets_menu)
+
+    toolbar.addWidget(bullets)
+
     #toolbar.setStyleSheet("QToolBar { background-color: #FFFFFF; }")
 
 def openGetColorDialog(purpose):
