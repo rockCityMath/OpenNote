@@ -382,38 +382,55 @@ class TextboxWidget(QTextBrowser):
             if cursor.atBlockStart() and block.text().strip() == "":
                 current_indent = block_format.indent()
 
-                if current_indent == 0:
-                    block_format.setIndent(1)
-                    cursor.setBlockFormat(block_format)
-                    cursor.beginEditBlock()
-                    list_format = QTextListFormat()
-                    currentStyle = textList.format().style()
+                if current_indent < 11:
 
-                    if currentStyle == QTextListFormat.ListDisc:
-                        list_format.setStyle(QTextListFormat.ListCircle)
-                    if currentStyle == QTextListFormat.ListDecimal:
-                        list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                    if current_indent % 3 == 0:
+                        block_format.setIndent(current_indent + 1)
+                        cursor.setBlockFormat(block_format)
+                        cursor.beginEditBlock()
+                        list_format = QTextListFormat()
+                        currentStyle = textList.format().style()
 
-                    cursor.createList(list_format)
-                    cursor.endEditBlock()
+                        if currentStyle == QTextListFormat.ListDisc:
+                            list_format.setStyle(QTextListFormat.ListCircle)
+                        if currentStyle == QTextListFormat.ListDecimal:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
 
-                if current_indent == 1:
-                    block_format.setIndent(2)
-                    cursor.setBlockFormat(block_format)
-                    cursor.beginEditBlock()
-                    list_format = QTextListFormat()
-                    currentStyle = textList.format().style()
+                        cursor.createList(list_format)
+                        cursor.endEditBlock()
 
-                    if currentStyle == QTextListFormat.ListCircle:
-                        list_format.setStyle(QTextListFormat.ListSquare)
-                    if currentStyle == QTextListFormat.ListLowerAlpha:
-                        list_format.setStyle(QTextListFormat.ListLowerRoman)
+                    if current_indent % 3 == 1:
+                        block_format.setIndent(current_indent + 1)
+                        cursor.setBlockFormat(block_format)
+                        cursor.beginEditBlock()
+                        list_format = QTextListFormat()
+                        currentStyle = textList.format().style()
 
-                    cursor.createList(list_format)
-                    cursor.endEditBlock()
+                        if currentStyle == QTextListFormat.ListCircle:
+                            list_format.setStyle(QTextListFormat.ListSquare)
+                        if currentStyle == QTextListFormat.ListLowerAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerRoman)
 
-                cursor.insertText("")
-                cursor.movePosition(QTextCursor.StartOfBlock)
+                        cursor.createList(list_format)
+                        cursor.endEditBlock()
+
+                    if current_indent % 3 == 2:
+                        block_format.setIndent(current_indent + 1)
+                        cursor.setBlockFormat(block_format)
+                        cursor.beginEditBlock()
+                        list_format = QTextListFormat()
+                        currentStyle = textList.format().style()
+
+                        if currentStyle == QTextListFormat.ListSquare:
+                            list_format.setStyle(QTextListFormat.ListDisc)
+                        if currentStyle == QTextListFormat.ListLowerRoman:
+                            list_format.setStyle(QTextListFormat.ListDecimal)
+
+                        cursor.createList(list_format)
+                        cursor.endEditBlock()
+
+                    cursor.insertText("")
+                    cursor.movePosition(QTextCursor.StartOfBlock)
             self.setTextCursor(cursor)
 
         else:
