@@ -46,14 +46,16 @@ class TableWidget(QWidget):
         if dialog.exec_() == QDialog.Accepted:
             rows_input, cols_input = dialog.get_table_data()
             print(f"rows input is {rows_input} cols_input is {cols_input}")
-        return TableWidget(clickPos.x(), clickPos.y(), 200, 200, int(rows_input), int(cols_input))
+            table_widget = TableWidget(clickPos.x(), clickPos.y(), 200, 200, int(rows_input), int(cols_input))
+            
+        return table_widget
 
     def customMenuItems(self):
         addRow = QAction("Add Row", self)
         addRow.triggered.connect(self.addRow)
 
         addCol = QAction("Add Column", self)
-        addCol.triggered.connect(self.addCol)
+        addCol.triggered.connect(self.addCol)  
 
         return [addRow, addCol]
 
