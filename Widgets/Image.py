@@ -120,10 +120,13 @@ class ImageWidget(QLabel):
 
     def rotate90Left(self):
         # Rotate the image matrix 90 degrees to the left using OpenCV
+        self.w, self.h = self.h, self.w
+        
         self.image_matrix = cv2.rotate(self.image_matrix, cv2.ROTATE_90_COUNTERCLOCKWISE)
         self.updatePixmap()
     def rotate90Right(self):
         # Rotate the image matrix 90 degrees to the right using OpenCV
+        self.w, self.h = self.h, self.w
         self.image_matrix = cv2.rotate(self.image_matrix, cv2.ROTATE_90_CLOCKWISE)
         self.updatePixmap()
 
@@ -142,6 +145,7 @@ class ImageWidget(QLabel):
     def updateImageSize(self):
         # Update the displayed pixmap with the new size
         self.setPixmap(self.q_pixmap.scaled(self.w, self.h, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.sizeChanged.emit(QSize(self.w, self.h))
   
     def updatePixmap(self):
         # Update the QImage and QPixmap
