@@ -174,18 +174,6 @@ def build_toolbar(editor):
     bullet_num = build_action(toolbar, './Assets/icons/svg_bullet_number', "Bullet List", "Bullet List", False)
     bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
 
-    '''
-    editor.action1 = QAction('Action 1', editor)
-    #editor.action1.triggered.connect(EditorFrameView.slot_action1)
-    toolbar.addAction(editor.action1)
-    editor.action2 = QAction('Action 2', editor)
-    #editor.action2.triggered.connect(TextboxWidget.slot_action2)
-    #editor.action2.triggered.connect(show_popup)
-    toolbar.addAction(editor.action2)
-    #editor.button = QPushButton("Click Me", editor)
-    #editor.button.clicked.connect(editor.slot_button_click)'''
-    
-
     toolbar.addActions([toolbar_undo, redo])
     toolbar.addSeparator()
     toolbar.addWidget(font_family)
@@ -198,10 +186,10 @@ def build_toolbar(editor):
     bullets_menu = QMenu(editor)
 
     bulletUpperA = build_action(bullets_menu, './Assets/icons/svg_bulletUA', "", "", False)
-    bulletUpperA.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.bulletUpperA, None))
+    bulletUpperA.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BulletUA, None))
 
     bulletUpperR = build_action(bullets_menu, './Assets/icons/svg_bulletUR', "", "", False)
-    bulletUpperR.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.bulletUpperR, None))
+    bulletUpperR.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BulletUR, None))
 
     bullets_menu.addAction(bulletUpperA)
     bullets_menu.addAction(bulletUpperR)
