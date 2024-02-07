@@ -99,7 +99,7 @@ class TextboxWidget(QTextBrowser):
 
         align_left = build_action(
             toolbarBottom,
-            "assets/icons/svg_align_left",
+            "./Assets/icons/svg_align_left",
             "Align Left",
             "Align Left",
             True,
@@ -108,7 +108,7 @@ class TextboxWidget(QTextBrowser):
 
         align_center = build_action(
             toolbarBottom,
-            "assets/icons/svg_align_center",
+            "./Assets/icons/svg_align_center",
             "Align Center",
             "Align Center",
             True,
@@ -117,7 +117,7 @@ class TextboxWidget(QTextBrowser):
 
         align_right = build_action(
             toolbarBottom,
-            "assets/icons/svg_align_right",
+            "./Assets/icons/svg_align_right",
             "Align Right",
             "Align Right",
             True,
@@ -125,18 +125,18 @@ class TextboxWidget(QTextBrowser):
         align_right.triggered.connect(lambda x: self.setAlignment(Qt.AlignRight))
 
         bold = build_action(
-            toolbarBottom, "assets/icons/svg_font_bold", "Bold", "Bold", True
+            toolbarBottom, "./Assets/icons/svg_font_bold", "Bold", "Bold", True
         )
         bold.toggled.connect(lambda x: self.setFontWeightCustom(700 if x else 500))
 
         italic = build_action(
-            toolbarBottom, "assets/icons/svg_font_italic", "Italic", "Italic", True
+            toolbarBottom, "./Assets/icons/svg_font_italic", "Italic", "Italic", True
         )
         italic.toggled.connect(lambda x: self.setFontItalicCustom(True if x else False))
 
         underline = build_action(
             toolbarBottom,
-            "assets/icons/svg_font_underline",
+            "./Assets/icons/svg_font_underline",
             "Underline",
             "Underline",
             True,
@@ -147,7 +147,7 @@ class TextboxWidget(QTextBrowser):
 
         fontColor = build_action(
             toolbarBottom,
-            "assets/icons/svg_font_color",
+            "./Assets/icons/svg_font_color",
             "Font Color",
             "Font Color",
             False,
@@ -158,7 +158,7 @@ class TextboxWidget(QTextBrowser):
 
         bgColor = build_action(
             toolbarBottom,
-            "assets/icons/svg_font_bucket",
+            "./Assets/icons/svg_font_bucket",
             "Background Color",
             "Background Color",
             False,
@@ -169,7 +169,7 @@ class TextboxWidget(QTextBrowser):
         )
         textboxColor = build_action(
             toolbarBottom,
-            "assets/icons/svg_textboxColor",
+            "./Assets/icons/svg_textboxColor",
             "Background Color",
             "Background Color",
             False,
@@ -179,13 +179,13 @@ class TextboxWidget(QTextBrowser):
         )
 
         bullets = build_action(
-            toolbarBottom, "assets/icons/svg_bullets", "Bullets", "Bullets", True
+            toolbarBottom, "./Assets/icons/svg_bullets", "Bullets", "Bullets", True
         )
         bullets.toggled.connect(lambda: self.bullet_list("bulletReg"))
 
         bullets_num = build_action(
             toolbarBottom,
-            "assets/icons/svg_bullet_number",
+            "./Assets/icons/svg_bullet_number",
             "Bullets Num",
             "Bullets Num",
             True,
@@ -212,8 +212,8 @@ class TextboxWidget(QTextBrowser):
         )
 
         menu = QMenu(self)
-        bulletUpperA = menu.addAction(QIcon("assets/icons/svg_bulletUA"), "")
-        bulletUpperR = menu.addAction(QIcon("assets/icons/svg_bulletUR"), "")
+        bulletUpperA = menu.addAction(QIcon("./Assets/icons/svg_bulletUA"), "")
+        bulletUpperR = menu.addAction(QIcon("./Assets/icons/svg_bulletUR"), "")
 
         bulletUpperA.triggered.connect(lambda: self.bullet_list("bulletUpperA"))
         bulletUpperR.triggered.connect(lambda: self.bullet_list("bulletUpperR"))
@@ -221,7 +221,7 @@ class TextboxWidget(QTextBrowser):
 
         menu_button = QToolButton(self)
         menu_button.setPopupMode(QToolButton.InstantPopup)
-        menu_button.setIcon(QIcon("assets/icons/svg_bullets"))
+        menu_button.setIcon(QIcon("./Assets/icons/svg_bullets"))
         menu_button.setMenu(menu)
 
         toolbarBottom.addWidget(menu_button)

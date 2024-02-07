@@ -83,16 +83,16 @@ class ImageWidget(QLabel):
         toolbarBottom.setIconSize(QSize(16, 16))
         toolbarBottom.setMovable(False)
 
-        #crop = build_action(toolbarTop, 'assets/icons/svg_crop', "Crop", "Crop", False)
+        #crop = build_action(toolbarTop, './Assets/icons/svg_crop', "Crop", "Crop", False)
         
-        flipHorizontal = build_action(toolbarBottom, 'assets/icons/svg_flip_horizontal', "Horizontal Flip", "Horizontal Flip", False)
+        flipHorizontal = build_action(toolbarBottom, './Assets/icons/svg_flip_horizontal', "Horizontal Flip", "Horizontal Flip", False)
         flipHorizontal.triggered.connect(self.flipHorizontal)
-        flipVertical = build_action(toolbarBottom, 'assets/icons/svg_flip_vertical', "Vertical Flip", "Vertical Flip", False)
+        flipVertical = build_action(toolbarBottom, './Assets/icons/svg_flip_vertical', "Vertical Flip", "Vertical Flip", False)
         flipVertical.triggered.connect(self.flipVertical)
 
-        rotateLeftAction = build_action(toolbarBottom, 'assets/icons/svg_rotate_left', "Rotate 90 degrees Left", "Rotate 90 degrees Left", False)
+        rotateLeftAction = build_action(toolbarBottom, './Assets/icons/svg_rotate_left', "Rotate 90 degrees Left", "Rotate 90 degrees Left", False)
         rotateLeftAction.triggered.connect(self.rotate90Left)
-        rotateRightAction = build_action(toolbarBottom, 'assets/icons/svg_rotate_right', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
+        rotateRightAction = build_action(toolbarBottom, './Assets/icons/svg_rotate_right', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
         rotateRightAction.triggered.connect(self.rotate90Right)
 
 
