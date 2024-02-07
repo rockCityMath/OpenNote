@@ -144,8 +144,8 @@ def build_toolbar(editor):
     #current bug, alternates between activating and not working when using
     bgColor.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BackgroundColor, QColorDialog.getColor()))
 
-    textboxColor = build_action(toolbar, './Assets/icons/svg_textboxColor', "Text Box Color", "Text Box Color", True)
-    textboxColor.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.TextboxColor, QColorDialog.getColor()))
+    textHighlightColor = build_action(toolbar, './Assets/icons/svg_textHighlightColor', "Text Highlight Color", "Text Highlight Color", True)
+    textHighlightColor.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.textHighlightColor, QColorDialog.getColor()))
 
     #defines font color icon appearance and settings
     fontColor = build_action(toolbar, './Assets/icons/svg_font_color', "Font Color", "Font Color", False)
@@ -179,7 +179,7 @@ def build_toolbar(editor):
     toolbar.addWidget(font_family)
     toolbar.addWidget(font_size)
     toolbar.addSeparator()
-    toolbar.addActions([bgColor, textboxColor, fontColor, bold, italic, underline])
+    toolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor])
     toolbar.addSeparator()
     toolbar.addActions([table, hyperlink, bullet_reg, bullet_num])
 
