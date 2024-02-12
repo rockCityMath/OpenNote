@@ -17,21 +17,21 @@ from Views.EditorFrameView import *
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 #builds the application's UI
-def build_ui(editor):
+def build_ui(self):
     print("Building UI...")
 
     
-    #editor.EditorFrameView = EditorFrameView(editor)
-    #editor.statusBar = editor.statusBar()
-    build_window(editor)
-    build_menubar(editor)
-    build_toolbar(editor)
-    #build_test_toolbar(editor)
+    #self.selfFrameView = selfFrameView(self)
+    #self.statusBar = self.statusBar()
+    build_window(self)
+    build_menubar(self)
+    build_toolbar(self)
+    #build_test_toolbar(self)
 
     # Application's main layout (grid)
     gridLayout = QGridLayout()
     gridContainerWidget = QWidget()
-    editor.setCentralWidget(gridContainerWidget)
+    self.setCentralWidget(gridContainerWidget)
     gridContainerWidget.setLayout(gridLayout)
 
     gridLayout.setSpacing(3)
@@ -61,63 +61,90 @@ def build_ui(editor):
 
 
     # Add appropriate widgets (ideally just view controllers) to their layouts
-    leftSideLayout.addWidget(editor.notebookTitleView, 0)
-    leftSideLayout.addWidget(editor.pageView, 1) # Page view has max stretch factor
-    rightSideLayout.addWidget(editor.sectionView, 0)
-    rightSideLayout.addWidget(editor.frameView, 1) # Frame view has max stretch factor
+    leftSideLayout.addWidget(self.notebookTitleView, 0)
+    leftSideLayout.addWidget(self.pageView, 1) # Page view has max stretch factor
+    rightSideLayout.addWidget(self.sectionView, 0)
+    rightSideLayout.addWidget(self.frameView, 1) # Frame view has max stretch factor
 
     # Add L+R container's widgets to the main grid
     gridLayout.addWidget(leftSideContainerWidget, 0, 0)
     gridLayout.addWidget(rightSideContainerWidget, 0, 1)
 
     addSectionButton = QPushButton("Add Section")
-    #add functionality e.g. addSectionButton.clcicked.connect(editor.add_section_function)
+    #add functionality e.g. addSectionButton.clcicked.connect(self.add_section_function)
     leftSideLayout.addWidget(addSectionButton)
+
     
-def build_window(editor):
-    editor.setWindowTitle("OpenNote")
-    editor.setWindowIcon(QIcon('./Assets/OpenNoteLogo.png'))
-    editor.setAcceptDrops(True)
+    
+def build_window(self):
+    self.setWindowTitle("OpenNote")
+    self.setWindowIcon(QIcon('./Assets/OpenNoteLogo.png'))
+    self.setAcceptDrops(True)
     with open('./Styles/styles.qss',"r") as fh:
-        editor.setStyleSheet(fh.read())
+        self.setStyleSheet(fh.read())
 
-def build_menubar(editor):
-    file = editor.menuBar().addMenu('&File')
-    plugins = editor.menuBar().addMenu('&Plugins')
+def build_menubar(self):
+    file = self.menuBar().addMenu('&File')
+    plugins = self.menuBar().addMenu('&Plugins')
 
-    new_file = build_action(editor, './Assets/icons/svg_file_open', 'New Notebook', 'New Notebook', False)
+    new_file = build_action(self, './Assets/icons/svg_file_open', 'New Notebook', 'New Notebook', False)
     new_file.setShortcut(QKeySequence.StandardKey.New)
-    new_file.triggered.connect(lambda: new(editor))
+    new_file.triggered.connect(lambda: new(self))
 
-    open_file = build_action(editor, './Assets/icons/svg_file_open', 'Open Notebook', 'Open Notebook', False)
+    open_file = build_action(self, './Assets/icons/svg_file_open', 'Open Notebook', 'Open Notebook', False)
     open_file.setShortcut(QKeySequence.StandardKey.Open)
-    open_file.triggered.connect(lambda: load(editor))
+    open_file.triggered.connect(lambda: load(self))
 
-    save_file = build_action(editor, './Assets/icons/svg_file_save', 'Save Notebook', 'Save Notebook', False)
+    save_file = build_action(self, './Assets/icons/svg_file_save', 'Save Notebook', 'Save Notebook', False)
     save_file.setShortcut(QKeySequence.StandardKey.Save)
-    save_file.triggered.connect(lambda: save(editor))
+    save_file.triggered.connect(lambda: save(self))
 
-    save_fileAs = build_action(editor, './Assets/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
+    save_fileAs = build_action(self, './Assets/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
     save_fileAs.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
-    save_fileAs.triggered.connect(lambda: saveAs(editor))
+    save_fileAs.triggered.connect(lambda: saveAs(self))
 
-    add_widget = build_action(editor, './Assets/icons/svg_question', 'Add Custom Widget', 'Add Custom Widget', False)
+    add_widget = build_action(self, './Assets/icons/svg_question', 'Add Custom Widget', 'Add Custom Widget', False)
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
     plugins.addActions([add_widget])
 
-def build_toolbar(editor):
+def build_toolbar(self):
     toolbar = QToolBar()
     toolbar.setIconSize(QSize(16, 16))
     toolbar.setMovable(False)
-    editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
+    self.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
+
+    '''
+    tabs = QTabWidget()
+    tabs.addTab(self.homeTabUI(), "Home")
+    layout.addWidget(tabs)
+    '''
+    #create tab bar
+    tab_bar = QTabBar(self)
+    toolbar.addWidget(tab_bar)
+
+    #create tabs
+    home_tab = tab_bar.addTab("Home")
+    insert_tab = tab_bar.addTab("Insert")
+    draw_tab = tab_bar.addTab("Draw")
+    view_tab = tab_bar.addTab("View")
+
+    '''centralWidget = QWidget(self)
+    self.setCentralWidget(centralWidget)
+    layout = QVBoxLayout(centralWidget)
+    layout.addWidget(tab_bar)
+
+    home_toolbar = QToolBar("Home Toolbar", self)
+    home_toolbar.addAction("Action 1")
+
+    layout.addWidget(home_toolbar)   ''' 
 
     #separates toolbar with a line break
     spacer = QWidget()
     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
     toolbar_undo = build_action(toolbar, './Assets/icons/svg_undo', "undo", "undo", False)
-    toolbar_undo.triggered.connect(editor.frameView.triggerUndo)
+    toolbar_undo.triggered.connect(self.frameView.triggerUndo)
 
 
     redo = build_action(toolbar, './Assets/icons/svg_redo', "redo", "redo", False)
@@ -161,10 +188,10 @@ def build_toolbar(editor):
     underline.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontUnderline, None))
 
     table = build_action(toolbar, './Assets/icons/svg_table', "Create Table", "Create Table", False)
-    table.triggered.connect(editor.frameView.toolbar_table)
+    table.triggered.connect(self.frameView.toolbar_table)
 
     hyperlink = build_action(toolbar, './Assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
-    hyperlink.triggered.connect(editor.frameView.toolbar_hyperlink)
+    hyperlink.triggered.connect(self.frameView.toolbar_hyperlink)
 
     bullets = build_action(toolbar, './Assets/icons/svg_bullets', "Bullets", "Bullets", False)
 
@@ -195,7 +222,49 @@ def build_toolbar(editor):
     toolbar.addSeparator()
     toolbar.addActions([table, hyperlink, bullet_reg, bullet_num])
 
+    #-------- BG Color -----------
+    bgColor = build_action(toolbar, './Assets/icons/svg_bullets', "Bullets", "Bullets", False)
+
+    bgColor_menu = QMenu(self)
+
+    bgColor = QToolButton(self)
+    bgColor.setIcon(QIcon('./Assets/icons/svg_font_bucket'))
+    bgColor.setPopupMode(QToolButton.InstantPopup)
+    bgColor.setMenu(bgColor_menu)
+    presetColors = ['blue', '#ffcc00', '#66ff66', '#3399ff']
+    for color in presetColors:
+        presetAction = QAction(color, self)
+        bgColor_menu.addAction(presetAction)
+    toolbar.addWidget(bgColor)
+
+    #-----------------------------
+    bullets_menu = QMenu(self)
+
+    bulletUpperA = build_action(bullets_menu, './Assets/icons/svg_bulletUA', "", "", False)
+    bulletUpperA.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BulletUA, None))
+
+    bulletUpperR = build_action(bullets_menu, './Assets/icons/svg_bulletUR', "", "", False)
+    bulletUpperR.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BulletUR, None))
+
+    bullets_menu.addAction(bulletUpperA)
+    bullets_menu.addAction(bulletUpperR)
+
+    bullets = QToolButton(self)
+    bullets.setIcon(QIcon('./Assets/icons/svg_bullets'))
+    bullets.setPopupMode(QToolButton.InstantPopup)
+    bullets.setMenu(bullets_menu)
+
+    toolbar.addWidget(bullets)
+
     #toolbar.setStyleSheet("QToolBar { background-color: #FFFFFF; }")
+
+def homeTabUI(self):
+    homeTab = QWidget()
+    layout = QVBoxLayout()
+    layout.addWidget(QCheckBox("General Option 1"))
+    layout.addWidget(QCheckBox("General Option 2"))
+    homeTab.setLayout(layout)
+    return homeTab
 
 def openGetColorDialog(purpose):
     color = QColorDialog.getColor()

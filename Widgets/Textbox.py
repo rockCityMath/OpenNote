@@ -208,13 +208,29 @@ class TextboxWidget(QTextEdit):
             ]
         )
 
+        menu = QMenu(self)
+        #menu.setStyleSheet("color:white")
+        bulletUpperA = menu.addAction(QIcon("assets/icons/svg_bulletUA"), "")
+        bulletUpperR = menu.addAction(QIcon("assets/icons/svg_bulletUR"), "")
+
+        bulletUpperA.triggered.connect(lambda: self.bullet_list("bulletUpperA"))
+        bulletUpperR.triggered.connect(lambda: self.bullet_list("bulletUpperR"))
+
+
+        menu_button = QToolButton(self)
+        menu_button.setPopupMode(QToolButton.InstantPopup)
+        menu_button.setIcon(QIcon("assets/icons/svg_bullets"))
+        menu_button.setMenu(menu)
+
+        toolbarBottom.addWidget(menu_button)
+
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
         qwaBottom = QWidgetAction(self)
         qwaBottom.setDefaultWidget(toolbarBottom)
 
         return [qwaTop, qwaBottom]
-
+    
     def setFontItalicCustom(self, italic: bool):
         if not self.applyToAllIfNoSelection(lambda: self.setFontItalic(italic)):
             print("setFontItalicCustom Called")
@@ -244,7 +260,7 @@ class TextboxWidget(QTextEdit):
     def setBackgroundColor(self, color: QColor):
         rgb = color.getRgb()
         self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
-
+    
     # If no text is selected, apply to all, else apply to selection
     def applyToAllIfNoSelection(self, func):
         if len(self.textCursor().selectedText()) != 0:
@@ -454,10 +470,10 @@ class TextboxWidget(QTextEdit):
 
     # Changes color of whole background
     def changeBackgroundColorEvent(self, color: QColor):
-        # if self.hasFocus():
-        rgb = color.getRgb()
-        self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
-        self.deselectText()
+        if self.hasFocus:
+            rgb = color.getRgb()
+            self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
+            self.deselectText()
 
     # Changes textbox background color
     def changeTextboxColorEvent(self, new_bg_color):
