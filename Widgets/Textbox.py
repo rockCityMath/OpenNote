@@ -167,15 +167,15 @@ class TextboxWidget(QTextBrowser):
         bgColor.triggered.connect(
             lambda: self.changeBackgroundColorEvent(QColorDialog.getColor())
         )
-        textboxColor = build_action(
+        textHighlightColor = build_action(
             toolbarBottom,
-            "./Assets/icons/svg_textboxColor",
+            "./Assets/icons/svg_textHighlightColor",
             "Background Color",
             "Background Color",
             False,
         )
-        textboxColor.triggered.connect(
-            lambda: self.changeTextboxColorEvent(QColorDialog.getColor())
+        textHighlightColor.triggered.connect(
+            lambda: self.changeTextHighlightColorEvent(QColorDialog.getColor())
         )
 
         bullets = build_action(
@@ -204,7 +204,8 @@ class TextboxWidget(QTextBrowser):
                 bold,
                 italic,
                 underline,
-                fontColor,
+                fontColor, 
+                textHighlightColor,
                 bgColor,
                 bullets,
                 bullets_num,
@@ -511,7 +512,8 @@ class TextboxWidget(QTextBrowser):
         current_format = cursor.charFormat()
 
         color = QColor(new_font_color)
-        current_format.setForeground(color)
+        if color.isValid():
+            current_format.setForeground(color)
 
         cursor.setCharFormat(current_format)
 
@@ -531,12 +533,13 @@ class TextboxWidget(QTextBrowser):
         self.deselectText()
 
     # Changes textbox background color
-    def changeTextboxColorEvent(self, new_bg_color):
+    def changeTextHighlightColorEvent(self, new_highlight_color):
         cursor = self.textCursor()
         current_format = cursor.charFormat()
 
-        color = QColor(new_bg_color)
-        current_format.setBackground(color)
+        color = QColor(new_highlight_color)
+        if color.isValid():
+            current_format.setBackground(color)
 
         cursor.setCharFormat(current_format)
         # self.deselectText()

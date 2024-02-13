@@ -329,9 +329,9 @@ class DraggableContainer(QWidget):
             print("Change Font Color Event Called")
             child_widget.changeFontColorEvent(value)
 
-        elif hasattr(child_widget, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
+        elif hasattr(child_widget, "changeTextHighlightColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextHighlightColor):
             print("Change Textbox Color Event Called")
-            child_widget.changeTextboxColorEvent(value)
+            child_widget.changeTextHighlightColorEvent(value)
 
         elif hasattr(child_widget, "deselectText") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
             print("Clear Selection Slot Called")
