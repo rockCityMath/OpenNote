@@ -521,9 +521,13 @@ class TextboxWidget(QTextBrowser):
 
     # Changes color of whole background
     def changeBackgroundColorEvent(self, color: QColor):
-        # if self.hasFocus():
-        rgb = color.getRgb()
-        self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
+        print("CHANGE BACKGROUND COLOR EVENT")
+        if color.isValid():
+            rgb = color.getRgb()
+            self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
+        else:
+            print("INVALID COLOR")
+            #self.setStyleSheet("background-color: transparent;")
         self.deselectText()
 
     # Changes textbox background color
