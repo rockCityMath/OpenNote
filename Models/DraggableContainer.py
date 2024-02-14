@@ -70,7 +70,6 @@ class DraggableContainer(QWidget):
 
         # If child widget resized itsself, resize this drag container, not ideal bc child resizes on hover
         if isinstance(e, QResizeEvent):
-            print("resize event for draggable container")
             self.resize(self.childWidget.size())
         return False
 
@@ -336,9 +335,9 @@ class DraggableContainer(QWidget):
             print("Change Font Color Event Called")
             child_widget.changeFontColorEvent(value)
 
-        elif hasattr(child_widget, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
+        elif hasattr(child_widget, "changeTextHighlightColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextHighlightColor):
             print("Change Textbox Color Event Called")
-            child_widget.changeTextboxColorEvent(value)
+            child_widget.changeTextHighlightColorEvent(value)
 
         elif hasattr(child_widget, "deselectText") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
             print("Clear Selection Slot Called")
@@ -354,6 +353,12 @@ class DraggableContainer(QWidget):
             elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet_Num):
                 print("Change Bullet Event Called")
                 child_widget.bullet_list("bulletNum")
+            elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BulletUA):
+                print("Change Bullet Event Called")
+                child_widget.bullet_list("bulletUpperA")
+            elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BulletUR):
+                print("Change Bullet Event Called")
+                child_widget.bullet_list("bulletUpperR")
             elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
                 print("Chang Background Color Event Called")
                 child_widget.changeBackgroundColorEvent(value)

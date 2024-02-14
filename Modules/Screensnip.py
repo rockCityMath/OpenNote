@@ -16,7 +16,7 @@ class SnippingWidget(QWidget):
 
         if platform == "linux":
             self.setWindowFlags(Qt.FramelessWindowHint)
-            self.setAttributes(Qt.WA_TranslucentBackground)
+            self.setAttribute(Qt.WA_TranslucentBackground)
             
         self.setWindowFlags(Qt.WindowStaysOnTopHint) 
         self.parent = None

@@ -12,13 +12,13 @@ class ChangedWidgetAttribute(Enum):
     FontBold = 4
     FontItalic = 5
     FontUnderline = 6
-    TextboxColor = 7
+    TextHighlightColor = 7
     Bullet = 8
     Bullet_Num = 9
     LoseFocus = 10
-    BulletUA = 11
-    BulletUR = 12
-    
+
+    BulletUR = 11
+    BulletUA = 12
 
 # Cant be statically typed because importing the classes causes circular imports
 

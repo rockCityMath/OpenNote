@@ -145,6 +145,7 @@ def build_toolbar(editor):
     bgColor.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BackgroundColor, QColorDialog.getColor()))
 
     textHighlightColor = build_action(toolbar, './Assets/icons/svg_textHighlightColor', "Text Highlight Color", "Text Highlight Color", True)
+
     textHighlightColor.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.textHighlightColor, QColorDialog.getColor()))
 
     #defines font color icon appearance and settings
