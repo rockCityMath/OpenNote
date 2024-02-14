@@ -255,6 +255,7 @@ class DraggableContainer(QWidget):
         # debt: To make images resize better, ImageWidget should probaly implement this and setCursorShape
         # So that it can make the cursor move with the corners of pixmap and not corners of this container
         if (self.mode != Mode.MOVE) and e.buttons() and Qt.LeftButton:
+            child_widget = self.childWidget
             if self.mode == Mode.RESIZETL: # Left - Top
                 newwidth = e.globalX() - self.position.x() - self.geometry().x()
                 newheight = e.globalY() - self.position.y() - self.geometry().y()
@@ -286,7 +287,12 @@ class DraggableContainer(QWidget):
             elif self.mode == Mode.RESIZER: # Right
                 self.resize(e.x(), self.height())
             elif self.mode == Mode.RESIZEBR:# Right - Bottom
-                self.resize(e.x(), e.y())
+                #if child is a image, resize differently
+                if isinstance(child_widget, QLabel):
+                    #change this to where resizing corners works like onenote
+                    self.resize(e.x(), e.y())
+                else:
+                    self.resize(e.x(), e.y())
             self.parentWidget().repaint()
         self.newGeometry.emit(self.geometry())
 

@@ -16,6 +16,7 @@ class ChangedWidgetAttribute(Enum):
     Bullet = 8
     Bullet_Num = 9
     LoseFocus = 10
+
     BulletUR = 11
     BulletUA = 12
 

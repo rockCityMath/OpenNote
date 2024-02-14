@@ -223,6 +223,7 @@ class TextboxWidget(QTextBrowser):
         menu_button = QToolButton(self)
         menu_button.setPopupMode(QToolButton.InstantPopup)
         menu_button.setIcon(QIcon("./Assets/icons/svg_bullets"))
+
         menu_button.setMenu(menu)
 
         toolbarBottom.addWidget(menu_button)
