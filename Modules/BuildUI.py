@@ -17,21 +17,21 @@ from Views.EditorFrameView import *
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 #builds the application's UI
-def build_ui(self):
+def build_ui(editor):
     print("Building UI...")
 
     
-    #self.selfFrameView = selfFrameView(self)
-    #self.statusBar = self.statusBar()
-    build_window(self)
-    build_menubar(self)
-    build_toolbar(self)
-    #build_test_toolbar(self)
+    #editor.EditorFrameView = EditorFrameView(editor)
+    #editor.statusBar = editor.statusBar()
+    build_window(editor)
+    build_menubar(editor)
+    build_toolbar(editor)
+    #build_test_toolbar(editor)
 
     # Application's main layout (grid)
     gridLayout = QGridLayout()
     gridContainerWidget = QWidget()
-    self.setCentralWidget(gridContainerWidget)
+    editor.setCentralWidget(gridContainerWidget)
     gridContainerWidget.setLayout(gridLayout)
 
     gridLayout.setSpacing(3)
@@ -61,66 +61,63 @@ def build_ui(self):
 
 
     # Add appropriate widgets (ideally just view controllers) to their layouts
-    leftSideLayout.addWidget(self.notebookTitleView, 0)
-    leftSideLayout.addWidget(self.pageView, 1) # Page view has max stretch factor
-    rightSideLayout.addWidget(self.sectionView, 0)
-    rightSideLayout.addWidget(self.frameView, 1) # Frame view has max stretch factor
+    leftSideLayout.addWidget(editor.notebookTitleView, 0)
+    leftSideLayout.addWidget(editor.pageView, 1) # Page view has max stretch factor
+    rightSideLayout.addWidget(editor.sectionView, 0)
+    rightSideLayout.addWidget(editor.frameView, 1) # Frame view has max stretch factor
 
     # Add L+R container's widgets to the main grid
     gridLayout.addWidget(leftSideContainerWidget, 0, 0)
     gridLayout.addWidget(rightSideContainerWidget, 0, 1)
 
     addSectionButton = QPushButton("Add Section")
-    #add functionality e.g. addSectionButton.clcicked.connect(self.add_section_function)
+    #add functionality e.g. addSectionButton.clcicked.connect(editor.add_section_function)
     leftSideLayout.addWidget(addSectionButton)
-
     
-    
-def build_window(self):
-    self.setWindowTitle("OpenNote")
-    self.setWindowIcon(QIcon('./Assets/OpenNoteLogo.png'))
-    self.setAcceptDrops(True)
+def build_window(editor):
+    editor.setWindowTitle("OpenNote")
+    editor.setWindowIcon(QIcon('./Assets/OpenNoteLogo.png'))
+    editor.setAcceptDrops(True)
     with open('./Styles/styles.qss',"r") as fh:
-        self.setStyleSheet(fh.read())
+        editor.setStyleSheet(fh.read())
 
-def build_menubar(self):
-    file = self.menuBar().addMenu('&File')
-    plugins = self.menuBar().addMenu('&Plugins')
+def build_menubar(editor):
+    file = editor.menuBar().addMenu('&File')
+    plugins = editor.menuBar().addMenu('&Plugins')
 
-    new_file = build_action(self, './Assets/icons/svg_file_open', 'New Notebook', 'New Notebook', False)
+    new_file = build_action(editor, './Assets/icons/svg_file_open', 'New Notebook', 'New Notebook', False)
     new_file.setShortcut(QKeySequence.StandardKey.New)
-    new_file.triggered.connect(lambda: new(self))
+    new_file.triggered.connect(lambda: new(editor))
 
-    open_file = build_action(self, './Assets/icons/svg_file_open', 'Open Notebook', 'Open Notebook', False)
+    open_file = build_action(editor, './Assets/icons/svg_file_open', 'Open Notebook', 'Open Notebook', False)
     open_file.setShortcut(QKeySequence.StandardKey.Open)
-    open_file.triggered.connect(lambda: load(self))
+    open_file.triggered.connect(lambda: load(editor))
 
-    save_file = build_action(self, './Assets/icons/svg_file_save', 'Save Notebook', 'Save Notebook', False)
+    save_file = build_action(editor, './Assets/icons/svg_file_save', 'Save Notebook', 'Save Notebook', False)
     save_file.setShortcut(QKeySequence.StandardKey.Save)
-    save_file.triggered.connect(lambda: save(self))
+    save_file.triggered.connect(lambda: save(editor))
 
-    save_fileAs = build_action(self, './Assets/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
+    save_fileAs = build_action(editor, './Assets/icons/svg_file_save', 'Save Notebook As...', 'Save Notebook As', False)
     save_fileAs.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
-    save_fileAs.triggered.connect(lambda: saveAs(self))
+    save_fileAs.triggered.connect(lambda: saveAs(editor))
 
-    add_widget = build_action(self, './Assets/icons/svg_question', 'Add Custom Widget', 'Add Custom Widget', False)
+    add_widget = build_action(editor, './Assets/icons/svg_question', 'Add Custom Widget', 'Add Custom Widget', False)
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
     plugins.addActions([add_widget])
 
-def build_toolbar(self):
+def build_toolbar(editor):
     toolbar = QToolBar()
     toolbar.setIconSize(QSize(16, 16))
     toolbar.setMovable(False)
-    self.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
-
+    editor.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
 
     #separates toolbar with a line break
     spacer = QWidget()
     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
     toolbar_undo = build_action(toolbar, './Assets/icons/svg_undo', "undo", "undo", False)
-    toolbar_undo.triggered.connect(self.frameView.triggerUndo)
+    toolbar_undo.triggered.connect(editor.frameView.triggerUndo)
 
 
     redo = build_action(toolbar, './Assets/icons/svg_redo', "redo", "redo", False)
@@ -147,8 +144,8 @@ def build_toolbar(self):
     #current bug, alternates between activating and not working when using
     bgColor.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BackgroundColor, QColorDialog.getColor()))
 
-    textboxColor = build_action(toolbar, './Assets/icons/svg_textboxColor', "Text Box Color", "Text Box Color", True)
-    textboxColor.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.TextboxColor, QColorDialog.getColor()))
+    textHighlightColor = build_action(toolbar, './Assets/icons/svg_textHighlightColor', "Text Highlight Color", "Text Highlight Color", True)
+    textHighlightColor.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.textHighlightColor, QColorDialog.getColor()))
 
     #defines font color icon appearance and settings
     fontColor = build_action(toolbar, './Assets/icons/svg_font_color', "Font Color", "Font Color", False)
@@ -164,10 +161,10 @@ def build_toolbar(self):
     underline.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontUnderline, None))
 
     table = build_action(toolbar, './Assets/icons/svg_table', "Create Table", "Create Table", False)
-    table.triggered.connect(self.frameView.toolbar_table)
+    table.triggered.connect(editor.frameView.toolbar_table)
 
     hyperlink = build_action(toolbar, './Assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
-    hyperlink.triggered.connect(self.frameView.toolbar_hyperlink)
+    hyperlink.triggered.connect(editor.frameView.toolbar_hyperlink)
 
     bullets = build_action(toolbar, './Assets/icons/svg_bullets', "Bullets", "Bullets", False)
 
@@ -177,44 +174,16 @@ def build_toolbar(self):
     bullet_num = build_action(toolbar, './Assets/icons/svg_bullet_number', "Bullet List", "Bullet List", False)
     bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
 
-    '''
-    editor.action1 = QAction('Action 1', editor)
-    #editor.action1.triggered.connect(EditorFrameView.slot_action1)
-    toolbar.addAction(editor.action1)
-    editor.action2 = QAction('Action 2', editor)
-    #editor.action2.triggered.connect(TextboxWidget.slot_action2)
-    #editor.action2.triggered.connect(show_popup)
-    toolbar.addAction(editor.action2)
-    #editor.button = QPushButton("Click Me", editor)
-    #editor.button.clicked.connect(editor.slot_button_click)'''
-    
-
     toolbar.addActions([toolbar_undo, redo])
     toolbar.addSeparator()
     toolbar.addWidget(font_family)
     toolbar.addWidget(font_size)
     toolbar.addSeparator()
-    toolbar.addActions([bgColor, textboxColor, fontColor, bold, italic, underline])
+    toolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor])
     toolbar.addSeparator()
     toolbar.addActions([table, hyperlink, bullet_reg, bullet_num])
 
-    #-------- BG Color -----------
-    bgColor = build_action(toolbar, './Assets/icons/svg_bullets', "Bullets", "Bullets", False)
-
-    bgColor_menu = QMenu(self)
-
-    bgColor = QToolButton(self)
-    bgColor.setIcon(QIcon('./Assets/icons/svg_font_bucket'))
-    bgColor.setPopupMode(QToolButton.InstantPopup)
-    bgColor.setMenu(bgColor_menu)
-    presetColors = ['blue', '#ffcc00', '#66ff66', '#3399ff']
-    for color in presetColors:
-        presetAction = QAction(color, self)
-        bgColor_menu.addAction(presetAction)
-    toolbar.addWidget(bgColor)
-
-    #-----------------------------
-    bullets_menu = QMenu(self)
+    bullets_menu = QMenu(editor)
 
     bulletUpperA = build_action(bullets_menu, './Assets/icons/svg_bulletUA', "", "", False)
     bulletUpperA.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BulletUA, None))
@@ -225,7 +194,7 @@ def build_toolbar(self):
     bullets_menu.addAction(bulletUpperA)
     bullets_menu.addAction(bulletUpperR)
 
-    bullets = QToolButton(self)
+    bullets = QToolButton(editor)
     bullets.setIcon(QIcon('./Assets/icons/svg_bullets'))
     bullets.setPopupMode(QToolButton.InstantPopup)
     bullets.setMenu(bullets_menu)
@@ -233,14 +202,6 @@ def build_toolbar(self):
     toolbar.addWidget(bullets)
 
     #toolbar.setStyleSheet("QToolBar { background-color: #FFFFFF; }")
-
-def homeTabUI(self):
-    homeTab = QWidget()
-    layout = QVBoxLayout()
-    layout.addWidget(QCheckBox("General Option 1"))
-    layout.addWidget(QCheckBox("General Option 2"))
-    homeTab.setLayout(layout)
-    return homeTab
 
 def openGetColorDialog(purpose):
     color = QColorDialog.getColor()
