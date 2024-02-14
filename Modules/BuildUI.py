@@ -114,30 +114,6 @@ def build_toolbar(self):
     toolbar.setMovable(False)
     self.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
 
-    '''
-    tabs = QTabWidget()
-    tabs.addTab(self.homeTabUI(), "Home")
-    layout.addWidget(tabs)
-    '''
-    #create tab bar
-    tab_bar = QTabBar(self)
-    toolbar.addWidget(tab_bar)
-
-    #create tabs
-    home_tab = tab_bar.addTab("Home")
-    insert_tab = tab_bar.addTab("Insert")
-    draw_tab = tab_bar.addTab("Draw")
-    view_tab = tab_bar.addTab("View")
-
-    '''centralWidget = QWidget(self)
-    self.setCentralWidget(centralWidget)
-    layout = QVBoxLayout(centralWidget)
-    layout.addWidget(tab_bar)
-
-    home_toolbar = QToolBar("Home Toolbar", self)
-    home_toolbar.addAction("Action 1")
-
-    layout.addWidget(home_toolbar)   ''' 
 
     #separates toolbar with a line break
     spacer = QWidget()

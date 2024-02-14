@@ -6,7 +6,7 @@ from Modules.EditorSignals import editorSignalsInstance
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 
-class TextboxWidget(QTextEdit):
+class TextboxWidget(QTextBrowser):
     def __init__(self, x, y, w=15, h=30, t=""):
         super().__init__()
 
@@ -18,6 +18,8 @@ class TextboxWidget(QTextEdit):
         self.textChanged.connect(self.textChangedEvent)
         self.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
         self.setTextColor("black")
+
+        self.setTextInteractionFlags(Qt.TextEditorInteraction | Qt.TextBrowserInteraction)
 
         self.installEventFilter(self)
 
@@ -97,7 +99,7 @@ class TextboxWidget(QTextEdit):
 
         align_left = build_action(
             toolbarBottom,
-            "assets/icons/svg_align_left",
+            "./Assets/icons/svg_align_left",
             "Align Left",
             "Align Left",
             True,
@@ -106,7 +108,7 @@ class TextboxWidget(QTextEdit):
 
         align_center = build_action(
             toolbarBottom,
-            "assets/icons/svg_align_center",
+            "./Assets/icons/svg_align_center",
             "Align Center",
             "Align Center",
             True,
@@ -115,7 +117,7 @@ class TextboxWidget(QTextEdit):
 
         align_right = build_action(
             toolbarBottom,
-            "assets/icons/svg_align_right",
+            "./Assets/icons/svg_align_right",
             "Align Right",
             "Align Right",
             True,
@@ -123,18 +125,18 @@ class TextboxWidget(QTextEdit):
         align_right.triggered.connect(lambda x: self.setAlignment(Qt.AlignRight))
 
         bold = build_action(
-            toolbarBottom, "assets/icons/svg_font_bold", "Bold", "Bold", True
+            toolbarBottom, "./Assets/icons/svg_font_bold", "Bold", "Bold", True
         )
         bold.toggled.connect(lambda x: self.setFontWeightCustom(700 if x else 500))
 
         italic = build_action(
-            toolbarBottom, "assets/icons/svg_font_italic", "Italic", "Italic", True
+            toolbarBottom, "./Assets/icons/svg_font_italic", "Italic", "Italic", True
         )
         italic.toggled.connect(lambda x: self.setFontItalicCustom(True if x else False))
 
         underline = build_action(
             toolbarBottom,
-            "assets/icons/svg_font_underline",
+            "./Assets/icons/svg_font_underline",
             "Underline",
             "Underline",
             True,
@@ -145,7 +147,7 @@ class TextboxWidget(QTextEdit):
 
         fontColor = build_action(
             toolbarBottom,
-            "assets/icons/svg_font_color",
+            "./Assets/icons/svg_font_color",
             "Font Color",
             "Font Color",
             False,
@@ -156,7 +158,7 @@ class TextboxWidget(QTextEdit):
 
         bgColor = build_action(
             toolbarBottom,
-            "assets/icons/svg_font_bucket",
+            "./Assets/icons/svg_font_bucket",
             "Background Color",
             "Background Color",
             False,
@@ -165,30 +167,31 @@ class TextboxWidget(QTextEdit):
         bgColor.triggered.connect(
             lambda: self.changeBackgroundColorEvent(QColorDialog.getColor())
         )
-        textboxColor = build_action(
+        textHighlightColor = build_action(
             toolbarBottom,
-            "assets/icons/svg_textboxColor",
+            "./Assets/icons/svg_textHighlightColor",
             "Background Color",
             "Background Color",
             False,
         )
-        textboxColor.triggered.connect(
-            lambda: self.changeTextboxColorEvent(QColorDialog.getColor())
+        textHighlightColor.triggered.connect(
+            lambda: self.changeTextHighlightColorEvent(QColorDialog.getColor())
         )
 
         bullets = build_action(
-            toolbarBottom, "assets/icons/svg_bullets", "Bullets", "Bullets", True
+            toolbarBottom, "./Assets/icons/svg_bullets", "Bullets", "Bullets", True
         )
         bullets.toggled.connect(lambda: self.bullet_list("bulletReg"))
 
         bullets_num = build_action(
             toolbarBottom,
-            "assets/icons/svg_bullet_number",
+            "./Assets/icons/svg_bullet_number",
             "Bullets Num",
             "Bullets Num",
             True,
         )
         bullets_num.toggled.connect(lambda: self.bullet_list("bulletNum"))
+
 
         toolbarTop.addWidget(font)
         toolbarTop.addWidget(size)
@@ -201,7 +204,8 @@ class TextboxWidget(QTextEdit):
                 bold,
                 italic,
                 underline,
-                fontColor,
+                fontColor, 
+                textHighlightColor,
                 bgColor,
                 bullets,
                 bullets_num,
@@ -209,9 +213,8 @@ class TextboxWidget(QTextEdit):
         )
 
         menu = QMenu(self)
-        #menu.setStyleSheet("color:white")
-        bulletUpperA = menu.addAction(QIcon("assets/icons/svg_bulletUA"), "")
-        bulletUpperR = menu.addAction(QIcon("assets/icons/svg_bulletUR"), "")
+        bulletUpperA = menu.addAction(QIcon("./Assets/icons/svg_bulletUA"), "")
+        bulletUpperR = menu.addAction(QIcon("./Assets/icons/svg_bulletUR"), "")
 
         bulletUpperA.triggered.connect(lambda: self.bullet_list("bulletUpperA"))
         bulletUpperR.triggered.connect(lambda: self.bullet_list("bulletUpperR"))
@@ -219,8 +222,9 @@ class TextboxWidget(QTextEdit):
 
         menu_button = QToolButton(self)
         menu_button.setPopupMode(QToolButton.InstantPopup)
-        menu_button.setIcon(QIcon("assets/icons/svg_bullets"))
-        menu_button.setMenu(menu)
+        menu_button.setIcon(QIcon("./Assets/icons/svg_bullets"))
+        menu_button.setMenu(menu) 
+
 
         toolbarBottom.addWidget(menu_button)
 
@@ -230,7 +234,7 @@ class TextboxWidget(QTextEdit):
         qwaBottom.setDefaultWidget(toolbarBottom)
 
         return [qwaTop, qwaBottom]
-    
+
     def setFontItalicCustom(self, italic: bool):
         if not self.applyToAllIfNoSelection(lambda: self.setFontItalic(italic)):
             print("setFontItalicCustom Called")
@@ -260,7 +264,7 @@ class TextboxWidget(QTextEdit):
     def setBackgroundColor(self, color: QColor):
         rgb = color.getRgb()
         self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
-    
+
     # If no text is selected, apply to all, else apply to selection
     def applyToAllIfNoSelection(self, func):
         if len(self.textCursor().selectedText()) != 0:
@@ -379,6 +383,14 @@ class TextboxWidget(QTextEdit):
                 style = QTextListFormat.ListDecimal
             if bulletType == "bulletReg":
                 style = QTextListFormat.ListDisc
+            if bulletType == "bulletLowerA":
+                style = QTextListFormat.ListLowerAlpha
+            if bulletType == "bulletLowerR":
+                style = QTextListFormat.ListLowerRoman
+            if bulletType == "bulletUpperA":
+                style = QTextListFormat.ListUpperAlpha
+            if bulletType == "bulletUpperR":
+                style = QTextListFormat.ListUpperRoman
 
             listFormat.setStyle(style)
             cursor.createList(listFormat)
@@ -396,43 +408,84 @@ class TextboxWidget(QTextEdit):
             if cursor.atBlockStart() and block.text().strip() == "":
                 current_indent = block_format.indent()
 
-                if current_indent == 0:
-                    block_format.setIndent(1)
-                    cursor.setBlockFormat(block_format)
-                    cursor.beginEditBlock()
-                    list_format = QTextListFormat()
-                    currentStyle = textList.format().style()
+                if current_indent < 11:
 
-                    if currentStyle == QTextListFormat.ListDisc:
-                        list_format.setStyle(QTextListFormat.ListCircle)
-                    if currentStyle == QTextListFormat.ListDecimal:
-                        list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                    if current_indent % 3 == 0:
+                        block_format.setIndent(current_indent + 1)
+                        cursor.setBlockFormat(block_format)
+                        cursor.beginEditBlock()
+                        list_format = QTextListFormat()
+                        currentStyle = textList.format().style()
 
-                    cursor.createList(list_format)
-                    cursor.endEditBlock()
+                        if currentStyle == QTextListFormat.ListDisc:
+                            list_format.setStyle(QTextListFormat.ListCircle)
+                        if currentStyle == QTextListFormat.ListDecimal:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                        if currentStyle == QTextListFormat.ListLowerAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerRoman)
+                        if currentStyle == QTextListFormat.ListLowerRoman:
+                            list_format.setStyle(QTextListFormat.ListDecimal)
+                        if currentStyle == QTextListFormat.ListUpperAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                        if currentStyle == QTextListFormat.ListUpperRoman:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
 
-                if current_indent == 1:
-                    block_format.setIndent(2)
-                    cursor.setBlockFormat(block_format)
-                    cursor.beginEditBlock()
-                    list_format = QTextListFormat()
-                    currentStyle = textList.format().style()
+                        cursor.createList(list_format)
+                        cursor.endEditBlock()
 
-                    if currentStyle == QTextListFormat.ListCircle:
-                        list_format.setStyle(QTextListFormat.ListSquare)
-                    if currentStyle == QTextListFormat.ListLowerAlpha:
-                        list_format.setStyle(QTextListFormat.ListLowerRoman)
+                    if current_indent % 3 == 1:
+                        block_format.setIndent(current_indent + 1)
+                        cursor.setBlockFormat(block_format)
+                        cursor.beginEditBlock()
+                        list_format = QTextListFormat()
+                        currentStyle = textList.format().style()
 
-                    cursor.createList(list_format)
-                    cursor.endEditBlock()
+                        if currentStyle == QTextListFormat.ListCircle:
+                            list_format.setStyle(QTextListFormat.ListSquare)
+                        if currentStyle == QTextListFormat.ListLowerAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerRoman)
+                        if currentStyle == QTextListFormat.ListLowerRoman:
+                            list_format.setStyle(QTextListFormat.ListDecimal)
+                        if currentStyle == QTextListFormat.ListDecimal:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
 
-                cursor.insertText("")
-                cursor.movePosition(QTextCursor.StartOfBlock)
+                        cursor.createList(list_format)
+                        cursor.endEditBlock()
+
+                    if current_indent % 3 == 2:
+                        block_format.setIndent(current_indent + 1)
+                        cursor.setBlockFormat(block_format)
+                        cursor.beginEditBlock()
+                        list_format = QTextListFormat()
+                        currentStyle = textList.format().style()
+
+                        if currentStyle == QTextListFormat.ListSquare:
+                            list_format.setStyle(QTextListFormat.ListDisc)
+                        if currentStyle == QTextListFormat.ListLowerRoman:
+                            list_format.setStyle(QTextListFormat.ListDecimal)
+                        if currentStyle == QTextListFormat.ListDecimal:
+                            list_format.setStyle(QTextListFormat.ListLowerAlpha)
+                        if currentStyle == QTextListFormat.ListLowerAlpha:
+                            list_format.setStyle(QTextListFormat.ListLowerRoman)
+
+                        cursor.createList(list_format)
+                        cursor.endEditBlock()
+
+                    cursor.insertText("")
+                    cursor.movePosition(QTextCursor.StartOfBlock)
             self.setTextCursor(cursor)
 
         else:
-            # maybe add manual tab or diff functionality?
+            cursor.insertText("    ")
+            self.setTextCursor(cursor)
             pass
+
+    def insertTextLink(self, link_address, display_text):
+        self.setOpenExternalLinks(True)
+        link_html = f'<a href="{link_address}">{display_text}</a>'
+        cursor = self.textCursor()
+        cursor.insertHtml(link_html)
+        QDesktopServices.openUrl(link_html)
 
     def changeFontSizeEvent(self, value):
         # todo: when textbox is in focus, font size on toolbar should match the font size of the text
@@ -460,7 +513,8 @@ class TextboxWidget(QTextEdit):
         current_format = cursor.charFormat()
 
         color = QColor(new_font_color)
-        current_format.setForeground(color)
+        if color.isValid():
+            current_format.setForeground(color)
 
         cursor.setCharFormat(current_format)
 
@@ -470,18 +524,23 @@ class TextboxWidget(QTextEdit):
 
     # Changes color of whole background
     def changeBackgroundColorEvent(self, color: QColor):
-        if self.hasFocus:
+        print("CHANGE BACKGROUND COLOR EVENT")
+        if color.isValid():
             rgb = color.getRgb()
             self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
-            self.deselectText()
+        else:
+            print("INVALID COLOR")
+            #self.setStyleSheet("background-color: transparent;")
+        self.deselectText()
 
     # Changes textbox background color
-    def changeTextboxColorEvent(self, new_bg_color):
+    def changeTextHighlightColorEvent(self, new_highlight_color):
         cursor = self.textCursor()
         current_format = cursor.charFormat()
 
-        color = QColor(new_bg_color)
-        current_format.setBackground(color)
+        color = QColor(new_highlight_color)
+        if color.isValid():
+            current_format.setBackground(color)
 
         cursor.setCharFormat(current_format)
         # self.deselectText()
