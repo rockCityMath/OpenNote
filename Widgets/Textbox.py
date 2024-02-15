@@ -170,8 +170,8 @@ class TextboxWidget(QTextBrowser):
         textHighlightColor = build_action(
             toolbarBottom,
             "./Assets/icons/svg_textHighlightColor",
-            "Background Color",
-            "Background Color",
+            "Text Highlight Color",
+            "Text Highlight Color",
             False,
         )
         textHighlightColor.triggered.connect(
@@ -183,50 +183,50 @@ class TextboxWidget(QTextBrowser):
         )
         bullets.toggled.connect(lambda: self.bullet_list("bulletReg"))
 
-        bullets_num = build_action(
-            toolbarBottom,
-            "./Assets/icons/svg_bullet_number",
-            "Bullets Num",
-            "Bullets Num",
-            True,
-        )
-        bullets_num.toggled.connect(lambda: self.bullet_list("bulletNum"))
-
-
         toolbarTop.addWidget(font)
         toolbarTop.addWidget(size)
 
         toolbarBottom.addActions(
-            [
-                align_left,
-                align_center,
-                align_right,
+            [              
                 bold,
                 italic,
                 underline,
                 fontColor, 
                 textHighlightColor,
-                bgColor,
-                bullets,
-                bullets_num,
-            ]
+                bullets
+             ]
         )
+        
+        # numbering menu has to be added inbetween
+        numbering_menu = QMenu(self)
+        bullets_num = numbering_menu.addAction(QIcon("./Assets/icons/svg_bullet_number"), "")
+        bulletUpperA = numbering_menu.addAction(QIcon("./Assets/icons/svg_bulletUA"), "")
+        bulletUpperR = numbering_menu.addAction(QIcon("./Assets/icons/svg_bulletUR"), "")
 
-        menu = QMenu(self)
-        bulletUpperA = menu.addAction(QIcon("./Assets/icons/svg_bulletUA"), "")
-        bulletUpperR = menu.addAction(QIcon("./Assets/icons/svg_bulletUR"), "")
-
+        bullets_num.triggered.connect(lambda: self.bullet_list("bulletNum"))
         bulletUpperA.triggered.connect(lambda: self.bullet_list("bulletUpperA"))
         bulletUpperR.triggered.connect(lambda: self.bullet_list("bulletUpperR"))
 
 
-        menu_button = QToolButton(self)
-        menu_button.setPopupMode(QToolButton.InstantPopup)
-        menu_button.setIcon(QIcon("./Assets/icons/svg_bullets"))
+        numbering = QToolButton(self)
+        numbering.setPopupMode(QToolButton.MenuButtonPopup)
+        numbering.setIcon(QIcon("./Assets/icons/svg_bullet_number"))
 
-        menu_button.setMenu(menu)
+	# This code would fix an error on the command line but it also makes it not look good soooo
+        #numbering_menu.setParent(numbering)
+        
+        numbering.setMenu(numbering_menu)
 
-        toolbarBottom.addWidget(menu_button)
+        toolbarBottom.addWidget(numbering)
+
+        toolbarBottom.addActions(
+            [  
+                bgColor,
+                align_left,
+                align_center,
+                align_right
+            ]
+        )
 
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
