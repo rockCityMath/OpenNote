@@ -196,9 +196,7 @@ def build_toolbar(editor):
     
     toolbar.addSeparator()
     
-    toolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor])
-    
-    toolbar.addActions([bullet])
+    toolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor, bullet])
 
     # numbering menu start
     numbering_menu = QMenu(editor)
