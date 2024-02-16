@@ -203,16 +203,15 @@ def build_toolbar(editor):
     
     bullet_num = build_action(numbering_menu, './Assets/icons/svg_bullet_number', "", "", False)
     bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
-
+    
+    bullet_num = build_action(numbering_menu, './Assets/icons/svg_bullet_number', "", "", False)
+    bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
     bulletUpperA = build_action(numbering_menu, './Assets/icons/svg_bulletUA', "", "", False)
     bulletUpperA.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BulletUA, None))
-
     bulletUpperR = build_action(numbering_menu, './Assets/icons/svg_bulletUR', "", "", False)
     bulletUpperR.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BulletUR, None))
 
-    numbering_menu.addAction(bullet_num)
-    numbering_menu.addAction(bulletUpperA)
-    numbering_menu.addAction(bulletUpperR)
+    numbering_menu.addActions([bullet_num, bulletUpperA, bulletUpperR])
 
     # cant directly add numbering menu to toolbar so this is required 
     numbering = QToolButton(editor)
@@ -224,11 +223,10 @@ def build_toolbar(editor):
 	
     align_left = build_action(toolbar,"./Assets/icons/svg_align_left","Align Left","Align Left",False)
     align_left.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.AlignLeft, None))
-
     align_center = build_action(toolbar,"./Assets/icons/svg_align_center","Align Center","Align Center",False)
     align_center.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.AlignCenter, None))
     align_right = build_action(toolbar, "./Assets/icons/svg_align_right", "Align Right", "Align Right", False)
-    align_right.triggered.connect(lambda x: self.setAlignment(Qt.AlignRight))
+    align_right.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.AlignRight, None))
     
     toolbar.addActions([align_left, align_center, align_right])
     

@@ -19,6 +19,9 @@ class ChangedWidgetAttribute(Enum):
 
     BulletUR = 11
     BulletUA = 12
+    AlignLeft = 13
+    AlignCenter = 14
+    AlignRight = 15
 
 # Cant be statically typed because importing the classes causes circular imports
 

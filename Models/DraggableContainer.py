@@ -359,6 +359,17 @@ class DraggableContainer(QWidget):
             elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BulletUR):
                 print("Change Bullet Event Called")
                 child_widget.bullet_list("bulletUpperR")
+
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignLeft):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignLeft")
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignCenter):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignCenter")
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignRight):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignRight")
+                
             elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
                 print("Chang Background Color Event Called")
                 child_widget.changeBackgroundColorEvent(value)
