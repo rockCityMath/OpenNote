@@ -151,17 +151,27 @@ class DraggableContainer(QWidget):
                 menu.addAction(item)
 
         # Add standard menu actions
-        delete = QAction("Delete", self)
-        delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
-        menu.addAction(delete)
+        cut = QAction("Cut", self)
+        cut.triggered.connect(lambda: editorSignalsInstance.widgetCut.emit(self))
 
         copy = QAction("Copy", self)
         copy.triggered.connect(lambda: editorSignalsInstance.widgetCopied.emit(self))
-        menu.addAction(copy)
-
-        cut = QAction("Cut", self)
-        cut.triggered.connect(lambda: editorSignalsInstance.widgetCut.emit(self))
-        menu.addAction(cut)
+        
+        delete = QAction("Delete", self)
+        delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
+        
+        # Ready for deployment when code is ready
+        ''' 
+        link = QAction("Link", self)
+        link.triggered.connect(lambda: editorSignalsInstance.widgetLink.emit(self))
+        
+        table = QAction("Table", self)
+        table.triggered.connect(lambda: editorSignalsInstance.widgetTable.emit(self))
+        
+        menu.addActions([cut, copy, delete, link, table])
+        '''
+        
+        menu.addActions([cut, copy, delete])
 
         # Add any non-widget type menu actions from child
         for item in customMenuItems:
