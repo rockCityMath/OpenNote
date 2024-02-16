@@ -138,8 +138,15 @@ def build_toolbar(editor):
     redo = build_action(toolbar, './Assets/icons/svg_redo', "redo", "redo", False)
     # redo.triggered.connect(editor.frameView.triggerRedo)
 
+    cut = build_action(toolbar, './Assets/icons/svg_cut', "cut", "cut", False)
+    cut.triggered.connect(editor.frameView.cutWidgetEvent)
+    
+    copy = build_action(toolbar, './Assets/icons/svg_copy', "copy", "copy", False)
+    copy.triggered.connect(editor.frameView.copyWidgetEvent)
+
 
     font_family = QFontComboBox()
+    font_family.setFixedWidth(150)
     default_font = font_family.currentFont().family()
     print(f"default font is {default_font}")
     font_family.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font_family.currentFont().family()))
@@ -187,7 +194,7 @@ def build_toolbar(editor):
     bullet.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
     
 
-    toolbar.addActions([undo, redo])
+    toolbar.addActions([undo, redo, cut, copy])
     
     toolbar.addSeparator()
     
