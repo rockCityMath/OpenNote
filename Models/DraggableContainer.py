@@ -356,6 +356,9 @@ class DraggableContainer(QWidget):
             elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
                 print("Chang Background Color Event Called")
                 child_widget.changeBackgroundColorEvent(value)
+            elif hasattr(child_widget, "paperColor") and (changedWidgetAttribute == ChangedWidgetAttribute.PaperColor):
+                print("Change Page Color Event Called")
+                child_widget.paperColor(value)
     def connectTableSignals(self, tableWidget):
         tableWidget.rowAdded.connect(self.resizeTable)
     def resizeTable(self):

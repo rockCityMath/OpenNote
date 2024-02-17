@@ -17,17 +17,44 @@ from Modules.Clipboard import Clipboard
 from Modules.Undo import UndoHandler
 from Widgets.Link import LinkDialog
 
+import subprocess
 
 
 # Handles all widget display (could be called widget view, but so could draggablecontainer)
 class EditorFrameView(QWidget):
+    SETTINGS_KEY = "BackgroundColor"
 
     def __init__(self, editor):
         super(EditorFrameView, self).__init__()
 
+
+        def check_appearance():
+            """Checks DARK/LIGHT mode of macos."""
+            cmd = 'defaults read -g AppleInterfaceStyle'
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, shell=True)
+            return bool(p.communicate()[0])  
+
         self.editor = editor # Store reference to the editor (QMainWindow)
         self.editorFrame = QFrame(editor)
-        self.editorFrame.setStyleSheet("background-color: white;")
+
+        #Default
+        self.currentBackgroundColor = self.loadBackgroundColor() or QColor(255, 255, 255)
+
+        is_dark_mode = check_appearance()
+        white = QColor("white")
+
+        #background page color
+        if is_dark_mode and (self.currentBackgroundColor == white or self.currentBackgroundColor == QColor(255, 255, 255)):
+            self.setStyleSheet(f"background-color: rgb(31, 31, 30);")
+            print("In dark mode, use dark mode color because the background is white or pciked white")
+        elif not is_dark_mode:
+            self.setStyleSheet(f"background-color: {self.currentBackgroundColor.name()};")
+            print("Set background color based on saved color in light mode")
+        else:
+            self.setStyleSheet(f"background-color: {self.currentBackgroundColor.name()};")
+            self.saveBackgroundColor()
+            print("Saving non-white color as the current background color")
 
         # Layout for the editor frame
         layout = QVBoxLayout(self)
@@ -51,8 +78,8 @@ class EditorFrameView(QWidget):
         #self.shortcut.setContext(Qt.ApplicationShortcut)
         #self.shortcut.activated.connect(self.triggerUndo)
 
-        print("BUILT FRAMEVIEW")
-        
+        print("BUILT FRAMEVIEW") 
+
     def triggerUndo(self):
         print("triggerUndo Called")
         self.undoHandler.undo
@@ -276,4 +303,25 @@ class EditorFrameView(QWidget):
 
     def slot_action1(self, item):
         print("Action 1 triggered")
+
+    def pageColor(self, color: QColor):
+        print("CHANGE BACKGROUND COLOR EVENT")
+        if color.isValid():
+            self.currentBackgroundColor = color
+            self.editorFrame.setStyleSheet(f"background-color: {color.name()};")
+            self.saveBackgroundColor()
+
+    def loadBackgroundColor(self):
+        settings = QSettings()
+        color = settings.value(self.SETTINGS_KEY, type=QColor)
+        return color
+
+    def saveBackgroundColor(self):
+        settings = QSettings()
+        settings.setValue(self.SETTINGS_KEY, self.currentBackgroundColor)
+
+    def getCurrentBackgroundColor(self):
+        return self.currentBackgroundColor
+
+
 

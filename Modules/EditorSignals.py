@@ -18,6 +18,7 @@ class ChangedWidgetAttribute(Enum):
     LoseFocus = 10
     BulletUR = 11
     BulletUA = 12
+    PaperColor = 13
 
 # Cant be statically typed because importing the classes causes circular imports
 

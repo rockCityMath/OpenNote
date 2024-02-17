@@ -14,6 +14,8 @@ from Widgets.Table import *
 
 from Views.EditorFrameView import *
 
+import subprocess
+
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 #builds the application's UI
@@ -174,6 +176,10 @@ def build_toolbar(editor):
     bullet_num = build_action(toolbar, './Assets/icons/svg_bullet_number', "Bullet List", "Bullet List", False)
     bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
 
+    paperColor= build_action(toolbar, './Assets/icons/svg_paper', "Paper Color", "Paper Color", False)
+    paperColor.triggered.connect(lambda: editor.frameView.pageColor(QColorDialog.getColor()))
+
+    
     toolbar.addActions([toolbar_undo, redo])
     toolbar.addSeparator()
     toolbar.addWidget(font_family)
@@ -200,6 +206,9 @@ def build_toolbar(editor):
     bullets.setMenu(bullets_menu)
 
     toolbar.addWidget(bullets)
+    toolbar.addActions([paperColor])
+
+
 
     #toolbar.setStyleSheet("QToolBar { background-color: #FFFFFF; }")
 
