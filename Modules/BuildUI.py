@@ -75,13 +75,26 @@ def build_ui(editor):
     addSectionButton = QPushButton("Add Section")
     #add functionality e.g. addSectionButton.clcicked.connect(editor.add_section_function)
     leftSideLayout.addWidget(addSectionButton)
+
+def check_appearance():
+    """Checks DARK/LIGHT mode of macos."""
+    cmd = 'defaults read -g AppleInterfaceStyle'
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, shell=True)
+    return bool(p.communicate()[0])  
+
     
 def build_window(editor):
     editor.setWindowTitle("OpenNote")
     editor.setWindowIcon(QIcon('./Assets/OpenNoteLogo.png'))
     editor.setAcceptDrops(True)
-    with open('./Styles/styles.qss',"r") as fh:
-        editor.setStyleSheet(fh.read())
+
+    if check_appearance() == False:
+        with open('./Styles/styles.qss',"r") as fh:
+            editor.setStyleSheet(fh.read())
+    else:
+        with open('./Styles/stylesDark.qss',"r") as fh:
+            editor.setStyleSheet(fh.read())
 
 def build_menubar(editor):
     file = editor.menuBar().addMenu('&File')
