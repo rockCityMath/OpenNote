@@ -132,6 +132,18 @@ class PageView(QWidget):
 
             renamePageAction = menu.addAction(self.tr("Rename Page"))
             renamePageAction.triggered.connect(partial(self.renamePage, page))
+
+            #Current Issue: settings do not save because autosave only saves editor state
+            '''
+            mergePageAction = menu.addAction(self.tr("Merge Pages"))
+            mergePageAction.triggered.connect(partial(self.mergePages, page))
+            '''
+
+            changeTextColorAction = menu.addAction(self.tr("Change Text Color"))
+            changeTextColorAction.triggered.connect(partial(self.changeTextColor, page))
+            
+            changeBackgroundColorAction = menu.addAction(self.tr("Change Background Color"))
+            changeBackgroundColorAction.triggered.connect(partial(self.changeBackgroundColor, page))
         menu.exec_(self.sender().viewport().mapToGlobal(position))
 
     # Dont let the right click reach the viewport, context menu will still open but this will stop the page from being selected
@@ -140,11 +152,16 @@ class PageView(QWidget):
             if(event.button() == Qt.RightButton):
                 return True
         return False
-
+    
     def addPage(self, level: int, clickedIndex: QModelIndex):
 
-        # New page added under parent (what the user right clicked on)
+
+        # New page added to root 
+        # will add functionallity for page groups which can be nested 
+    
         parentPage = self.model.itemFromIndex(clickedIndex)
+        while not parentPage.data().isRoot():
+            parentPage = parentPage.parent()
         parentPageUUID = parentPage.data().getUUID()
 
         # Create a new page model, set that as the data for the new page
@@ -155,7 +172,7 @@ class PageView(QWidget):
         parentPage.appendRow([newPage])       # Add to UI
         self.pageModels.append(newPageModel)  # Add to array of PageModel
 
-        self.tree.expand(clickedIndex)
+        self.tree.expand(clickedIndex) 
 
     def deletePage(self, page: QStandardItem):
         deletePages = [page]
@@ -209,3 +226,59 @@ class PageView(QWidget):
         print("CHANGED PAGE TO: " + newPage.data().title)
 
         editorSignalsInstance.pageChanged.emit(newPageModel) # Tell the sectionView that the page has changed
+
+    '''
+    #   Not sure if working as intended 
+    def mergePages(self):
+        # Prompt the user to select two pages
+        selectedIndexes = self.tree.selectedIndexes()
+
+        # Check if exactly two pages are selected
+        if len(selectedIndexes) == 2:
+            # Retrieve the QStandardItem objects corresponding to the selected pages
+            page1Item = self.model.itemFromIndex(selectedIndexes[0])
+            page2Item = self.model.itemFromIndex(selectedIndexes[1])
+
+            # Extract the PageModel objects from the selected QStandardItem objects
+            page1Model = page1Item.data()
+            page2Model = page2Item.data()
+
+            # Merge the sections of the two pages into one page
+            mergedSections = page1Model.sections + page2Model.sections
+            newPageModel = PageModel('Merged Page', 0, mergedSections)  # Assuming 0 as the parent UUID for the root
+
+            # Create a new QStandardItem for the merged page
+            newPageItem = QStandardItem(newPageModel.title)
+            newPageItem.setData(newPageModel)
+            newPageItem.setEditable(False)
+
+            # Insert the new merged page at the bottom of the children of the root
+            root = self.model.invisibleRootItem()
+            index = root.rowCount()  # Get the last index
+            root.insertRow(index, [newPageItem])
+
+            # Remove the original two pages from the model
+            root.removeRow(page1Item.row())
+            root.removeRow(page2Item.row())
+
+            # Update the pageModels list
+            self.pageModels.remove(page1Model)
+            self.pageModels.remove(page2Model)
+            self.pageModels.append(newPageModel)
+
+            # Expand the tree to show the changes
+            self.tree.expandAll()
+        else:
+            # If not exactly two pages are selected, show a warning or message
+            QMessageBox.warning(self, 'Invalid Selection', 'Please select exactly two pages to merge.', QMessageBox.Ok)
+    '''
+    
+    def changeTextColor(self, page: QStandardItem):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            page.setForeground(color)
+
+    def changeBackgroundColor(self, page: QStandardItem):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            page.setBackground(color)

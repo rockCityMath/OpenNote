@@ -54,6 +54,8 @@ class DraggableContainer(QWidget):
         if hasattr(self.childWidget, "newGeometryEvent"): self.newGeometry.connect(childWidget.newGeometryEvent)
         editorSignalsInstance.widgetAttributeChanged.connect(self.widgetAttributeChanged)
 
+
+                
     def setChildWidget(self, childWidget):
         if childWidget:
             self.childWidget = childWidget
@@ -64,10 +66,10 @@ class DraggableContainer(QWidget):
             self.vLayout.addWidget(childWidget)
             self.vLayout.setContentsMargins(0,0,0,0)
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, obj, e):
 
         # If child widget resized itsself, resize this drag container, not ideal bc child resizes on hover
-        if isinstance(event, QResizeEvent):
+        if isinstance(e, QResizeEvent):
             self.resize(self.childWidget.size())
         return False
 
@@ -80,7 +82,7 @@ class DraggableContainer(QWidget):
     def mousePressEvent(self, e: QMouseEvent):
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
 
-        print("DC MOUSE PRESS")
+        print("Draggable Container MOUSE PRESS")
 
         # Undo related
         # self.old_x = e.globalX()
@@ -93,15 +95,27 @@ class DraggableContainer(QWidget):
             print("NOT EDIT")
             return
         if not e.buttons() and Qt.LeftButton:
-            print("DC GOT MOUSE PRESS")
+            print("Draggable Container GOT MOUSE PRESS")
             self.setCursorShape(e.pos())
             return True
         if e.button() == Qt.RightButton:
             self.popupShow(e.pos())
             e.accept()
 
+        self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.childWidget.setFocus()
+
+        #brings text cursor to cursor position but causes exception
+        '''if isinstance(self.childWidget, TextboxWidget):
+            self.childWidget.setCursorPosition(e)
+        else:
+            # Handle the case where self.childWidget is not a TextBox
+            pass'''
+        # need to add code for setting cursor to the end of the textbox
+
     # On double click, focus on child and make mouse events pass through this container to child
     def mouseDoubleClickEvent(self, e: QMouseEvent):
+        print("MOUSEDOUBLECLICKEVENT FROM DRAGGABLE CONTAINER")
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, False)
         self.childWidget.setFocus()
         return
@@ -116,15 +130,10 @@ class DraggableContainer(QWidget):
     def leaveEvent(self, e: QMouseEvent):
         self.childWidget.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setStyleSheet("border: none;")
-
-        # Delete this DC if childWidget says it's empty
-        if hasattr(self.childWidget, "checkEmpty"):
-            if self.childWidget.checkEmpty():
-                editorSignalsInstance.widgetRemoved.emit(self)
-
-        # ???
-        if self.childWidget.hasFocus():
-            self.setFocus()
+        
+        # If mouse leaves draggable container, set focus to the editor
+        #if self.childWidget.hasFocus():
+        #    self.setFocus()'''
 
     def buildDragContainerMenu(self):
 
@@ -142,17 +151,27 @@ class DraggableContainer(QWidget):
                 menu.addAction(item)
 
         # Add standard menu actions
-        delete = QAction("Delete", self)
-        delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
-        menu.addAction(delete)
+        cut = QAction("Cut", self)
+        cut.triggered.connect(lambda: editorSignalsInstance.widgetCut.emit(self))
 
         copy = QAction("Copy", self)
         copy.triggered.connect(lambda: editorSignalsInstance.widgetCopied.emit(self))
-        menu.addAction(copy)
-
-        cut = QAction("Cut", self)
-        cut.triggered.connect(lambda: editorSignalsInstance.widgetCut.emit(self))
-        menu.addAction(cut)
+        
+        delete = QAction("Delete", self)
+        delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
+        
+        # Ready for deployment when code is ready
+        ''' 
+        link = QAction("Link", self)
+        link.triggered.connect(lambda: editorSignalsInstance.widgetLink.emit(self))
+        
+        table = QAction("Table", self)
+        table.triggered.connect(lambda: editorSignalsInstance.widgetTable.emit(self))
+        
+        menu.addActions([cut, copy, delete, link, table])
+        '''
+        
+        menu.addActions([cut, copy, delete])
 
         # Add any non-widget type menu actions from child
         for item in customMenuItems:
@@ -217,7 +236,7 @@ class DraggableContainer(QWidget):
                 self.setCursor(QCursor(Qt.SizeVerCursor))
                 self.mode = Mode.RESIZEB
         else:
-            self.setCursor(QCursor(Qt. ArrowCursor))
+            self.setCursor(QCursor(Qt.ArrowCursor))
             self.mode = Mode.MOVE
 
     # Determine how to handle the mouse being moved inside the box
@@ -246,6 +265,7 @@ class DraggableContainer(QWidget):
         # debt: To make images resize better, ImageWidget should probaly implement this and setCursorShape
         # So that it can make the cursor move with the corners of pixmap and not corners of this container
         if (self.mode != Mode.MOVE) and e.buttons() and Qt.LeftButton:
+            child_widget = self.childWidget
             if self.mode == Mode.RESIZETL: # Left - Top
                 newwidth = e.globalX() - self.position.x() - self.geometry().x()
                 newheight = e.globalY() - self.position.y() - self.geometry().y()
@@ -277,33 +297,98 @@ class DraggableContainer(QWidget):
             elif self.mode == Mode.RESIZER: # Right
                 self.resize(e.x(), self.height())
             elif self.mode == Mode.RESIZEBR:# Right - Bottom
-                self.resize(e.x(), e.y())
+                #if child is a image, resize differently
+                if isinstance(child_widget, QLabel):
+                    #change this to where resizing corners works like onenote
+                    self.resize(e.x(), e.y())
+                else:
+                    self.resize(e.x(), e.y())
             self.parentWidget().repaint()
         self.newGeometry.emit(self.geometry())
 
-    # Pass the event to the child widget if this container is focuesd, and childwidget implements the method to receive it
+    # Pass the e to the child widget if this container is focused, and childwidget implements the method to receive it
+    # Uses signals to pass to draggable container, which then checks if child has the function, then calls the function.
+    # Look at toolbar in BuildUI.py to see examples
+    # example signal that doesn't have a value: 'italic.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontItalic, None))'
+    # example signal with a value: 'font_family.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font_family.currentFont().family()))'
+    # When adding a function to a child widget, use 'if self.hasFocus():' to ensure the function applies only to the focused widget. Else it will apply to all widgets of the same type
     def widgetAttributeChanged(self, changedWidgetAttribute, value):
+        #print(f"changedWidgetAttribute is {changedWidgetAttribute} and value is {value}")
+        child_widget = self.childWidget
 
-        cw = self.childWidget
+        #this if statement is no longer needed because highlighted text deselects after clicking on an area in the editor thats not the in focus textbox
+        #if self.hasFocus() or child_widget.hasFocus():
+            #only the focused container will print this line
+        print(f"changedWidgetAttribute is {changedWidgetAttribute} and value is {value}")
+            
+        if hasattr(child_widget, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
+            print("Change Font Size Event Called")
+            child_widget.changeFontSizeEvent(value)
+            
+        elif hasattr(child_widget, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
+            print("Change Font Bold Event Called")
+            child_widget.changeFontBoldEvent()
 
-        if hasattr(cw, "changeFontSizeEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontSize):
-            cw.changeFontSizeEvent(value)
+        elif hasattr(child_widget, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
+            print("Change Font Italic Event Called")
+            child_widget.changeFontItalicEvent()
 
-        if hasattr(cw, "changeFontBoldEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontBold):
-            cw.changeFontBoldEvent()
+        elif hasattr(child_widget, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
+            print("Change Font Underline Event Called")
+            child_widget.changeFontUnderlineEvent()
 
-        if hasattr(cw, "changeFontItalicEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontItalic):
-            cw.changeFontItalicEvent()
+        elif hasattr(child_widget, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
+            print("Change Font Family Event Called")
+            child_widget.changeFontEvent(value)
 
-        if hasattr(cw, "changeFontUnderlineEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontUnderline):
-            cw.changeFontUnderlineEvent()
+        elif hasattr(child_widget, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
+            print("Change Font Color Event Called")
+            child_widget.changeFontColorEvent(value)
 
-        if hasattr(cw, "changeFontEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Font):
-            cw.changeFontEvent(value)
+        elif hasattr(child_widget, "changeTextHighlightColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextHighlightColor):
+            print("Change Textbox Color Event Called")
+            child_widget.changeTextHighlightColorEvent(value)
 
-        if hasattr(cw, "changeFontColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.FontColor):
-            cw.changeFontColorEvent(value)
+        elif hasattr(child_widget, "deselectText") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
+            print("Clear Selection Slot Called")
+            child_widget.deselectText()
+            if hasattr(self.childWidget, "checkEmpty") and isinstance(child_widget, QTextEdit):
+                if self.childWidget.checkEmpty():
+                    print("Removing empty container")
+                    editorSignalsInstance.widgetRemoved.emit(self)
+        if self.hasFocus() or child_widget.hasFocus():
+            if hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet):
+                print("Change Bullet Event Called")
+                child_widget.bullet_list("bulletReg")
+            elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.Bullet_Num):
+                print("Change Bullet Event Called")
+                child_widget.bullet_list("bulletNum")
+            elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BulletUA):
+                print("Change Bullet Event Called")
+                child_widget.bullet_list("bulletUpperA")
+            elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BulletUR):
+                print("Change Bullet Event Called")
+                child_widget.bullet_list("bulletUpperR")
 
-        if hasattr(cw, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
-            cw.changeBackgroundColorEvent(value)
-
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignLeft):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignLeft")
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignCenter):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignCenter")
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignRight):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignRight")
+                
+            elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
+                print("Chang Background Color Event Called")
+                child_widget.changeBackgroundColorEvent(value)
+            elif hasattr(child_widget, "paperColor") and (changedWidgetAttribute == ChangedWidgetAttribute.PaperColor):
+                print("Change Page Color Event Called")
+                child_widget.paperColor(value)
+    def connectTableSignals(self, tableWidget):
+        tableWidget.rowAdded.connect(self.resizeTable)
+    def resizeTable(self):
+        self.resize(self.childWidget.size())
+        self.newGeometry.emit(self.geometry())
+        self.parentWidget().repaint()

@@ -9,21 +9,52 @@ import sys
 from Modules.Multiselect import Multiselector, MultiselectMode
 from Models.DraggableContainer import DraggableContainer
 from Widgets.Textbox import TextboxWidget
-from Modules.EditorSignals import editorSignalsInstance
+from Modules.EditorSignals import editorSignalsInstance,ChangedWidgetAttribute
 from Widgets.Image import ImageWidget
 from Modules.Screensnip import SnippingWidget
-from Widgets.Table import TableWidget
+from Widgets.Table import *
 from Modules.Clipboard import Clipboard
 from Modules.Undo import UndoHandler
+from Widgets.Link import LinkDialog
+
+import subprocess
+
 
 # Handles all widget display (could be called widget view, but so could draggablecontainer)
 class EditorFrameView(QWidget):
+    SETTINGS_KEY = "BackgroundColor"
+
     def __init__(self, editor):
         super(EditorFrameView, self).__init__()
 
+
+        def check_appearance():
+            """Checks DARK/LIGHT mode of macos."""
+            cmd = 'defaults read -g AppleInterfaceStyle'
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, shell=True)
+            return bool(p.communicate()[0])  
+
         self.editor = editor # Store reference to the editor (QMainWindow)
         self.editorFrame = QFrame(editor)
-        self.editorFrame.setStyleSheet("background-color: white;")
+
+        #Default
+        self.currentBackgroundColor = self.loadBackgroundColor() or QColor(255, 255, 255)
+
+        is_dark_mode = check_appearance()
+        white = QColor("white")
+
+        #background page color
+        if is_dark_mode and (self.currentBackgroundColor == white or self.currentBackgroundColor == QColor(255, 255, 255)):
+            self.setStyleSheet(f"background-color: rgb(31, 31, 30);")
+            print("In dark mode, use dark mode color because the background is white or pciked white")
+        elif not is_dark_mode:
+            self.setStyleSheet(f"background-color: {self.currentBackgroundColor.name()};")
+            print("Set background color based on saved color in light mode")
+        else:
+            self.setStyleSheet(f"background-color: {self.currentBackgroundColor.name()};")
+            self.saveBackgroundColor()
+            print("Saving non-white color as the current background color")
 
         # Layout for the editor frame
         layout = QVBoxLayout(self)
@@ -43,12 +74,16 @@ class EditorFrameView(QWidget):
         self.installEventFilter(self.multiselector)
 
         # Undo setup
-        self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
-        self.shortcut.setContext(Qt.ApplicationShortcut)
-        self.shortcut.activated.connect(self.undoHandler.undo)
-        self.undoHandler.undoWidgetDelete.connect(self.undoWidgetDeleteEvent)
+        #self.shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
+        #self.shortcut.setContext(Qt.ApplicationShortcut)
+        #self.shortcut.activated.connect(self.triggerUndo)
 
-        print("BUILT FRAMEVIEW")
+        print("BUILT FRAMEVIEW") 
+
+    def triggerUndo(self):
+        print("triggerUndo Called")
+        self.undoHandler.undo
+        self.undoHandler.undoWidgetDelete.connect(self.undoWidgetDeleteEvent) 
 
     def pasteWidget(self, clickPos):
         widgetOnClipboard = self.clipboard.getWidgetToPaste()
@@ -63,6 +98,7 @@ class EditorFrameView(QWidget):
     def snipScreen(self, clickPos):
         def onSnippingCompleted(imageMatrix):            # Called after screensnipper gets image
             self.editor.setWindowState(Qt.WindowActive)
+            self.editor.setWindowFlags(Qt.WindowStaysOnTopHint)
             self.editor.showMaximized()
             if imageMatrix is None:
                 return
@@ -149,15 +185,26 @@ class EditorFrameView(QWidget):
 
             # Releasing the mouse after clicking to add text
             else:
+                print("CREATE DRAGGABLE CONTAINER")
                 self.newWidgetOnSection(TextboxWidget, event.pos())
 
     def mousePressEvent(self, event):
         print("EDITORFRAME MOUSEPRESS")
         editor = self.editor
 
+        #calls textwidget's clearSelectionSignal
+        if event.button() == Qt.LeftButton:
+            if self.rect().contains(event.pos()):
+                editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.LoseFocus, None)
+            super().mousePressEvent(event)
+
         # Open context menu on right click
         if event.buttons() == Qt.RightButton:
             frame_menu = QMenu(self)
+
+            paste = QAction("Paste", editor)
+            paste.triggered.connect(lambda: self.pasteWidget(event.pos()))
+            frame_menu.addAction(paste)
 
             add_image = QAction("Add Image", self)
             add_image.triggered.connect(lambda: self.newWidgetOnSection(ImageWidget, event.pos()))
@@ -165,11 +212,8 @@ class EditorFrameView(QWidget):
 
             add_table = QAction("Add Table", editor)
             add_table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, event.pos()))
+            #add_table.triggered.connect(self.show_table_popup)
             frame_menu.addAction(add_table)
-
-            paste = QAction("Paste", editor)
-            paste.triggered.connect(lambda: self.pasteWidget(event.pos()))
-            frame_menu.addAction(paste)
 
             take_screensnip = QAction("Snip Screen", editor)
             take_screensnip.triggered.connect(lambda: self.snipScreen(event.pos()))
@@ -179,9 +223,46 @@ class EditorFrameView(QWidget):
             add_custom_widget.triggered.connect(lambda: self.addCustomWidget(event))
             frame_menu.addAction(add_custom_widget)
 
+            insert_Link = QAction("Insert Link", editor)
+            insert_Link.triggered.connect(lambda: self.insertLink(event.pos()))
+            frame_menu.addAction(insert_Link)
+
             frame_menu.exec(event.globalPos())
 
-    def addCustomWidget(self, event):
+    def insertLink(self, clickPos):
+        link_dialog = LinkDialog()
+        result = link_dialog.exec_()
+        if result == QDialog.Accepted:
+            link_address, display_text = link_dialog.get_link_data()
+            textboxWidget = TextboxWidget.new(clickPos)
+            textboxWidget.insertTextLink(link_address, display_text)
+            dc = DraggableContainer(textboxWidget, self)
+            dc.show()
+            self.undoHandler.pushCreate(dc)
+            editorSignalsInstance.widgetAdded.emit(dc)
+            editorSignalsInstance.changeMade.emit()
+
+    def center_of_screen(self):
+        editor_frame_geometry = self.editorFrame.geometry()
+        print(f"editor_frame_geometry.width() is {editor_frame_geometry.width()}")
+        print(f"editor_frame_geometry.height() is {editor_frame_geometry.height()}")
+        center_x = (editor_frame_geometry.width() - 200) // 2 
+        center_y = (editor_frame_geometry.height() - 200) // 2 
+        return center_x, center_y
+
+    def toolbar_table(self):
+        print("toolbar_table pressed")
+        center_x, center_y = self.center_of_screen()
+        clickPos = QPoint(center_x, center_y)
+        self.newWidgetOnSection(TableWidget, clickPos)
+        
+    def toolbar_hyperlink(self):
+        print("toolbar_hyperlink pressed")
+        center_x, center_y = self.center_of_screen()
+        clickPos = QPoint(center_x, center_y)
+        self.insertLink(clickPos)
+
+    def addCustomWidget(self, e):
         def getCustomWidgets():
             customWidgets = {} # dict where entries are {name: class}
 
@@ -206,17 +287,41 @@ class EditorFrameView(QWidget):
             item_action = QAction(customWidget[0], self)
             def tmp(c, pos):
                 return lambda: self.newWidgetOnSection(c, pos)
-            item_action.triggered.connect(tmp(customWidget[1], event.pos()))
+            item_action.triggered.connect(tmp(customWidget[1], e.pos()))
             pluginMenu.addAction(item_action)
 
-        pluginMenu.exec(event.globalPos())
+        pluginMenu.exec(e.globalPos())
 
-    def mouseMoveEvent(self, event): # This event is only called after clicking down on the frame and dragging
-
+    def mouseMoveEvent(self, e): # This event is only called after clicking down on the frame and dragging
         # Set up multi-select on first move of mouse drag
         if self.multiselector.mode != MultiselectMode.IS_DRAWING_AREA:
-            self.multiselector.beginDrawingArea(event)
+                self.multiselector.beginDrawingArea(e)
 
         # Resize multi-select widget on mouse every proceeding mouse movement (dragging)
         else:
-            self.multiselector.continueDrawingArea(event)
+            self.multiselector.continueDrawingArea(e)
+
+    def slot_action1(self, item):
+        print("Action 1 triggered")
+
+    def pageColor(self, color: QColor):
+        print("CHANGE BACKGROUND COLOR EVENT")
+        if color.isValid():
+            self.currentBackgroundColor = color
+            self.editorFrame.setStyleSheet(f"background-color: {color.name()};")
+            self.saveBackgroundColor()
+
+    def loadBackgroundColor(self):
+        settings = QSettings()
+        color = settings.value(self.SETTINGS_KEY, type=QColor)
+        return color
+
+    def saveBackgroundColor(self):
+        settings = QSettings()
+        settings.setValue(self.SETTINGS_KEY, self.currentBackgroundColor)
+
+    def getCurrentBackgroundColor(self):
+        return self.currentBackgroundColor
+
+
+
