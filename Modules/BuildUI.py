@@ -98,6 +98,8 @@ def build_window(editor):
 
 def build_menubar(editor):
     file = editor.menuBar().addMenu('&File')
+    home = editor.menuBar().addMenu('&Home')
+    insert = editor.menuBar().addMenu('&Insert')
     plugins = editor.menuBar().addMenu('&Plugins')
 
     new_file = build_action(editor, './Assets/icons/svg_file_open', 'New Notebook', 'New Notebook', False)
@@ -116,10 +118,24 @@ def build_menubar(editor):
     save_fileAs.setShortcut(QKeySequence.fromString('Ctrl+Shift+S'))
     save_fileAs.triggered.connect(lambda: saveAs(editor))
 
+    toggle_home_toolbar = build_action(editor, '', 'Toggle Home Toolbar', 'Toggle Home Toolbar', False)
+    toggle_home_toolbar.triggered.connect(lambda: set_toolbar_visibility(editor))
+
+    toggle_insert_toolbar = build_action(editor, '', 'Toggle Insert Toolbar', 'Toggle Insert Toolbar', False)
+    #toggle_insert_toolbar.triggered.connect(lambda: set_toolbar_visibility(insert))
+
     add_widget = build_action(editor, './Assets/icons/svg_question', 'Add Custom Widget', 'Add Custom Widget', False)
 
     file.addActions([new_file, open_file, save_file, save_fileAs])
+    home.addActions([toggle_home_toolbar])
+    insert.addActions([toggle_insert_toolbar])
     plugins.addActions([add_widget])
+
+def set_toolbar_visibility(editor):
+    toolbar = editor.findChild(QToolBar)
+    if toolbar:
+    	print("toolbar visibility change")
+    	toolbar.setVisible(not toolbar.isVisible())
 
 def build_toolbar(editor):
     toolbar = QToolBar()
@@ -131,15 +147,21 @@ def build_toolbar(editor):
     spacer = QWidget()
     spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
-    toolbar_undo = build_action(toolbar, './Assets/icons/svg_undo', "undo", "undo", False)
-    toolbar_undo.triggered.connect(editor.frameView.triggerUndo)
-
+    undo = build_action(toolbar, './Assets/icons/svg_undo', "undo", "undo", False)
+    undo.triggered.connect(editor.frameView.triggerUndo)
 
     redo = build_action(toolbar, './Assets/icons/svg_redo', "redo", "redo", False)
+    # redo.triggered.connect(editor.frameView.triggerRedo)
+
+    cut = build_action(toolbar, './Assets/icons/svg_cut', "cut", "cut", False)
+    cut.triggered.connect(editor.frameView.cutWidgetEvent)
     
+    copy = build_action(toolbar, './Assets/icons/svg_copy', "copy", "copy", False)
+    copy.triggered.connect(editor.frameView.copyWidgetEvent)
 
 
     font_family = QFontComboBox()
+    font_family.setFixedWidth(150)
     default_font = font_family.currentFont().family()
     print(f"default font is {default_font}")
     font_family.currentFontChanged.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Font, font_family.currentFont().family()))
@@ -159,8 +181,9 @@ def build_toolbar(editor):
     #current bug, alternates between activating and not working when using
     bgColor.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BackgroundColor, QColorDialog.getColor()))
 
-    textboxColor = build_action(toolbar, './Assets/icons/svg_textboxColor', "Text Box Color", "Text Box Color", True)
-    textboxColor.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.TextboxColor, QColorDialog.getColor()))
+    textHighlightColor = build_action(toolbar, './Assets/icons/svg_textHighlightColor', "Text Highlight Color", "Text Highlight Color", True)
+
+    textHighlightColor.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.TextHighlightColor, QColorDialog.getColor()))
 
     #defines font color icon appearance and settings
     fontColor = build_action(toolbar, './Assets/icons/svg_font_color', "Font Color", "Font Color", False)
@@ -180,50 +203,61 @@ def build_toolbar(editor):
 
     hyperlink = build_action(toolbar, './Assets/icons/svg_hyperlink', "Hyperlink", "Hyperlink", False)
     hyperlink.triggered.connect(editor.frameView.toolbar_hyperlink)
-
-    bullets = build_action(toolbar, './Assets/icons/svg_bullets', "Bullets", "Bullets", False)
-
-    bullet_reg = build_action(toolbar, './Assets/icons/svg_bullets', "Bullet List", "Bullet List", False)
-    bullet_reg.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
-
-    bullet_num = build_action(toolbar, './Assets/icons/svg_bullet_number', "Bullet List", "Bullet List", False)
-    bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
+    
+    # Bullets with placeholder for more bullet options
+    bullet = build_action(toolbar, './Assets/icons/svg_bullets', "Bullets", "Bullets", False)
+    bullet.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
 
     paperColor= build_action(toolbar, './Assets/icons/svg_paper', "Paper Color", "Paper Color", False)
     paperColor.triggered.connect(lambda: editor.frameView.pageColor(QColorDialog.getColor()))
-
     
-    toolbar.addActions([toolbar_undo, redo])
+
+    toolbar.addActions([undo, redo, cut, copy])
+    
     toolbar.addSeparator()
+    
     toolbar.addWidget(font_family)
     toolbar.addWidget(font_size)
+    
     toolbar.addSeparator()
-    toolbar.addActions([bgColor, textboxColor, fontColor, bold, italic, underline])
-    toolbar.addSeparator()
-    toolbar.addActions([table, hyperlink, bullet_reg, bullet_num])
+    
+    toolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor, paperColor, bullet])
 
-    bullets_menu = QMenu(editor)
-
-    bulletUpperA = build_action(bullets_menu, './Assets/icons/svg_bulletUA', "", "", False)
+    # numbering menu start
+    numbering_menu = QMenu(editor)
+    
+    bullet_num = build_action(numbering_menu, './Assets/icons/svg_bullet_number', "", "", False)
+    bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
+    
+    bullet_num = build_action(numbering_menu, './Assets/icons/svg_bullet_number', "", "", False)
+    bullet_num.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet_Num, None))
+    bulletUpperA = build_action(numbering_menu, './Assets/icons/svg_bulletUA', "", "", False)
     bulletUpperA.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BulletUA, None))
-
-    bulletUpperR = build_action(bullets_menu, './Assets/icons/svg_bulletUR', "", "", False)
+    bulletUpperR = build_action(numbering_menu, './Assets/icons/svg_bulletUR', "", "", False)
     bulletUpperR.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.BulletUR, None))
 
-    bullets_menu.addAction(bulletUpperA)
-    bullets_menu.addAction(bulletUpperR)
+    numbering_menu.addActions([bullet_num, bulletUpperA, bulletUpperR])
 
-    bullets = QToolButton(editor)
-    bullets.setIcon(QIcon('./Assets/icons/svg_bullets'))
-    bullets.setPopupMode(QToolButton.InstantPopup)
-    bullets.setMenu(bullets_menu)
+    # cant directly add numbering menu to toolbar so this is required 
+    numbering = QToolButton(editor)
+    numbering.setIcon(QIcon('./Assets/icons/svg_bullet_number'))
+    numbering.setPopupMode(QToolButton.MenuButtonPopup)
+    numbering.setMenu(numbering_menu)
 
-    toolbar.addWidget(bullets)
-    toolbar.addActions([paperColor])
-
-
-
-    #toolbar.setStyleSheet("QToolBar { background-color: #FFFFFF; }")
+    toolbar.addWidget(numbering)
+	
+    align_left = build_action(toolbar,"./Assets/icons/svg_align_left","Align Left","Align Left",False)
+    align_left.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.AlignLeft, None))
+    align_center = build_action(toolbar,"./Assets/icons/svg_align_center","Align Center","Align Center",False)
+    align_center.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.AlignCenter, None))
+    align_right = build_action(toolbar, "./Assets/icons/svg_align_right", "Align Right", "Align Right", False)
+    align_right.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.AlignRight, None))
+    
+    toolbar.addActions([align_left, align_center, align_right])
+    
+    toolbar.addSeparator()
+    
+    toolbar.addActions([table, hyperlink])
 
 def openGetColorDialog(purpose):
     color = QColorDialog.getColor()
