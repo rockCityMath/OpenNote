@@ -71,3 +71,8 @@ QPushButton#addPage {
 QPushButton#addPage::hover {
     background-color: #cecece;
 }
+
+QToolBar {
+    background-color: #808080; /* This sets the background to medium gray */
+  
+}
