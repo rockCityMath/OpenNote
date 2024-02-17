@@ -94,14 +94,15 @@ class TextboxWidget(QTextBrowser):
             return action
 
         toolbarTop = QToolBar()
-        toolbarTop.setIconSize(QSize(25, 25))
+        toolbarTop.setIconSize(QSize(16, 16))
         toolbarTop.setMovable(False)
 
         toolbarBottom = QToolBar()
-        toolbarBottom.setIconSize(QSize(25, 25))
+        toolbarBottom.setIconSize(QSize(16, 16))
         toolbarBottom.setMovable(False)
 
         font = QFontComboBox()
+        font.setFixedWidth(150) 
         font.currentFontChanged.connect(
             lambda x: self.setCurrentFontCustom(
                 font.currentFont() if x else self.currentFont()
@@ -115,47 +116,29 @@ class TextboxWidget(QTextBrowser):
                 FONT_SIZES[x] if x else self.fontPointSize()
             )
         )
-
-        align_left = build_action(
-            toolbarBottom,
-            "assets/icons/svg_align_left",
-            "Align Left",
-            "Align Left",
-            True,
-        )
+        
+        align_left = build_action(toolbarBottom, "./Assets/icons/svg_align_left", "Align Left", "Align Left", False)
         align_left.triggered.connect(lambda x: self.setAlignment(Qt.AlignLeft))
 
-        align_center = build_action(
-            toolbarBottom,
-            "assets/icons/svg_align_center",
-            "Align Center",
-            "Align Center",
-            True,
-        )
+        align_center = build_action(toolbarBottom, "./Assets/icons/svg_align_center", "Align Center", "Align Center", False)
         align_center.triggered.connect(lambda x: self.setAlignment(Qt.AlignCenter))
 
-        align_right = build_action(
-            toolbarBottom,
-            "assets/icons/svg_align_right",
-            "Align Right",
-            "Align Right",
-            True,
-        )
+        align_right = build_action(toolbarBottom, "./Assets/icons/svg_align_right", "Align Right", "Align Right", False)
         align_right.triggered.connect(lambda x: self.setAlignment(Qt.AlignRight))
 
         bold = build_action(
-            toolbarBottom, "assets/icons/svg_font_bold", "Bold", "Bold", True
+            toolbarBottom, "./Assets/icons/svg_font_bold", "Bold", "Bold", True
         )
         bold.toggled.connect(lambda x: self.setFontWeightCustom(700 if x else 500))
 
         italic = build_action(
-            toolbarBottom, "assets/icons/svg_font_italic", "Italic", "Italic", True
+            toolbarBottom, "./Assets/icons/svg_font_italic", "Italic", "Italic", True
         )
         italic.toggled.connect(lambda x: self.setFontItalicCustom(True if x else False))
 
         underline = build_action(
             toolbarBottom,
-            "assets/icons/svg_font_underline",
+            "./Assets/icons/svg_font_underline",
             "Underline",
             "Underline",
             True,
@@ -166,7 +149,7 @@ class TextboxWidget(QTextBrowser):
 
         fontColor = build_action(
             toolbarBottom,
-            "assets/icons/svg_font_color",
+            "./Assets/icons/svg_font_color",
             "Font Color",
             "Font Color",
             False,
@@ -177,7 +160,7 @@ class TextboxWidget(QTextBrowser):
 
         bgColor = build_action(
             toolbarBottom,
-            "assets/icons/svg_font_bucket",
+            "./Assets/icons/svg_font_bucket",
             "Background Color",
             "Background Color",
             False,
@@ -186,65 +169,68 @@ class TextboxWidget(QTextBrowser):
         bgColor.triggered.connect(
             lambda: self.changeBackgroundColorEvent(QColorDialog.getColor())
         )
-        textboxColor = build_action(
+        textHighlightColor = build_action(
             toolbarBottom,
-            "assets/icons/svg_textboxColor",
-            "Background Color",
-            "Background Color",
+            "./Assets/icons/svg_textHighlightColor",
+            "Text Highlight Color",
+            "Text Highlight Color",
             False,
         )
-        textboxColor.triggered.connect(
-            lambda: self.changeTextboxColorEvent(QColorDialog.getColor())
+        textHighlightColor.triggered.connect(
+            lambda: self.changeTextHighlightColorEvent(QColorDialog.getColor())
         )
 
         bullets = build_action(
-            toolbarBottom, "assets/icons/svg_bullets", "Bullets", "Bullets", True
+            toolbarBottom, "./Assets/icons/svg_bullets", "Bullets", "Bullets", True
         )
         bullets.toggled.connect(lambda: self.bullet_list("bulletReg"))
-
-        bullets_num = build_action(
-            toolbarBottom,
-            "assets/icons/svg_bullet_number",
-            "Bullets Num",
-            "Bullets Num",
-            True,
-        )
-        bullets_num.toggled.connect(lambda: self.bullet_list("bulletNum"))
-
 
         toolbarTop.addWidget(font)
         toolbarTop.addWidget(size)
 
         toolbarBottom.addActions(
-            [
-                align_left,
-                align_center,
-                align_right,
+            [              
                 bold,
                 italic,
                 underline,
-                fontColor,
-                bgColor,
-                bullets,
-                bullets_num,
-            ]
+                textHighlightColor,
+                fontColor, 
+                bullets
+             ]
         )
+        
+        # numbering menu has to be added inbetween
+        numbering_menu = QMenu(self)
+        bullets_num = numbering_menu.addAction(QIcon("./Assets/icons/svg_bullet_number"), "")
+        bulletUpperA = numbering_menu.addAction(QIcon("./Assets/icons/svg_bulletUA"), "")
+        bulletUpperR = numbering_menu.addAction(QIcon("./Assets/icons/svg_bulletUR"), "")
 
-        menu = QMenu(self)
-        bulletUpperA = menu.addAction(QIcon("assets/icons/svg_bulletUA"), "")
-        bulletUpperR = menu.addAction(QIcon("assets/icons/svg_bulletUR"), "")
-
+        bullets_num.triggered.connect(lambda: self.bullet_list("bulletNum"))
         bulletUpperA.triggered.connect(lambda: self.bullet_list("bulletUpperA"))
         bulletUpperR.triggered.connect(lambda: self.bullet_list("bulletUpperR"))
 
 
-        menu_button = QToolButton(self)
-        menu_button.setPopupMode(QToolButton.InstantPopup)
-        menu_button.setIcon(QIcon("assets/icons/svg_bullets"))
-        menu_button.setMenu(menu)
+        numbering = QToolButton(self)
+        numbering.setIcon(QIcon("./Assets/icons/svg_bullet_number"))
+        numbering.setPopupMode(QToolButton.MenuButtonPopup)
+        numbering.setMenu(numbering_menu)
+        
+	# This code would fix an error on the command line but it also makes it not look good soooo
+        numbering.setParent(numbering_menu)
+        
+        toolbarBottom.addWidget(numbering)
 
-        toolbarBottom.addWidget(menu_button)
-
+        # not required for right-click menu as they arent originally present in OneNote
+        '''
+        toolbarBottom.addActions(
+            [  
+                bgColor,
+                align_left,
+                align_center,
+                align_right
+            ]
+        )
+        '''
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
         qwaBottom = QWidgetAction(self)
@@ -414,6 +400,21 @@ class TextboxWidget(QTextBrowser):
 
             self.setTextCursor(cursor)
             self.setFocus()
+    def changeAlignmentEvent(self, alignmentType):
+        print("Alignment Event Called")
+        cursor = self.textCursor()
+        blockFormat = cursor.blockFormat()
+        
+        if alignmentType == "alignLeft":
+            blockFormat.setAlignment(Qt.AlignLeft)
+        elif alignmentType == "alignCenter":
+            blockFormat.setAlignment(Qt.AlignCenter)
+        elif alignmentType == "alignRight":
+            blockFormat.setAlignment(Qt.AlignRight)
+            
+        cursor.setBlockFormat(blockFormat)
+        self.setTextCursor(cursor)
+        self.setFocus()
 
     def handleTabKey(self):
         cursor = self.textCursor()
@@ -530,7 +531,8 @@ class TextboxWidget(QTextBrowser):
         current_format = cursor.charFormat()
 
         color = QColor(new_font_color)
-        current_format.setForeground(color)
+        if color.isValid():
+            current_format.setForeground(color)
 
         cursor.setCharFormat(current_format)
 
@@ -551,12 +553,13 @@ class TextboxWidget(QTextBrowser):
         self.deselectText()
 
     # Changes textbox background color
-    def changeTextboxColorEvent(self, new_bg_color):
+    def changeTextHighlightColorEvent(self, new_highlight_color):
         cursor = self.textCursor()
         current_format = cursor.charFormat()
 
-        color = QColor(new_bg_color)
-        current_format.setBackground(color)
+        color = QColor(new_highlight_color)
+        if color.isValid():
+            current_format.setBackground(color)
 
         cursor.setCharFormat(current_format)
         # self.deselectText()

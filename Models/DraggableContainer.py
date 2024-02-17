@@ -151,17 +151,27 @@ class DraggableContainer(QWidget):
                 menu.addAction(item)
 
         # Add standard menu actions
-        delete = QAction("Delete", self)
-        delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
-        menu.addAction(delete)
+        cut = QAction("Cut", self)
+        cut.triggered.connect(lambda: editorSignalsInstance.widgetCut.emit(self))
 
         copy = QAction("Copy", self)
         copy.triggered.connect(lambda: editorSignalsInstance.widgetCopied.emit(self))
-        menu.addAction(copy)
-
-        cut = QAction("Cut", self)
-        cut.triggered.connect(lambda: editorSignalsInstance.widgetCut.emit(self))
-        menu.addAction(cut)
+        
+        delete = QAction("Delete", self)
+        delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
+        
+        # Ready for deployment when code is ready
+        ''' 
+        link = QAction("Link", self)
+        link.triggered.connect(lambda: editorSignalsInstance.widgetLink.emit(self))
+        
+        table = QAction("Table", self)
+        table.triggered.connect(lambda: editorSignalsInstance.widgetTable.emit(self))
+        
+        menu.addActions([cut, copy, delete, link, table])
+        '''
+        
+        menu.addActions([cut, copy, delete])
 
         # Add any non-widget type menu actions from child
         for item in customMenuItems:
@@ -255,6 +265,7 @@ class DraggableContainer(QWidget):
         # debt: To make images resize better, ImageWidget should probaly implement this and setCursorShape
         # So that it can make the cursor move with the corners of pixmap and not corners of this container
         if (self.mode != Mode.MOVE) and e.buttons() and Qt.LeftButton:
+            child_widget = self.childWidget
             if self.mode == Mode.RESIZETL: # Left - Top
                 newwidth = e.globalX() - self.position.x() - self.geometry().x()
                 newheight = e.globalY() - self.position.y() - self.geometry().y()
@@ -286,7 +297,12 @@ class DraggableContainer(QWidget):
             elif self.mode == Mode.RESIZER: # Right
                 self.resize(e.x(), self.height())
             elif self.mode == Mode.RESIZEBR:# Right - Bottom
-                self.resize(e.x(), e.y())
+                #if child is a image, resize differently
+                if isinstance(child_widget, QLabel):
+                    #change this to where resizing corners works like onenote
+                    self.resize(e.x(), e.y())
+                else:
+                    self.resize(e.x(), e.y())
             self.parentWidget().repaint()
         self.newGeometry.emit(self.geometry())
 
@@ -329,9 +345,9 @@ class DraggableContainer(QWidget):
             print("Change Font Color Event Called")
             child_widget.changeFontColorEvent(value)
 
-        elif hasattr(child_widget, "changeTextboxColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextboxColor):
+        elif hasattr(child_widget, "changeTextHighlightColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.TextHighlightColor):
             print("Change Textbox Color Event Called")
-            child_widget.changeTextboxColorEvent(value)
+            child_widget.changeTextHighlightColorEvent(value)
 
         elif hasattr(child_widget, "deselectText") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
             print("Clear Selection Slot Called")
@@ -353,6 +369,17 @@ class DraggableContainer(QWidget):
             elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BulletUR):
                 print("Change Bullet Event Called")
                 child_widget.bullet_list("bulletUpperR")
+
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignLeft):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignLeft")
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignCenter):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignCenter")
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignRight):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignRight")
+                
             elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
                 print("Chang Background Color Event Called")
                 child_widget.changeBackgroundColorEvent(value)
