@@ -342,7 +342,7 @@ class DraggableContainer(QWidget):
         elif hasattr(child_widget, "deselectText") and (changedWidgetAttribute == ChangedWidgetAttribute.LoseFocus):
             print("Clear Selection Slot Called")
             child_widget.deselectText()
-            if hasattr(self.childWidget, "checkEmpty") and isinstance(child_widget, QTextEdit):
+            if hasattr(self.childWidget, "checkEmpty") and isinstance(child_widget, QTextBrowser):
                 if self.childWidget.checkEmpty():
                     print("Removing empty container")
                     editorSignalsInstance.widgetRemoved.emit(self)

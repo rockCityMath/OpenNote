@@ -96,9 +96,9 @@ class ImageWidget(QLabel):
         
         rotateRightAction.triggered.connect(self.rotate90Right)
 
-        shrinkImageAction = build_action(toolbarBottom, 'Assets/icons/svg_shrink', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
+        shrinkImageAction = build_action(toolbarBottom, 'Assets/icons/svg_shrink', "Shrink", "Shrink", False)
         shrinkImageAction.triggered.connect(self.shrinkImage)
-        expandImageAction = build_action(toolbarBottom, 'Assets/icons/svg_expand', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
+        expandImageAction = build_action(toolbarBottom, 'Assets/icons/svg_expand', "Expand", "Expand", False)
         expandImageAction.triggered.connect(self.expandImage)
 
 

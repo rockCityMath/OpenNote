@@ -119,8 +119,8 @@ def build_menubar(editor):
 def set_toolbar_visibility(editor):
     toolbar = editor.findChild(QToolBar)
     if toolbar:
-    	print("toolbar visibility change")
-    	toolbar.setVisible(not toolbar.isVisible())
+        print("toolbar visibility change")
+        toolbar.setVisible(not toolbar.isVisible())
 
 def build_toolbar(editor):
     toolbar = QToolBar()
