@@ -3,6 +3,8 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from Modules.EditorSignals import editorSignalsInstance
 
+import subprocess
+
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 
@@ -10,14 +12,31 @@ class TextboxWidget(QTextBrowser):
     def __init__(self, x, y, w=15, h=30, t=""):
         super().__init__()
 
+        def check_appearance():
+            """Checks DARK/LIGHT mode of macos."""
+            cmd = 'defaults read -g AppleInterfaceStyle'
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, shell=True)
+            return bool(p.communicate()[0])   
+
         self.setGeometry(x, y, w, h)  # This sets geometry of DraggableObject
         self.setText(t)
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.textChanged.connect(self.textChangedEvent)
-        self.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
-        self.setTextColor("black")
+
+        if check_appearance() == True:
+            self.setStyleSheet("background-color: rgba(31,31,30,255);")
+            #self.changeBackgroundColorEvent(31, 31, 30)
+            self.setTextColor("white")
+            self.changeAllTextColors("white")
+
+        else:
+            self.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
+            #self.changeBackgroundColorEvent(0,0,0)
+            self.setTextColor("black")
+            self.changeAllTextColors("black")
 
         self.setTextInteractionFlags(Qt.TextEditorInteraction | Qt.TextBrowserInteraction)
 
@@ -513,6 +532,7 @@ class TextboxWidget(QTextBrowser):
         # self.setTextCursor(cursor)
 
     # Changes color of whole background
+
     def changeBackgroundColorEvent(self, color: QColor):
         print("CHANGE BACKGROUND COLOR EVENT")
         
@@ -520,8 +540,9 @@ class TextboxWidget(QTextBrowser):
             rgb = color.getRgb()
             self.setStyleSheet(f"QTextBrowser {{background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]}); }}")
         else:
-            print("INVALID COLOR")
-            #self.setStyleSheet("background-color: transparent;")
+            rgb = (color, g, b)
+
+        self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
         self.deselectText()
 
     # Changes textbox background color
@@ -548,3 +569,18 @@ class TextboxWidget(QTextBrowser):
     def changeBulletEvent(self):
         # put bullet function here
         print("bullet press")
+
+    def changeAllTextColors(self, new_color):
+                cursor = self.textCursor()
+                cursor.movePosition(QTextCursor.Start)
+
+                while not cursor.atEnd():
+                    cursor.movePosition(QTextCursor.NextCharacter, QTextCursor.KeepAnchor)
+                    char_format = cursor.charFormat()
+
+                    if char_format.foreground().color() == Qt.black or Qt.white:
+                        char_format.setForeground(QColor(new_color))
+                        cursor.setCharFormat(char_format)
+
+                cursor.movePosition(QTextCursor.Start)
+                self.setTextCursor(cursor)

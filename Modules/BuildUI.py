@@ -14,6 +14,8 @@ from Widgets.Table import *
 
 from Views.EditorFrameView import *
 
+import subprocess
+
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 #builds the application's UI
@@ -72,15 +74,26 @@ def build_ui(editor):
     addSectionButton = QPushButton("Add Section")
     #add functionality e.g. addSectionButton.clcicked.connect(editor.add_section_function)
     leftSideLayout.addWidget(addSectionButton)
+
+def check_appearance():
+    """Checks DARK/LIGHT mode of macos."""
+    cmd = 'defaults read -g AppleInterfaceStyle'
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, shell=True)
+    return bool(p.communicate()[0])  
+
     
 def build_window(editor):
     editor.setWindowTitle("OpenNote")
     editor.setWindowIcon(QIcon('./Assets/OpenNoteLogo.png'))
     editor.setAcceptDrops(True)
-    # for when we make custom titlebar
-    # editor.setWindowFlags(Qt.FramelessWindowHint)
-    with open('./Styles/styles.qss',"r") as fh:
-        editor.setStyleSheet(fh.read())
+
+    if check_appearance() == False:
+        with open('./Styles/styles.qss',"r") as fh:
+            editor.setStyleSheet(fh.read())
+    else:
+        with open('./Styles/stylesDark.qss',"r") as fh:
+            editor.setStyleSheet(fh.read())
 
 def build_menubar(editor):
     file = editor.menuBar().addMenu('&File')
@@ -203,6 +216,9 @@ def build_toolbar(editor):
     # Bullets with placeholder for more bullet options
     bullet = build_action(homeToolbar, './Assets/icons/svg_bullets', "Bullets", "Bullets", False)
     bullet.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
+
+    paperColor= build_action(toolbar, './Assets/icons/svg_paper', "Paper Color", "Paper Color", False)
+    paperColor.triggered.connect(lambda: editor.frameView.pageColor(QColorDialog.getColor()))
     
     homeToolbar.addActions([cut, copy])
     
@@ -213,7 +229,8 @@ def build_toolbar(editor):
     
     homeToolbar.addSeparator()
     
-    homeToolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor, bullet])
+    toolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor, paperColor, bullet])
+
 
     # numbering menu start
     numbering_menu = QMenu(editor)
