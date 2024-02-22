@@ -9,7 +9,7 @@ class Clipboard:
 
     def copyWidgetEvent(self, draggableContainer):
         widget = draggableContainer.childWidget
-
+        print("copy widget")
         self.copiedWidgetClass = type(widget)
         self.copiedWidgetState = widget.__getstate__()
 

@@ -91,6 +91,7 @@ class TextboxWidget(QTextBrowser):
         )
 
         size = QComboBox()
+        size.setFixedWidth(50)
         size.addItems([str(fs) for fs in FONT_SIZES])
         size.currentIndexChanged.connect(
             lambda x: self.setFontPointSizeCustom(
