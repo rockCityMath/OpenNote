@@ -8,7 +8,8 @@ class TableWidget(QWidget):
 
         # The actual table widget
         self.table = QTableWidget(rows, cols, self)
-        # Hide the horizontal and vertical headers
+        # Hides the horizontal and vertical headers
+        # These actually look really cool tho
         self.table.horizontalHeader().setVisible(False)
         self.table.verticalHeader().setVisible(False)
 
@@ -49,7 +50,8 @@ class TableWidget(QWidget):
             table_widget = TableWidget(clickPos.x(), clickPos.y(), 200, 200, int(rows_input), int(cols_input))
             
         return table_widget
-
+    # Moved to DraggableContainer.py
+    '''
     def customMenuItems(self):
         addRow = QAction("Add Row", self)
         addRow.triggered.connect(self.addRow)
@@ -58,7 +60,8 @@ class TableWidget(QWidget):
         addCol.triggered.connect(self.addCol)  
 
         return [addRow, addCol]
-
+    '''
+    
     def __getstate__(self):
         state = {}
 

@@ -110,6 +110,7 @@ class TextboxWidget(QTextBrowser):
         )
 
         size = QComboBox()
+        size.setFixedWidth(50)
         size.addItems([str(fs) for fs in FONT_SIZES])
         size.currentIndexChanged.connect(
             lambda x: self.setFontPointSizeCustom(
@@ -287,16 +288,6 @@ class TextboxWidget(QTextBrowser):
         cursor.clearSelection()
         self.setTextCursor(cursor)
         return True
-
-    def attributeChangedSlot(attribute, value):
-        if attribute == editorSignalsInstance.ChangedWidgetAttribute.FontBold:
-            print("Font Bold Signal")
-
-    def slot_action2(self):
-        print("Action 2 Triggered")
-        font = QFont()
-        font.setItalic(True)
-        self.setFont(font)
 
     def changeFontSizeEvent(self, weight):
         print("changeFontSizeEvent Called")
@@ -541,11 +532,13 @@ class TextboxWidget(QTextBrowser):
         # self.setTextCursor(cursor)
 
     # Changes color of whole background
-    def changeBackgroundColorEvent(self, color: QColor or int, g: int = None, b: int = None):
-        # if self.hasFocus():
 
-        if isinstance(color, QColor):
+    def changeBackgroundColorEvent(self, color: QColor):
+        print("CHANGE BACKGROUND COLOR EVENT")
+        
+        if color.isValid():
             rgb = color.getRgb()
+            self.setStyleSheet(f"QTextBrowser {{background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]}); }}")
         else:
             rgb = (color, g, b)
 
