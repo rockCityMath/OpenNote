@@ -68,7 +68,7 @@ class DraggableContainer(QWidget):
 
     def eventFilter(self, obj, e):
 
-        # If child widget resized itsself, resize this drag container, not ideal bc child resizes on hover
+        # If child widget resized itself, resize this drag container, not ideal bc child resizes on hover
         if isinstance(e, QResizeEvent):
             self.resize(self.childWidget.size())
         return False
@@ -78,7 +78,7 @@ class DraggableContainer(QWidget):
         self.m_showMenu = True
         self.menu.exec(global_)
         self.m_showMenu = False
-
+        
     def mousePressEvent(self, e: QMouseEvent):
         self.position = QPoint(e.globalX() - self.geometry().x(), e.globalY() - self.geometry().y())
 
@@ -151,17 +151,105 @@ class DraggableContainer(QWidget):
                 menu.addAction(item)
 
         # Add standard menu actions
-        delete = QAction("Delete", self)
-        delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
-        menu.addAction(delete)
-
-        copy = QAction("Copy", self)
-        copy.triggered.connect(lambda: editorSignalsInstance.widgetCopied.emit(self))
-        menu.addAction(copy)
-
-        cut = QAction("Cut", self)
+        cut = QAction("Cu&t", self)
         cut.triggered.connect(lambda: editorSignalsInstance.widgetCut.emit(self))
-        menu.addAction(cut)
+
+        copy = QAction("&Copy", self)
+        copy.triggered.connect(lambda: editorSignalsInstance.widgetCopied.emit(self))
+        
+        paste = QAction("&Paste", self)
+        paste.triggered.connect(lambda: self.pasteWidget(event.pos()))
+        
+        delete = QAction("&Delete", self)
+        delete.triggered.connect(lambda: editorSignalsInstance.widgetRemoved.emit(self))
+        
+        menu.addActions([cut, copy, paste, delete])
+        
+        menu.addSeparator()
+
+        link = QAction("&Link", self)
+        # link.triggered.connect(lambda: self.insertLink(event.pos()))
+        
+        menu.addAction(link)
+        
+        menu.addSeparator()
+        
+        orderMenu = QMenu("&Order", self)
+        
+        bringForwards = QAction("Bring &Forwards", self)
+        bringForwards.triggered.connect(self.childWidget.raise_())
+        
+        orderMenu.addAction(bringForwards)
+        
+        menu.addMenu(orderMenu)
+            
+        # text boxes
+        if isinstance(self.childWidget, QTextBrowser):
+            table = QAction("&Table", self)
+            # table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, event.pos()))
+        
+            menu.addAction(table) 
+        
+            menu.addSeparator()
+            
+        # images
+        elif isinstance(self.childWidget, QLabel):
+            # Create submenus for rotate and resize
+            rotateMenu = QMenu("R&otate", self)
+            rotateMenu.setStyleSheet("font-size: 11pt;")
+            
+            resizeMenu = QMenu("&Resize", self)
+            resizeMenu.setStyleSheet("font-size: 11pt;")
+
+            # Create actions for rotate submenu
+            rotateRightAction = QAction("Rotate &Right 90°", self)
+            rotateRightAction.triggered.connect(self.childWidget.rotate90Right)
+            rotateRightAction.setIcon(QIcon('./Assets/icons/svg_rotate_right'))
+            
+            rotateLeftAction = QAction("Rotate &Left 90°", self)
+            rotateLeftAction.triggered.connect(self.childWidget.rotate90Left)
+            rotateLeftAction.setIcon(QIcon('./Assets/icons/svg_rotate_left'))
+            
+            flipHorizontal = QAction("Flip &Horizontal", self)
+            flipHorizontal.triggered.connect(self.childWidget.flipHorizontal)
+            flipHorizontal.setIcon(QIcon('./Assets/icons/svg_flip_horizontal'))
+            
+            flipVertical = QAction("Flip &Vertical", self)
+            flipVertical.triggered.connect(self.childWidget.flipVertical)
+            flipVertical.setIcon(QIcon('./Assets/icons/svg_flip_vertical'))
+
+            # Add actions to rotate submenu
+            rotateMenu.addActions([rotateLeftAction, rotateRightAction, flipHorizontal, flipVertical])
+
+            # Create actions for resize submenu
+            shrinkImageAction = QAction("&Shrink Image", self)
+            shrinkImageAction.triggered.connect(self.childWidget.shrinkImage)
+            shrinkImageAction.setIcon(QIcon('./Assets/icons/svg_shrink'))
+            
+            expandImageAction = QAction("&Expand Image", self)
+            expandImageAction.triggered.connect(self.childWidget.expandImage)
+            expandImageAction.setIcon(QIcon('./Assets/icons/svg_expand'))
+
+            # Add actions to resize submenu
+            resizeMenu.addActions([shrinkImageAction, expandImageAction])
+
+            # Add submenus to the main menu
+            menu.addMenu(rotateMenu)
+            menu.addMenu(resizeMenu)
+
+        # tables    
+        elif isinstance(self.childWidget, QWidget):
+            tableMenu = QMenu("&Table", self)
+            tableMenu.setStyleSheet("font-size: 11pt;")
+            
+            addRow = QAction("Add Row", self)
+            addRow.triggered.connect(self.childWidget.addRow)
+            
+            addCol = QAction("Add Column", self)
+            addCol.triggered.connect(self.childWidget.addCol)  
+            
+            tableMenu.addActions([addRow, addCol]) 
+            menu.addMenu(tableMenu)
 
         # Add any non-widget type menu actions from child
         for item in customMenuItems:
@@ -359,12 +447,34 @@ class DraggableContainer(QWidget):
             elif hasattr(child_widget, "changeBulletEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BulletUR):
                 print("Change Bullet Event Called")
                 child_widget.bullet_list("bulletUpperR")
+
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignLeft):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignLeft")
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignCenter):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignCenter")
+            elif hasattr(child_widget, "changeAlignmentEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.AlignRight):
+                print("Change Alignment Event Called")
+                child_widget.changeAlignmentEvent("alignRight")
+                
             elif hasattr(child_widget, "changeBackgroundColorEvent") and (changedWidgetAttribute == ChangedWidgetAttribute.BackgroundColor):
                 print("Chang Background Color Event Called")
                 child_widget.changeBackgroundColorEvent(value)
+    
     def connectTableSignals(self, tableWidget):
         tableWidget.rowAdded.connect(self.resizeTable)
     def resizeTable(self):
         self.resize(self.childWidget.size())
         self.newGeometry.emit(self.geometry())
         self.parentWidget().repaint()
+        
+    def pasteWidget(self, clickPos):
+        widgetOnClipboard = self.clipboard.getWidgetToPaste()
+
+        dc = DraggableContainer(widgetOnClipboard, self)
+        self.undoHandler.pushCreate(dc)
+        editorSignalsInstance.widgetAdded.emit(dc)  # Notify section that widget was added
+        editorSignalsInstance.changeMade.emit()
+        dc.move(clickPos.x(), clickPos.y())
+        dc.show()

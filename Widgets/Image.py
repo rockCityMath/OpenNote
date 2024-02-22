@@ -71,6 +71,8 @@ class ImageWidget(QLabel):
     def __setstate__(self, state):
         self.__init__(state['geometry'].x(), state['geometry'].y(), state['geometry'].width(), state['geometry'].height(), state['image_matrix'])
 
+    # not necessary to have a top toolbar for image
+    '''
     def customMenuItems(self):
         def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
             action = QAction(QIcon(icon_path), action_name, parent)
@@ -97,6 +99,7 @@ class ImageWidget(QLabel):
         rotateRightAction.triggered.connect(self.rotate90Right)
 
         shrinkImageAction = build_action(toolbarBottom, 'Assets/icons/svg_shrink', "Shrink", "Shrink", False)
+
         shrinkImageAction.triggered.connect(self.shrinkImage)
         expandImageAction = build_action(toolbarBottom, 'Assets/icons/svg_expand', "Expand", "Expand", False)
         expandImageAction.triggered.connect(self.expandImage)
@@ -108,7 +111,7 @@ class ImageWidget(QLabel):
         qwaBottom.setDefaultWidget(toolbarBottom)
 
         return [qwaBottom] 
-        
+    '''        
     def flipVertical(self):
         # Flip the image matrix vertically using OpenCV
         parent_widget = self.parentWidget()

@@ -75,14 +75,15 @@ class TextboxWidget(QTextBrowser):
             return action
 
         toolbarTop = QToolBar()
-        toolbarTop.setIconSize(QSize(25, 25))
+        toolbarTop.setIconSize(QSize(16, 16))
         toolbarTop.setMovable(False)
 
         toolbarBottom = QToolBar()
-        toolbarBottom.setIconSize(QSize(25, 25))
+        toolbarBottom.setIconSize(QSize(16, 16))
         toolbarBottom.setMovable(False)
 
         font = QFontComboBox()
+        font.setFixedWidth(150) 
         font.currentFontChanged.connect(
             lambda x: self.setCurrentFontCustom(
                 font.currentFont() if x else self.currentFont()
@@ -90,38 +91,21 @@ class TextboxWidget(QTextBrowser):
         )
 
         size = QComboBox()
+        size.setFixedWidth(50)
         size.addItems([str(fs) for fs in FONT_SIZES])
         size.currentIndexChanged.connect(
             lambda x: self.setFontPointSizeCustom(
                 FONT_SIZES[x] if x else self.fontPointSize()
             )
         )
-
-        align_left = build_action(
-            toolbarBottom,
-            "./Assets/icons/svg_align_left",
-            "Align Left",
-            "Align Left",
-            True,
-        )
+        
+        align_left = build_action(toolbarBottom, "./Assets/icons/svg_align_left", "Align Left", "Align Left", False)
         align_left.triggered.connect(lambda x: self.setAlignment(Qt.AlignLeft))
 
-        align_center = build_action(
-            toolbarBottom,
-            "./Assets/icons/svg_align_center",
-            "Align Center",
-            "Align Center",
-            True,
-        )
+        align_center = build_action(toolbarBottom, "./Assets/icons/svg_align_center", "Align Center", "Align Center", False)
         align_center.triggered.connect(lambda x: self.setAlignment(Qt.AlignCenter))
 
-        align_right = build_action(
-            toolbarBottom,
-            "./Assets/icons/svg_align_right",
-            "Align Right",
-            "Align Right",
-            True,
-        )
+        align_right = build_action(toolbarBottom, "./Assets/icons/svg_align_right", "Align Right", "Align Right", False)
         align_right.triggered.connect(lambda x: self.setAlignment(Qt.AlignRight))
 
         bold = build_action(
@@ -191,8 +175,8 @@ class TextboxWidget(QTextBrowser):
                 bold,
                 italic,
                 underline,
-                fontColor, 
                 textHighlightColor,
+                fontColor, 
                 bullets
              ]
         )
@@ -209,16 +193,17 @@ class TextboxWidget(QTextBrowser):
 
 
         numbering = QToolButton(self)
-        numbering.setPopupMode(QToolButton.MenuButtonPopup)
         numbering.setIcon(QIcon("./Assets/icons/svg_bullet_number"))
-
-	# This code would fix an error on the command line but it also makes it not look good soooo
-        #numbering_menu.setParent(numbering)
-        
+        numbering.setPopupMode(QToolButton.MenuButtonPopup)
         numbering.setMenu(numbering_menu)
-
+        
+	# This code would fix an error on the command line but it also makes it not look good soooo
+        numbering.setParent(numbering_menu)
+        
         toolbarBottom.addWidget(numbering)
 
+        # not required for right-click menu as they arent originally present in OneNote
+        '''
         toolbarBottom.addActions(
             [  
                 bgColor,
@@ -227,7 +212,7 @@ class TextboxWidget(QTextBrowser):
                 align_right
             ]
         )
-
+        '''
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
         qwaBottom = QWidgetAction(self)
@@ -387,6 +372,21 @@ class TextboxWidget(QTextBrowser):
 
             self.setTextCursor(cursor)
             self.setFocus()
+    def changeAlignmentEvent(self, alignmentType):
+        print("Alignment Event Called")
+        cursor = self.textCursor()
+        blockFormat = cursor.blockFormat()
+        
+        if alignmentType == "alignLeft":
+            blockFormat.setAlignment(Qt.AlignLeft)
+        elif alignmentType == "alignCenter":
+            blockFormat.setAlignment(Qt.AlignCenter)
+        elif alignmentType == "alignRight":
+            blockFormat.setAlignment(Qt.AlignRight)
+            
+        cursor.setBlockFormat(blockFormat)
+        self.setTextCursor(cursor)
+        self.setFocus()
 
     def handleTabKey(self):
         cursor = self.textCursor()

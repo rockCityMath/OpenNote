@@ -7,15 +7,16 @@ import importlib
 import sys
 
 from Modules.Multiselect import Multiselector, MultiselectMode
+from Modules.Clipboard import Clipboard
+from Modules.EditorSignals import editorSignalsInstance, ChangedWidgetAttribute
+from Modules.Undo import UndoHandler
+from Modules.Screensnip import SnippingWidget
 from Models.DraggableContainer import DraggableContainer
 from Widgets.Textbox import TextboxWidget
-from Modules.EditorSignals import editorSignalsInstance,ChangedWidgetAttribute
 from Widgets.Image import ImageWidget
-from Modules.Screensnip import SnippingWidget
 from Widgets.Table import *
-from Modules.Clipboard import Clipboard
-from Modules.Undo import UndoHandler
 from Widgets.Link import LinkDialog
+
 
 
 
@@ -127,6 +128,9 @@ class EditorFrameView(QWidget):
     def cutWidgetEvent(self, draggableContainer):
         editorSignalsInstance.widgetCopied.emit(draggableContainer)
         editorSignalsInstance.widgetRemoved.emit(draggableContainer)
+    
+    def copyWidgetEvent(self, draggableContainer):
+        editorSignalsInstance.widgetCopied.emit(draggableContainer)
 
     # Loading a preexisting (saved) widget into the frame inside a DraggableContainer
     # Then add that DC instance reference to the sectionModel's widgets[] for runtime
@@ -174,32 +178,46 @@ class EditorFrameView(QWidget):
         # Open context menu on right click
         if event.buttons() == Qt.RightButton:
             frame_menu = QMenu(self)
+            frame_menu.setStyleSheet("font-size: 11pt;")
 
             paste = QAction("Paste", editor)
             paste.triggered.connect(lambda: self.pasteWidget(event.pos()))
-            frame_menu.addAction(paste)
-
-            add_image = QAction("Add Image", self)
-            add_image.triggered.connect(lambda: self.newWidgetOnSection(ImageWidget, event.pos()))
-            frame_menu.addAction(add_image)
+            
+            insert_Link = QAction("Insert Link", editor)
+            insert_Link.triggered.connect(lambda: self.insertLink(event.pos()))
 
             add_table = QAction("Add Table", editor)
             add_table.triggered.connect(lambda: self.newWidgetOnSection(TableWidget, event.pos()))
             #add_table.triggered.connect(self.show_table_popup)
-            frame_menu.addAction(add_table)
-
+            
+            # not necessary
+            '''
+            add_image = QAction("Add Image", self)
+            add_image.triggered.connect(lambda: self.newWidgetOnSection(ImageWidget, event.pos()))
+            
             take_screensnip = QAction("Snip Screen", editor)
             take_screensnip.triggered.connect(lambda: self.snipScreen(event.pos()))
-            frame_menu.addAction(take_screensnip)
 
             add_custom_widget = QAction("Add Custom Widget", editor)
             add_custom_widget.triggered.connect(lambda: self.addCustomWidget(event))
-            frame_menu.addAction(add_custom_widget)
-
-            insert_Link = QAction("Insert Link", editor)
-            insert_Link.triggered.connect(lambda: self.insertLink(event.pos()))
+            '''
+            
+            frame_menu.addAction(paste)
+            
+            frame_menu.addSeparator()
+            
             frame_menu.addAction(insert_Link)
-
+            
+            frame_menu.addSeparator()
+            
+            frame_menu.addAction(add_table)
+            
+            '''
+            frame_menu.addSeparator()
+            
+            frame_menu.addActions([add_image, take_screensnip, add_custom_widget])
+            '''
+            
             frame_menu.exec(event.globalPos())
 
     def insertLink(self, clickPos):
@@ -223,11 +241,24 @@ class EditorFrameView(QWidget):
         center_y = (editor_frame_geometry.height() - 200) // 2 
         return center_x, center_y
 
+    # Used for calling functions in toolbar
     def toolbar_table(self):
         print("toolbar_table pressed")
         center_x, center_y = self.center_of_screen()
         clickPos = QPoint(center_x, center_y)
         self.newWidgetOnSection(TableWidget, clickPos)
+        
+    def toolbar_snipScreen(self):
+        print("toolbar_snipScreen pressed")
+        center_x, center_y = self.center_of_screen()
+        clickPos = QPoint(center_x, center_y)
+        self.snipScreen(clickPos)
+        
+    def toolbar_pictures(self):
+        print("toolbar_pictures pressed")
+        center_x, center_y = self.center_of_screen()
+        clickPos = QPoint(center_x, center_y)
+        self.newWidgetOnSection(ImageWidget, clickPos)
         
     def toolbar_hyperlink(self):
         print("toolbar_hyperlink pressed")
