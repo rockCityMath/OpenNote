@@ -270,16 +270,6 @@ class TextboxWidget(QTextBrowser):
         self.setTextCursor(cursor)
         return True
 
-    def attributeChangedSlot(attribute, value):
-        if attribute == editorSignalsInstance.ChangedWidgetAttribute.FontBold:
-            print("Font Bold Signal")
-
-    def slot_action2(self):
-        print("Action 2 Triggered")
-        font = QFont()
-        font.setItalic(True)
-        self.setFont(font)
-
     def changeFontSizeEvent(self, weight):
         print("changeFontSizeEvent Called")
         self.setFontWeightCustom(weight)
@@ -525,9 +515,10 @@ class TextboxWidget(QTextBrowser):
     # Changes color of whole background
     def changeBackgroundColorEvent(self, color: QColor):
         print("CHANGE BACKGROUND COLOR EVENT")
+        
         if color.isValid():
             rgb = color.getRgb()
-            self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
+            self.setStyleSheet(f"QTextBrowser {{background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]}); }}")
         else:
             print("INVALID COLOR")
             #self.setStyleSheet("background-color: transparent;")
