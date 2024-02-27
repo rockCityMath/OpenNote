@@ -22,7 +22,7 @@ class ImageWidget(QLabel):
         self.setPixmap(self.q_pixmap.scaled(w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)) # Scale to widget geometry
 
         self.setGeometry(x, y, w, h) # this should get fixed
-        self.persistantGeometry = self.geometry()
+        self.persistantGeometry = self.geometry() 
 
     # Handle resize
     def newGeometryEvent(self, newGeometry):
@@ -96,9 +96,9 @@ class ImageWidget(QLabel):
         
         rotateRightAction.triggered.connect(self.rotate90Right)
 
-        shrinkImageAction = build_action(toolbarBottom, 'Assets/icons/svg_shrink', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
+        shrinkImageAction = build_action(toolbarBottom, 'Assets/icons/svg_shrink', "Shrink", "Shrink", False)
         shrinkImageAction.triggered.connect(self.shrinkImage)
-        expandImageAction = build_action(toolbarBottom, 'Assets/icons/svg_expand', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
+        expandImageAction = build_action(toolbarBottom, 'Assets/icons/svg_expand', "Expand", "Expand", False)
         expandImageAction.triggered.connect(self.expandImage)
 
 
@@ -169,7 +169,7 @@ class ImageWidget(QLabel):
             newX, newY = parent_widget.x(), parent_widget.y()
             new_width, new_height = self.w, self.h
             parent_widget.setGeometry(newX, newY, new_width, new_height)
-        self.updateImageSize()
+        self.setPixmap(self.q_pixmap.scaled(self.w, self.h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
 
     def expandImage(self):
         # Increase image size by 10%
@@ -180,8 +180,9 @@ class ImageWidget(QLabel):
             newX, newY = parent_widget.x(), parent_widget.y()
             new_width, new_height = self.w, self.h
             parent_widget.setGeometry(newX, newY, new_width, new_height)
-        self.updateImageSize()
+        self.setPixmap(self.q_pixmap.scaled(self.w, self.h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
 
+    # Updates display. Note: Keeps Aspect Ratio
     def updateImageSize(self):
         # Update the displayed pixmap with the new size
         self.setPixmap(self.q_pixmap.scaled(self.w, self.h, Qt.KeepAspectRatio, Qt.SmoothTransformation))
