@@ -217,7 +217,7 @@ def build_toolbar(editor):
     bullet = build_action(homeToolbar, './Assets/icons/svg_bullets', "Bullets", "Bullets", False)
     bullet.triggered.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Bullet, None))
 
-    paperColor= build_action(toolbar, './Assets/icons/svg_paper', "Paper Color", "Paper Color", False)
+    paperColor= build_action(homeToolbar, './Assets/icons/svg_paper', "Paper Color", "Paper Color", False)
     paperColor.triggered.connect(lambda: editor.frameView.pageColor(QColorDialog.getColor()))
     
     homeToolbar.addActions([cut, copy])
@@ -229,7 +229,7 @@ def build_toolbar(editor):
     
     homeToolbar.addSeparator()
     
-    toolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor, paperColor, bullet])
+    homeToolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor, paperColor, bullet])
 
 
     # numbering menu start
