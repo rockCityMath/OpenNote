@@ -75,6 +75,11 @@ def build_ui(editor):
     #add functionality e.g. addSectionButton.clcicked.connect(editor.add_section_function)
     leftSideLayout.addWidget(addSectionButton)
 
+    #Saves window size 
+    #editor.restoreGeometry(editor.settings.value("geometry", editor.saveGeometry()))
+    #editor.restoreState(editor.settings.value("windowState", editor.saveState()))
+
+
 def check_appearance():
     """Checks DARK/LIGHT mode of macos."""
     cmd = 'defaults read -g AppleInterfaceStyle'
