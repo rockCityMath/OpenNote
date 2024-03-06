@@ -1,6 +1,8 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
+from PySide6.QtWidgets import QFileDialog
+
 
 from Modules.Enums import WidgetType
 
@@ -38,7 +40,7 @@ class ImageWidget(QLabel):
 
         self.persistantGeometry = newGeometry
 
-    @staticmethod
+    '''@staticmethod
     def new(clickPos):
 
         # Get path from user
@@ -54,6 +56,31 @@ class ImageWidget(QLabel):
         image = ImageWidget(clickPos.x(), clickPos.y(), w, h, image_matrix) # Note: the editorframe will apply pos based on event
 
         return image
+    '''
+    # uses inbuilt qt file dialog 
+    @staticmethod
+    def new(clickPos):
+        # Create a dummy parent widget for the file dialog
+        dummy_parent = QWidget()
+
+        # Get path from user
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog  # Use Qt's built-in dialog instead of the native platform dialog
+        path, _ = QFileDialog.getOpenFileName(dummy_parent, 'Add Image', '', 'Images (*.png *.xpm *.jpg *.bmp *.jpeg);;All Files (*)', options=options)
+        
+        # Check if the user selected a file
+        if path:
+            # Get image size
+            image_matrix = cv2.imread(path)
+            h, w, _ = image_matrix.shape
+
+            # Create image and add to notebook
+            image = ImageWidget(clickPos.x(), clickPos.y(), w, h, image_matrix)
+            return image
+
+        # Return None or handle the case where the user cancels the dialog
+        return None
+
 
     @staticmethod # Special staticmethod that screensnip uses
     def newFromMatrix(clickPos, imageMatrix):

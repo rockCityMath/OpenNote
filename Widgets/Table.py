@@ -50,12 +50,19 @@ class TableWidget(QWidget):
             
         return table_widget
 
+    # override contextmenuevent
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        menu = QMenu(self)
+        menu.addActions(self.customMenuItems())
+        menu.exec_(event.globalPos())
+
     def customMenuItems(self):
         addRow = QAction("Add Row", self)
         addRow.triggered.connect(self.addRow)
 
         addCol = QAction("Add Column", self)
-        addCol.triggered.connect(self.addCol)  
+        addCol.triggered.connect(self.addCol)
+          
 
         return [addRow, addCol]
 
@@ -96,11 +103,10 @@ def show_table_popup(self):
 class TablePopupWindow(QDialog):
     def __init__(self):
         super().__init__()
-        '''self.setWindowTitle("Popup Window")
-        layout = QVBoxLayout()
-        label = QLabel("This is a popup window.")
-        layout.addWidget(label)
-        self.setLayout(layout)'''
+
+        # to stay on top of application
+        self.setWindowFlag(Qt.WindowStaysOnTopHint)
+        
         self.setWindowTitle("Table Configuration")
         self.layout = QVBoxLayout()
 
@@ -123,6 +129,8 @@ class TablePopupWindow(QDialog):
         
 
         self.setLayout(self.layout)
+
+        self.setModal(False)
     
     def get_table_data(self):
         rows_input = self.rows_input.text()
@@ -131,6 +139,8 @@ class TablePopupWindow(QDialog):
 
     def create_table(self):
         print("table")
-        #row_num = int(self.rows_input.text())
-        #col_num = int(self.cols_input.text())
-        #self.EditorFrameView.add_table_action(row_num, col_num)
+
+    def mousePressEvent(self, event):
+        # Check if the mouse click is outside the dialog
+        if event.button() == Qt.LeftButton and not self.rect().contains(event.globalPos()):
+            self.close()
