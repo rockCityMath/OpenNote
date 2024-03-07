@@ -1,6 +1,8 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
+from PySide6.QtWidgets import QFileDialog
+
 
 from Modules.Enums import WidgetType
 
@@ -22,7 +24,7 @@ class ImageWidget(QLabel):
         self.setPixmap(self.q_pixmap.scaled(w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)) # Scale to widget geometry
 
         self.setGeometry(x, y, w, h) # this should get fixed
-        self.persistantGeometry = self.geometry()
+        self.persistantGeometry = self.geometry() 
 
     # Handle resize
     def newGeometryEvent(self, newGeometry):
@@ -38,22 +40,30 @@ class ImageWidget(QLabel):
 
         self.persistantGeometry = newGeometry
 
+    # uses inbuilt qt file dialog 
     @staticmethod
     def new(clickPos):
+        # Create a dummy parent widget for the file dialog
+        dummy_parent = QWidget()
 
         # Get path from user
-        path, _ = QFileDialog.getOpenFileName(QWidget(), 'Add Image')
-        if path == "": return
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog  # Use Qt's built-in dialog instead of the native platform dialog
+        path, _ = QFileDialog.getOpenFileName(dummy_parent, 'Add Image', '', 'Images (*.png *.xpm *.jpg *.bmp *.jpeg);;All Files (*)', options=options)
+        
+        # Check if the user selected a file
+        if path:
+            # Get image size
+            image_matrix = cv2.imread(path)
+            h, w, _ = image_matrix.shape
 
-        # Get image size
-        image_matrix = cv2.imread(path)
-        h, w, _ = image_matrix.shape
+            # Create image and add to notebook
+            image = ImageWidget(clickPos.x(), clickPos.y(), w, h, image_matrix)
+            return image
 
-        # Create image and add to notebook
-        h, w, _ = image_matrix.shape
-        image = ImageWidget(clickPos.x(), clickPos.y(), w, h, image_matrix) # Note: the editorframe will apply pos based on event
+        # Return None or handle the case where the user cancels the dialog
+        return None
 
-        return image
 
     @staticmethod # Special staticmethod that screensnip uses
     def newFromMatrix(clickPos, imageMatrix):
@@ -72,46 +82,7 @@ class ImageWidget(QLabel):
         self.__init__(state['geometry'].x(), state['geometry'].y(), state['geometry'].width(), state['geometry'].height(), state['image_matrix'])
 
     # not necessary to have a top toolbar for image
-    '''
-    def customMenuItems(self):
-        def build_action(parent, icon_path, action_name, set_status_tip, set_checkable):
-            action = QAction(QIcon(icon_path), action_name, parent)
-            action.setStatusTip(set_status_tip)
-            action.setCheckable(set_checkable)
-            return action
-
-
-        toolbarBottom = QToolBar()
-        toolbarBottom.setIconSize(QSize(16, 16))
-        toolbarBottom.setMovable(False)
-
-        #crop = build_action(toolbarTop, './Assets/icons/svg_crop', "Crop", "Crop", False)
-        
-        flipHorizontal = build_action(toolbarBottom, './Assets/icons/svg_flip_horizontal', "Horizontal Flip", "Horizontal Flip", False)
-        flipHorizontal.triggered.connect(self.flipHorizontal)
-        flipVertical = build_action(toolbarBottom, './Assets/icons/svg_flip_vertical', "Vertical Flip", "Vertical Flip", False)
-        flipVertical.triggered.connect(self.flipVertical)
-
-        rotateLeftAction = build_action(toolbarBottom, './Assets/icons/svg_rotate_left', "Rotate 90 degrees Left", "Rotate 90 degrees Left", False)
-        rotateLeftAction.triggered.connect(self.rotate90Left)
-        rotateRightAction = build_action(toolbarBottom, './Assets/icons/svg_rotate_right', "Rotate 90 degrees Right", "Rotate 90 degrees Right", False)
-        
-        rotateRightAction.triggered.connect(self.rotate90Right)
-
-        shrinkImageAction = build_action(toolbarBottom, 'Assets/icons/svg_shrink', "Shrink", "Shrink", False)
-
-        shrinkImageAction.triggered.connect(self.shrinkImage)
-        expandImageAction = build_action(toolbarBottom, 'Assets/icons/svg_expand', "Expand", "Expand", False)
-        expandImageAction.triggered.connect(self.expandImage)
-
-
-        toolbarBottom.addActions([rotateLeftAction, rotateRightAction, flipHorizontal, flipVertical, shrinkImageAction, expandImageAction])
-
-        qwaBottom = QWidgetAction(self)
-        qwaBottom.setDefaultWidget(toolbarBottom)
-
-        return [qwaBottom] 
-    '''        
+     
     def flipVertical(self):
         # Flip the image matrix vertically using OpenCV
         parent_widget = self.parentWidget()
@@ -172,7 +143,7 @@ class ImageWidget(QLabel):
             newX, newY = parent_widget.x(), parent_widget.y()
             new_width, new_height = self.w, self.h
             parent_widget.setGeometry(newX, newY, new_width, new_height)
-        self.updateImageSize()
+        self.setPixmap(self.q_pixmap.scaled(self.w, self.h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
 
     def expandImage(self):
         # Increase image size by 10%
@@ -183,8 +154,9 @@ class ImageWidget(QLabel):
             newX, newY = parent_widget.x(), parent_widget.y()
             new_width, new_height = self.w, self.h
             parent_widget.setGeometry(newX, newY, new_width, new_height)
-        self.updateImageSize()
+        self.setPixmap(self.q_pixmap.scaled(self.w, self.h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
 
+    # Updates display. Note: Keeps Aspect Ratio
     def updateImageSize(self):
         # Update the displayed pixmap with the new size
         self.setPixmap(self.q_pixmap.scaled(self.w, self.h, Qt.KeepAspectRatio, Qt.SmoothTransformation))

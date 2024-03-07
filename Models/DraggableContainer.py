@@ -1,5 +1,6 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import *
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import *
 from Modules.Enums import *
 from Modules.EditorSignals import editorSignalsInstance, ChangedWidgetAttribute
@@ -355,6 +356,8 @@ class DraggableContainer(QWidget):
                 toMove = e.globalPos() - self.position
                 self.resize(e.x(), self.geometry().height() - newheight)
                 self.move(self.x(), toMove.y())
+                '''if hasattr(self.childWidget, "newGeometryEvent"): 
+                    self.newGeometry.connect(self.childWidget.newGeometryEvent)'''
             elif self.mode== Mode.RESIZEBL: # Left - Bottom
                 newwidth = e.globalX() - self.position.x() - self.geometry().x()
                 toMove = e.globalPos() - self.position
@@ -377,7 +380,7 @@ class DraggableContainer(QWidget):
             elif self.mode == Mode.RESIZEBR:# Right - Bottom
                 #if child is a image, resize differently
                 if isinstance(child_widget, QLabel):
-                    #change this to where resizing corners works like onenote
+                    # change this
                     self.resize(e.x(), e.y())
                 else:
                     self.resize(e.x(), e.y())
@@ -471,7 +474,20 @@ class DraggableContainer(QWidget):
         self.resize(self.childWidget.size())
         self.newGeometry.emit(self.geometry())
         self.parentWidget().repaint()
-        
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key_Shift:
+            print("SHIFT PRESSED")
+            self.shift_pressed = True
+        else:
+            super().keyPressEvent(event)
+    def keyReleaseEvent(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key_Shift:
+            print("SHIFT RELEASED")
+            self.shift_pressed = False
+        else:
+            super().keyReleaseEvent(event)
+
     def pasteWidget(self, clickPos):
         widgetOnClipboard = self.clipboard.getWidgetToPaste()
 
@@ -481,3 +497,4 @@ class DraggableContainer(QWidget):
         editorSignalsInstance.changeMade.emit()
         dc.move(clickPos.x(), clickPos.y())
         dc.show()
+
