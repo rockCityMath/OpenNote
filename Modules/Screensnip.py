@@ -40,7 +40,8 @@ class SnippingWidget(QWidget):
 
     def paintEvent(self, event):
         if SnippingWidget.is_snipping:
-            brush_color = (128, 128, 255, 100)
+            #brush_color = (128, 128, 255, 100)
+            brush_color = (0, 0, 0, 0)
             lw = 3
             opacity = 0.3
 
@@ -71,10 +72,11 @@ class SnippingWidget(QWidget):
     def mouseReleaseEvent(self, event):
         SnippingWidget.is_snipping = False
         QApplication.restoreOverrideCursor()
-        x1 = min(self.begin.x(), self.end.x())
-        y1 = min(self.begin.y(), self.end.y())
-        x2 = max(self.begin.x(), self.end.x())
-        y2 = max(self.begin.y(), self.end.y())
+        rect = self.geometry()
+        x1 = min(self.begin.x(), self.end.x()) + rect.left()
+        y1 = min(self.begin.y(), self.end.y()) + rect.top()
+        x2 = max(self.begin.x(), self.end.x()) + rect.left()
+        y2 = max(self.begin.y(), self.end.y()) + rect.top()
 
         self.repaint()
         QApplication.processEvents()
@@ -83,7 +85,7 @@ class SnippingWidget(QWidget):
             if platform == "darwin":
                 img = ImageGrab.grab(bbox=( (x1 ) * 2, (y1 + 55 ) * 2, (x2 ) * 2, (y2 + 55) * 2))
             else:
-                img = ImageGrab.grab(bbox=(x1 + 10, y1 + 30, x2 + 10, y2 + 40))
+                img = ImageGrab.grab(bbox=(x1 + 2, y1 + 2, x2 - 1, y2 - 1))
         except Exception as e:
             print(f"Error grabbing screenshot: {e}")
             img = None

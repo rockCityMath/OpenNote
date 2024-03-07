@@ -19,6 +19,11 @@ class ChangedWidgetAttribute(Enum):
 
     BulletUR = 11
     BulletUA = 12
+    AlignLeft = 13
+    AlignCenter = 14
+    AlignRight = 15
+    PaperColor = 16
+
 
 # Cant be statically typed because importing the classes causes circular imports
 
@@ -32,7 +37,7 @@ class EditorSignals(QObject):
     widgetRemoved = Signal(object)
     widgetCopied = Signal(object)
     widgetCut = Signal(object)
-
+    
     # Recieves any widget model, and the section model to add the instance of DraggableContainer to
     widgetShouldLoad = Signal(object, object)
 

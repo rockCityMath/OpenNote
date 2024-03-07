@@ -3,6 +3,8 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from Modules.EditorSignals import editorSignalsInstance
 
+import subprocess
+
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 
 
@@ -10,14 +12,31 @@ class TextboxWidget(QTextBrowser):
     def __init__(self, x, y, w=15, h=30, t=""):
         super().__init__()
 
+        def check_appearance():
+            """Checks DARK/LIGHT mode of macos."""
+            cmd = 'defaults read -g AppleInterfaceStyle'
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, shell=True)
+            return bool(p.communicate()[0])   
+
         self.setGeometry(x, y, w, h)  # This sets geometry of DraggableObject
         self.setText(t)
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.textChanged.connect(self.textChangedEvent)
-        self.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
-        self.setTextColor("black")
+
+        if check_appearance() == True:
+            self.setStyleSheet("background-color: rgba(31,31,30,255);")
+            #self.changeBackgroundColorEvent(31, 31, 30)
+            self.setTextColor("white")
+            self.changeAllTextColors("white")
+
+        else:
+            self.setStyleSheet("background-color: rgba(0, 0, 0, 0);")
+            #self.changeBackgroundColorEvent(0,0,0)
+            self.setTextColor("black")
+            self.changeAllTextColors("black")
 
         self.setTextInteractionFlags(Qt.TextEditorInteraction | Qt.TextBrowserInteraction)
 
@@ -75,14 +94,15 @@ class TextboxWidget(QTextBrowser):
             return action
 
         toolbarTop = QToolBar()
-        toolbarTop.setIconSize(QSize(25, 25))
+        toolbarTop.setIconSize(QSize(16, 16))
         toolbarTop.setMovable(False)
 
         toolbarBottom = QToolBar()
-        toolbarBottom.setIconSize(QSize(25, 25))
+        toolbarBottom.setIconSize(QSize(16, 16))
         toolbarBottom.setMovable(False)
 
         font = QFontComboBox()
+        font.setFixedWidth(150) 
         font.currentFontChanged.connect(
             lambda x: self.setCurrentFontCustom(
                 font.currentFont() if x else self.currentFont()
@@ -90,38 +110,21 @@ class TextboxWidget(QTextBrowser):
         )
 
         size = QComboBox()
+        size.setFixedWidth(50)
         size.addItems([str(fs) for fs in FONT_SIZES])
         size.currentIndexChanged.connect(
             lambda x: self.setFontPointSizeCustom(
                 FONT_SIZES[x] if x else self.fontPointSize()
             )
         )
-
-        align_left = build_action(
-            toolbarBottom,
-            "./Assets/icons/svg_align_left",
-            "Align Left",
-            "Align Left",
-            True,
-        )
+        
+        align_left = build_action(toolbarBottom, "./Assets/icons/svg_align_left", "Align Left", "Align Left", False)
         align_left.triggered.connect(lambda x: self.setAlignment(Qt.AlignLeft))
 
-        align_center = build_action(
-            toolbarBottom,
-            "./Assets/icons/svg_align_center",
-            "Align Center",
-            "Align Center",
-            True,
-        )
+        align_center = build_action(toolbarBottom, "./Assets/icons/svg_align_center", "Align Center", "Align Center", False)
         align_center.triggered.connect(lambda x: self.setAlignment(Qt.AlignCenter))
 
-        align_right = build_action(
-            toolbarBottom,
-            "./Assets/icons/svg_align_right",
-            "Align Right",
-            "Align Right",
-            True,
-        )
+        align_right = build_action(toolbarBottom, "./Assets/icons/svg_align_right", "Align Right", "Align Right", False)
         align_right.triggered.connect(lambda x: self.setAlignment(Qt.AlignRight))
 
         bold = build_action(
@@ -170,8 +173,8 @@ class TextboxWidget(QTextBrowser):
         textHighlightColor = build_action(
             toolbarBottom,
             "./Assets/icons/svg_textHighlightColor",
-            "Background Color",
-            "Background Color",
+            "Text Highlight Color",
+            "Text Highlight Color",
             False,
         )
         textHighlightColor.triggered.connect(
@@ -183,51 +186,52 @@ class TextboxWidget(QTextBrowser):
         )
         bullets.toggled.connect(lambda: self.bullet_list("bulletReg"))
 
-        bullets_num = build_action(
-            toolbarBottom,
-            "./Assets/icons/svg_bullet_number",
-            "Bullets Num",
-            "Bullets Num",
-            True,
-        )
-        bullets_num.toggled.connect(lambda: self.bullet_list("bulletNum"))
-
-
         toolbarTop.addWidget(font)
         toolbarTop.addWidget(size)
 
         toolbarBottom.addActions(
-            [
-                align_left,
-                align_center,
-                align_right,
+            [              
                 bold,
                 italic,
                 underline,
-                fontColor, 
                 textHighlightColor,
-                bgColor,
-                bullets,
-                bullets_num,
-            ]
+                fontColor, 
+                bullets
+             ]
         )
+        
+        # numbering menu has to be added inbetween
+        numbering_menu = QMenu(self)
+        bullets_num = numbering_menu.addAction(QIcon("./Assets/icons/svg_bullet_number"), "")
+        bulletUpperA = numbering_menu.addAction(QIcon("./Assets/icons/svg_bulletUA"), "")
+        bulletUpperR = numbering_menu.addAction(QIcon("./Assets/icons/svg_bulletUR"), "")
 
-        menu = QMenu(self)
-        bulletUpperA = menu.addAction(QIcon("./Assets/icons/svg_bulletUA"), "")
-        bulletUpperR = menu.addAction(QIcon("./Assets/icons/svg_bulletUR"), "")
-
+        bullets_num.triggered.connect(lambda: self.bullet_list("bulletNum"))
         bulletUpperA.triggered.connect(lambda: self.bullet_list("bulletUpperA"))
         bulletUpperR.triggered.connect(lambda: self.bullet_list("bulletUpperR"))
 
 
-        menu_button = QToolButton(self)
-        menu_button.setPopupMode(QToolButton.InstantPopup)
-        menu_button.setIcon(QIcon("./Assets/icons/svg_bullets"))
+        numbering = QToolButton(self)
+        numbering.setIcon(QIcon("./Assets/icons/svg_bullet_number"))
+        numbering.setPopupMode(QToolButton.MenuButtonPopup)
+        numbering.setMenu(numbering_menu)
+        
+	# This code would fix an error on the command line but it also makes it not look good soooo
+        numbering.setParent(numbering_menu)
+        
+        toolbarBottom.addWidget(numbering)
 
-        menu_button.setMenu(menu)
-
-        toolbarBottom.addWidget(menu_button)
-
+        # not required for right-click menu as they arent originally present in OneNote
+        '''
+        toolbarBottom.addActions(
+            [  
+                bgColor,
+                align_left,
+                align_center,
+                align_right
+            ]
+        )
+        '''
         qwaTop = QWidgetAction(self)
         qwaTop.setDefaultWidget(toolbarTop)
         qwaBottom = QWidgetAction(self)
@@ -284,16 +288,6 @@ class TextboxWidget(QTextBrowser):
         cursor.clearSelection()
         self.setTextCursor(cursor)
         return True
-
-    def attributeChangedSlot(attribute, value):
-        if attribute == editorSignalsInstance.ChangedWidgetAttribute.FontBold:
-            print("Font Bold Signal")
-
-    def slot_action2(self):
-        print("Action 2 Triggered")
-        font = QFont()
-        font.setItalic(True)
-        self.setFont(font)
 
     def changeFontSizeEvent(self, weight):
         print("changeFontSizeEvent Called")
@@ -397,6 +391,21 @@ class TextboxWidget(QTextBrowser):
 
             self.setTextCursor(cursor)
             self.setFocus()
+    def changeAlignmentEvent(self, alignmentType):
+        print("Alignment Event Called")
+        cursor = self.textCursor()
+        blockFormat = cursor.blockFormat()
+        
+        if alignmentType == "alignLeft":
+            blockFormat.setAlignment(Qt.AlignLeft)
+        elif alignmentType == "alignCenter":
+            blockFormat.setAlignment(Qt.AlignCenter)
+        elif alignmentType == "alignRight":
+            blockFormat.setAlignment(Qt.AlignRight)
+            
+        cursor.setBlockFormat(blockFormat)
+        self.setTextCursor(cursor)
+        self.setFocus()
 
     def handleTabKey(self):
         cursor = self.textCursor()
@@ -523,14 +532,17 @@ class TextboxWidget(QTextBrowser):
         # self.setTextCursor(cursor)
 
     # Changes color of whole background
+
     def changeBackgroundColorEvent(self, color: QColor):
         print("CHANGE BACKGROUND COLOR EVENT")
+        
         if color.isValid():
             rgb = color.getRgb()
-            self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
+            self.setStyleSheet(f"QTextBrowser {{background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]}); }}")
         else:
-            print("INVALID COLOR")
-            #self.setStyleSheet("background-color: transparent;")
+            rgb = (color, g, b)
+
+        self.setStyleSheet(f"background-color: rgb({rgb[0]}, {rgb[1]}, {rgb[2]});")
         self.deselectText()
 
     # Changes textbox background color
@@ -557,3 +569,18 @@ class TextboxWidget(QTextBrowser):
     def changeBulletEvent(self):
         # put bullet function here
         print("bullet press")
+
+    def changeAllTextColors(self, new_color):
+                cursor = self.textCursor()
+                cursor.movePosition(QTextCursor.Start)
+
+                while not cursor.atEnd():
+                    cursor.movePosition(QTextCursor.NextCharacter, QTextCursor.KeepAnchor)
+                    char_format = cursor.charFormat()
+
+                    if char_format.foreground().color() == Qt.black or Qt.white:
+                        char_format.setForeground(QColor(new_color))
+                        cursor.setCharFormat(char_format)
+
+                cursor.movePosition(QTextCursor.Start)
+                self.setTextCursor(cursor)
