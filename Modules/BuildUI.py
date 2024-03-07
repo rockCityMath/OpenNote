@@ -217,6 +217,9 @@ def build_toolbar(editor):
 
     underline = build_action(homeToolbar, './Assets/icons/underline.svg', "Underline", "Underline", True)
     underline.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.FontUnderline, None))
+
+    strikethrough = build_action(homeToolbar, './Assets/icons/svg_strikethrough.svg', "Strikethrough", "Strikethrough", True)
+    strikethrough.toggled.connect(lambda: editorSignalsInstance.widgetAttributeChanged.emit(ChangedWidgetAttribute.Strikethrough, None))
     
     # Bullets with placeholder for more bullet options
     bullet = build_action(homeToolbar, './Assets/icons/svg_bullets', "Bullets", "Bullets", False)
@@ -234,7 +237,7 @@ def build_toolbar(editor):
     
     homeToolbar.addSeparator()
     
-    homeToolbar.addActions([bold, italic, underline, fontColor, textHighlightColor, bgColor, paperColor, bullet])
+    homeToolbar.addActions([bold, italic, underline, strikethrough, fontColor, textHighlightColor, bgColor, paperColor, bullet])
 
 
     # numbering menu start
