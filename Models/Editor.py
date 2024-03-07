@@ -18,7 +18,7 @@ from Views.SectionView import SectionView
 class Editor(QMainWindow):
     def __init__(self):
         super().__init__()
-        # self.setWindowFlag(Qt.FramelessWindowHint)
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.notebook = NotebookModel('Untitled Notebook')    # Current notebook object
         # self.selected = None                                  # Selected object (for font attributes of TextBox)
 
@@ -34,3 +34,30 @@ class Editor(QMainWindow):
         build_ui(self)
     # def focusInEvent(self, event):
     #     self.repaint()
+        
+    def changeEvent(self, event):
+        if event.type() == QEvent.Type.WindowStateChange:
+            self.titlebar.window_state_changed(self.windowState())
+        super().changeEvent(event)
+        event.accept()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.initial_pos = event.position().toPoint()
+        super().mousePressEvent(event)
+        event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self.initial_pos is not None:
+            delta = event.position().toPoint() - self.initial_pos
+            self.window().move(
+                self.window().x() + delta.x(),
+                self.window().y() + delta.y(),
+            )
+        super().mouseMoveEvent(event)
+        event.accept()
+
+    def mouseReleaseEvent(self, event):
+        self.initial_pos = None
+        super().mouseReleaseEvent(event)
+        event.accept()    

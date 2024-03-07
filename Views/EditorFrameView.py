@@ -205,7 +205,7 @@ class EditorFrameView(QWidget):
         # Open context menu on right click
         if event.buttons() == Qt.RightButton:
             frame_menu = QMenu(self)
-            frame_menu.setStyleSheet("font-size: 11pt;")
+            # frame_menu.setStyleSheet("font-size: 11pt;")
 
             paste = QAction("Paste", editor)
             paste.triggered.connect(lambda: self.pasteWidget(event.pos()))
