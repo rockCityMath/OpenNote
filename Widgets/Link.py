@@ -30,10 +30,15 @@ class LinkDialog(QDialog):
 
         self.setLayout(layout)
 
+        self.setModal(False)
+
     def get_link_data(self):
         link_address = self.link_textbox.text()
         display_text = self.display_textbox.text()
         return link_address, display_text
-
+    def mousePressEvent(self, event):
+        # Check if the mouse click is outside the dialog
+        if event.button() == Qt.LeftButton and not self.rect().contains(event.globalPos()):
+            self.close()
 
 
